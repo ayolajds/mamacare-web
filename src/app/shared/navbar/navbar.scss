@@ -1,0 +1,211 @@
+@use "sass:color";
+
+/* Paleta */
+$rosa: #f7d3e1;
+$rosa-strong: #e15886;
+$lavanda: #ece9ff;
+$texto: #2a2a2a;
+
+/* Breakpoints */
+$bp-md: 768px; // tablet
+$bp-lg: 1024px; // desktop
+
+/* Ajuste posición caret */
+$menu-align-offset: 0.5rem;
+
+/* ===== NAVBAR BASE ===== */
+.navbar {
+  background: $rosa;
+  border-bottom: 1px solid color.adjust($rosa-strong, $lightness: 35%);
+  box-shadow: 0 1px 6px rgba(0,0,0,.06);
+  font-family: 'Sour Gummy', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  position: relative;
+  z-index: 100;
+
+  &__container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: .5rem .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    text-decoration: none;
+  }
+
+  &__logo-img {
+    height: 44px; width: 44px; border-radius: 50%; object-fit: cover;
+    box-shadow: 0 0 0 3px rgba(255,255,255,.6);
+  }
+
+  &__brand-name {
+    font-size: 1.2rem; font-weight: 900; letter-spacing: .2px;
+    color: color.adjust($rosa-strong, $lightness: -5%);
+  }
+
+  /* Reset listas */
+  ul, li { list-style: none; margin: 0; padding: 0; }
+}
+
+/* ===== BOTÓN HAMBURGUESA ===== */
+.navbar__burger {
+  display: inline-flex; flex-direction: column; gap: 4px;
+  background: transparent; border: 0; cursor: pointer; padding: .35rem;
+  span { display: block; width: 22px; height: 2px; background: $texto; border-radius: 2px; }
+  @media (min-width: $bp-lg) { display: none; }
+}
+
+/* ===== MENÚ DESKTOP ===== */
+.navbar__menu--desktop { display: none; @media (min-width: $bp-lg) { display: flex; } }
+.navbar__actions--desktop { display: none; @media (min-width: $bp-lg) { display: flex; align-items: center; gap: .6rem; } }
+
+.navbar__menu {
+  align-items: center; gap: 1.6rem;
+
+  li { position: relative; }
+
+  a {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-weight: 800; font-style: italic; font-size: .95rem; line-height: 1.1;
+    color: $texto; text-decoration: none; border-radius: 8px;
+    padding: .35rem .5rem; padding-left: $menu-align-offset;
+    transition: color .18s ease;
+    &:hover { color: $rosa-strong; }
+    &.is-active { color: $rosa-strong; }
+  }
+
+  .caret { font-size: .85em; transform: translateY(1px); }
+}
+
+.navbar__dropdown { position: relative; }
+
+/* “Puente” invisible para no cerrar al mover el mouse */
+.navbar__dropdown::after {
+  content: ''; position: absolute; top: 100%; left: 0; width: 100%; height: 10px; background: transparent;
+}
+
+.navbar__dropdown-menu {
+  position: absolute; top: calc(100% + .45rem); left: $menu-align-offset;
+  background: #fff; border-radius: 12px; padding: .6rem; min-width: 240px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.14);
+  opacity: 0; pointer-events: none; transform: translateY(8px);
+  transition: opacity .18s ease, transform .18s ease; z-index: 1000;
+
+  &::before {
+    content: ""; position: absolute; top: -8px; left: calc(#{$menu-align-offset} + 16px);
+    width: 14px; height: 14px; background: #fff;
+    clip-path: polygon(50% 0, 0 100%, 100% 100%);
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,.06));
+  }
+
+  &.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+  li a {
+    display: block; font-weight: 800; font-style: italic; font-size: .95rem;
+    line-height: 1.25; padding: .5rem .75rem; border-radius: 8px; color: $texto;
+    transition: background-color .18s ease, color .18s ease;
+    &:hover { background: $lavanda; color: $rosa-strong; }
+    &.is-active { background: $lavanda; color: $rosa-strong; }
+  }
+}
+
+/* Botón login */
+.btn.btn--secondary {
+  border: 2px solid $rosa-strong; color: $rosa-strong; font-weight: 900; font-size: .95rem;
+  padding: .45rem .9rem; border-radius: 12px; text-decoration: none;
+  transition: background-color .18s ease, color .18s ease, box-shadow .18s ease;
+  &:hover { background: $rosa-strong; color: #fff; box-shadow: 0 6px 16px rgba(225,88,134,.28); }
+}
+
+/* ===== IDIOMA DESKTOP ===== */
+.lang { position: relative; }
+.lang__btn {
+  display: inline-flex; align-items: center; gap: .35rem; background: transparent; border: 0; cursor: pointer;
+  padding: .35rem .45rem; border-radius: 8px; color: $texto; font-weight: 800; font-style: italic;
+  &:hover { color: $rosa-strong; }
+}
+.lang__icon { font-size: 1rem; line-height: 1; }
+.lang__menu {
+  position: absolute; right: 0; top: calc(100% + .4rem); background: #fff; border-radius: 12px; padding: .4rem; min-width: 130px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.14); opacity: 0; transform: translateY(6px);
+  pointer-events: none; transition: opacity .18s ease, transform .18s ease; z-index: 1000;
+  &.is-open { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  li a { display: block; padding: .45rem .6rem; border-radius: 8px; color: $texto; text-decoration: none; font-weight: 800; font-style: italic; font-size: .92rem;
+    &:hover { background: $lavanda; color: $rosa-strong; } }
+}
+
+/* ===== PANEL MÓVIL ===== */
+.mobile__backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.2);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  z-index: 90;
+  &.is-open { opacity: 1; pointer-events: auto; }
+}
+
+.mobile {
+  position: fixed; top: 0; right: 0; height: 100dvh; width: min(86vw, 340px);
+  background: #fff; box-shadow: -16px 0 28px rgba(0,0,0,.18);
+  transform: translateX(100%); transition: transform .24s ease;
+  z-index: 120; display: flex; flex-direction: column;
+
+  &.is-open { transform: translateX(0); }
+
+  @media (min-width: $bp-lg) { display: none; } /* solo móvil */
+
+  &__header {
+    display: flex; align-items: center; justify-content: space-between; padding: .9rem .9rem .3rem;
+    border-bottom: 1px solid #eee;
+  }
+  &__title { font-weight: 900; color: $texto; }
+  &__close { background: transparent; border: 0; font-size: 1.1rem; cursor: pointer; }
+
+  &__menu {
+    padding: .5rem .4rem 1rem .4rem; display: flex; flex-direction: column; gap: .25rem;
+
+    > li > a {
+      display: block; padding: .75rem .75rem; border-radius: 10px; text-decoration: none; color: $texto;
+      font-weight: 800; font-style: italic; transition: background-color .16s ease, color .16s ease;
+      &:hover { background: $lavanda; color: $rosa-strong; }
+    }
+  }
+
+  &__accordion { margin-top: .15rem; }
+  &__accordion-btn {
+    width: 100%; text-align: left; background: transparent; border: 0; cursor: pointer; padding: .75rem .75rem;
+    border-radius: 10px; color: $texto; font-weight: 900; font-style: italic; display: flex; align-items: center; justify-content: space-between;
+    &:hover { background: $lavanda; color: $rosa-strong; }
+  }
+  &__submenu {
+    max-height: 0; overflow: hidden; transition: max-height .22s ease;
+    margin: 0 .35rem; border-left: 2px solid $lavanda; border-radius: 8px;
+    &.is-open { max-height: 400px; }
+    li a {
+      display: block; padding: .6rem .75rem; margin: .15rem 0; border-radius: 8px; color: $texto; text-decoration: none; font-weight: 700; font-style: italic;
+      &:hover { background: $lavanda; color: $rosa-strong; }
+    }
+  }
+
+  &__login { padding: .5rem .35rem; }
+  &__lang {
+    margin-top: .35rem; padding: .35rem .35rem .7rem;
+    .mobile__lang-row { display: flex; align-items: center; justify-content: space-between; padding: .5rem .4rem; color: $texto; font-weight: 800; }
+    .mobile__lang-actions { display: flex; gap: .5rem; padding: 0 .4rem;
+      button {
+        border: 2px solid $rosa-strong; background: transparent; color: $rosa-strong; border-radius: 10px;
+        padding: .4rem .75rem; font-weight: 900; cursor: pointer; transition: background .16s ease, color .16s ease;
+        &.is-active, &:hover { background: $rosa-strong; color: #fff; }
+      }
+    }
+  }
+}
+
+/* Mostrar acciones y menú de escritorio solo en >= lg */
+@media (min-width: $bp-lg) {
+  .navbar__actions--desktop { display: flex; }
+}

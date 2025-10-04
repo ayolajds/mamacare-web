@@ -1,0 +1,218 @@
+<!-- ===== HERO (carrusel automático, sin puntos) ===== -->
+<section class="hero-carousel" role="region" aria-label="Presentación MamaCare">
+  <div class="carousel">
+    <!-- SOLO imágenes + overlay; SIN contenido por slide -->
+    <div
+      class="slide"
+      *ngFor="let s of slides; let i = index"
+      [class.active]="i === currentSlide"
+      [attr.aria-hidden]="i === currentSlide ? 'false' : 'true'"
+      [attr.inert]="i === currentSlide ? null : ''"
+    >
+      <img
+        [src]="s.image"
+        [alt]="s.alt"
+        loading="lazy"
+        decoding="async"
+        [attr.fetchpriority]="i === currentSlide ? 'high' : null"
+      />
+      <div class="overlay"></div>
+    </div>
+
+    <!-- CONTENIDO FIJO (título, subtítulo y CTAs) -->
+    <div class="content content--fixed" aria-live="polite">
+      <h1 class="title">{{ slides[currentSlide].title }}</h1>
+      <p class="subtitle">{{ slides[currentSlide].subtitle }}</p>
+
+      <div class="actions">
+        <a
+          class="btn btn--primary"
+          [routerLink]="primaryCta.link"
+          [attr.aria-label]="primaryCta.label"
+        >
+          {{ primaryCta.label }}
+        </a>
+        <a
+          class="btn btn--ghost"
+          [routerLink]="secondaryCta.link"
+          [attr.aria-label]="secondaryCta.label"
+        >
+          {{ secondaryCta.label }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <svg class="hero__wave" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,40 C240,120 480,0 720,60 C960,120 1200,40 1440,80 L1440,120 L0,120 Z"></path>
+  </svg>
+</section>
+
+<!-- ===== CÓMO TE AYUDAMOS (pilares con paleta) ===== -->
+<section class="section container">
+  <header class="head">
+    <h2>Cómo te ayudamos</h2>
+    <p class="lead">Información confiable, apoyo profesional y comunidad para que no camines sola.</p>
+  </header>
+
+  <div class="pillars">
+    <article class="pillar" *ngFor="let p of pilares; let i = index" [ngClass]="'scheme-'+(i % 4)">
+      <div class="icon-wrap">
+        <!-- Usa el HTML sanitizado -->
+        <div class="icn" [innerHTML]="p.iconSafe" aria-hidden="true"></div>
+      </div>
+      <div class="pillar__text">
+        <h3>{{ p.title }}</h3>
+        <p>{{ p.desc }}</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===== CÓMO TE ACOMPAÑAMOS (método 3 pasos) ===== -->
+<section class="section alt">
+  <div class="container">
+    <header class="head">
+      <h2>¿Cómo te acompañamos?</h2>
+      <p class="lead">Metodología clínico-humanista basada en evidencia.</p>
+    </header>
+
+    <div class="steps">
+      <article class="step" *ngFor="let s of pasos">
+        <h3><span class="badge">{{ s.n }}</span> {{ s.t }}</h3>
+        <p>{{ s.d }}</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HISTORIAS (tarjetas cálidas) ===== -->
+<section class="section stories">
+  <div class="container">
+    <header class="head">
+      <h2>Historias que inspiran</h2>
+      <p class="lead">Voces reales que nos recuerdan que no estás sola.</p>
+    </header>
+
+    <div class="stories__grid">
+      <article
+        class="story"
+        *ngFor="let t of testimonios; let i = index"
+        [ngClass]="'scheme-' + (i % 4)"
+      >
+        <div class="story__top">
+          <div class="avatar" *ngIf="t.img">
+            <img [src]="t.img" [alt]="'Foto de ' + t.nombre" loading="lazy" decoding="async" />
+          </div>
+          <div class="who">
+            <h3 class="name">{{ t.nombre }}</h3>
+            <p class="meta">{{ t.meta }}</p>
+          </div>
+        </div>
+
+        <blockquote class="quote">“{{ t.texto }}”</blockquote>
+
+        <a
+          *ngIf="t.link"
+          class="readmore"
+          [routerLink]="t.link"
+          aria-label="Leer historia completa de {{ t.nombre }}"
+        >
+          Leer historia completa →
+        </a>
+      </article>
+    </div>
+
+    <div class="stories__cta" *ngIf="verMasHistoriasLink">
+      <a [routerLink]="verMasHistoriasLink" class="btn btn--ghost">Ver más historias</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== SERVICIOS PREMIUM ===== -->
+<section class="services-premium">
+  <div class="container">
+    <header class="hero-header">
+      <h2 class="hero-title">Conoce nuestros servicios</h2>
+      <p class="hero-subtitle">Espacios y herramientas para tu cuidado emocional</p>
+    </header>
+
+    <div class="premium-cards">
+      <article class="premium-card" *ngFor="let s of servicios; let i = index" [class]="'premium-card card-style-' + (i + 1)">
+        <div class="card-glow"></div>
+        <div class="card-blob"></div>
+        
+        <div class="card-image-container">
+          <img [src]="s.img" [alt]="s.title" loading="lazy" class="card-image" />
+          <div class="image-overlay"></div>
+        </div>
+
+        <div class="card-content">
+          <div class="text-content">
+            <h3 class="service-title">{{ s.title }}</h3>
+            <p class="service-desc">{{ s.desc }}</p>
+          </div>
+
+          <div class="card-actions">
+            <a [routerLink]="s.link" class="cta-button">
+              <span class="btn-text">Descubrir más</span>
+              <div class="btn-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="btn-shine"></div>
+            </a>
+          </div>
+        </div>
+
+        <div class="card-particles">
+          <div class="particle" *ngFor="let p of [1,2,3,4,5]"></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COMPROMISO / MISIÓN ===== -->
+<section class="section alt">
+  <div class="container comp">
+    <div class="comp__text">
+      <span class="commitment-badge">Compromiso Social</span>
+      <h2>Declaración de compromiso responsable</h2>
+      <p>
+        Promovemos el bienestar integral con enfoque clínico-humanista y prácticas basadas en evidencia,
+        cuidando la dignidad, inclusión y confidencialidad. Nos alineamos con los ODS y trabajamos por
+        el fortalecimiento de la salud mental en Colombia.
+      </p>
+      
+      <ul class="bullets">
+        <li>Ética, privacidad y acompañamiento informado en todos nuestros procesos.</li>
+        <li>Articulación estratégica con aliados y programas de voluntariado especializado.</li>
+        <li>Acceso equitativo a herramientas prácticas y cuidadosas para el bienestar psicológico.</li>
+        <li>Investigación continua para mejorar nuestras intervenciones y servicios.</li>
+      </ul>
+      
+      <div class="highlight-box">
+        <p>Nuestro modelo de atención integra los más altos estándares científicos con una perspectiva humanista que valora la singularidad de cada persona.</p>
+      </div>
+    </div>
+    
+    <div class="comp__img">
+      <img src="ods.png" alt="ODS 3 Salud y Bienestar" loading="lazy" decoding="async" />
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA FINAL ===== -->
+<section class="cta-final">
+  <div class="wrap">
+    <h2>¿Te acompañamos hoy?</h2>
+    <div class="actions">
+      <a routerLink="/agenda" class="btn btn--primary">Agenda tu cita</a>
+      <a routerLink="/recursos" class="btn btn--ghost">Explorar recursos</a>
+      <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn--whatsapp">WhatsApp</a>
+    </div>
+  </div>
+</section>

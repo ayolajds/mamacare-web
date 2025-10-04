@@ -1,0 +1,525 @@
+// Variables de colores
+$primary: #d48ea8;
+$primary-light: #e8b5ce;
+$primary-dark: #b86f8d;
+$secondary: #88c9a1;
+$accent: #b8a1c9;
+$neutral: #f5f0e6;
+$text: #5a4c4c;
+$text-light: #8a7b7b;
+$white: #ffffff;
+
+// Mixins
+@mixin card-shadow {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+@mixin hover-lift {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  }
+}
+
+/* ===== ESTILOS PARA ÍCONOS LUCIDE ===== */
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: -0.125em;
+  color: $white;
+  transition: transform 0.18s ease, color 0.18s ease, opacity 0.18s ease;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+    stroke: currentColor;
+  }
+}
+
+/* Tamaños específicos */
+.card-icon .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: $white;
+}
+
+.value-icon .icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: $white;
+}
+
+.btn .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Hover effects */
+.feature-card:hover .card-icon .icon,
+.value-item:hover .value-icon .icon,
+.btn:hover .icon {
+  transform: translateY(-1px) scale(1.06);
+}
+
+/* ===== ESTILOS GENERALES ===== */
+.quienes-somos {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: $text;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $primary;
+    margin-bottom: 1rem;
+    
+    &::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: $secondary;
+      margin: 1rem auto 0;
+      border-radius: 2px;
+    }
+  }
+  
+  p {
+    font-size: 1.2rem;
+    color: $text-light;
+  }
+}
+
+// Hero Section
+.hero-section {
+  position: relative;
+  height: 70vh;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  overflow: hidden;
+}
+
+// VERSIÓN MINIMALISTA RECOMENDADA
+.hero-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.1)),
+    url('/imagenes/quienes-somos.jpg');
+  background-size: cover;
+  background-position: center;
+  
+  // Fallback
+  background-color: $primary;
+}
+
+.hero-overlay {
+  display: none; // Eliminamos el patrón para más limpieza
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 800px;
+  padding: 0 2rem;
+}
+
+.fundacion-name {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: $white;
+}
+
+.hero-tagline {
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: $white;
+  opacity: 0.95;
+}
+
+.hero-divider {
+  width: 80px;
+  height: 3px;
+  background: $secondary;
+  margin: 0 auto 2rem;
+  border-radius: 2px;
+}
+
+.hero-description {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  opacity: 0.9;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+// Misión y Visión
+.mission-vision-section {
+  padding: 5rem 0;
+  background: $neutral;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: $white;
+  border-radius: 15px;
+  overflow: hidden;
+  @include card-shadow;
+  @include hover-lift;
+}
+
+.card-image {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  
+  &.mission-image {
+    background: 
+      linear-gradient(135deg, rgba($primary, 0.7), rgba($accent, 0.6)),
+      url('/assets/img/mision.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  &.vision-image {
+    background: 
+      linear-gradient(135deg, rgba($secondary, 0.7), rgba($accent, 0.6)),
+      url('/assets/img/vision.jpg');
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease;
+  }
+}
+
+.feature-card:hover .card-image .image-overlay {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.card-content {
+  padding: 2rem;
+  
+  .card-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, $primary-light, $accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: $primary-dark;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: $text;
+    line-height: 1.6;
+  }
+}
+
+// Valores
+.values-section {
+  padding: 5rem 0;
+  background: $white;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.value-item {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  background: $neutral;
+  border-radius: 12px;
+  @include hover-lift;
+  
+  .value-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, $primary, $accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  
+  h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: $primary-dark;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: $text;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+}
+
+// Impacto
+.impact-section {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, $secondary, lighten($secondary, 15%));
+  color: $white;
+}
+
+.impact-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.impact-text {
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.stat {
+  text-align: center;
+  
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .stat-label {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+}
+
+.impact-image {
+  .image-placeholder {
+    height: 300px;
+    background: 
+      linear-gradient(135deg, rgba($white, 0.1), rgba($accent, 0.2)),
+      url('/assets/img/impacto.jpg');
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px;
+    position: relative;
+    
+    // Fallback
+    background-color: $secondary;
+    
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+    }
+  }
+}
+
+// CTA Section
+.cta-section {
+  padding: 5rem 0;
+  background: $primary-light;
+  color: $white;
+  text-align: center;
+}
+
+.cta-content {
+  max-width: 600px;
+  margin: 0 auto;
+  
+  h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.9;
+  }
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  
+  &.btn-primary {
+    background: $white;
+    color: $primary;
+    
+    .icon {
+      color: $primary;
+    }
+    
+    &:hover {
+      background: darken($white, 5%);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.btn-secondary {
+    background: $secondary;
+    color: $white;
+    
+    .icon {
+      color: $white;
+    }
+    
+    &:hover {
+      background: darken($secondary, 10%);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.btn-outline {
+    background: transparent;
+    color: $white;
+    border: 2px solid $white;
+    
+    .icon {
+      color: $white;
+    }
+    
+    &:hover {
+      background: $white;
+      color: $primary;
+      transform: translateY(-2px);
+      
+      .icon {
+        color: $primary;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .fundacion-name {
+    font-size: 3rem;
+  }
+  
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .impact-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-buttons {
+    flex-direction: column;
+    align-items: center;
+    
+    .btn {
+      width: 100%;
+      max-width: 300px;
+      justify-content: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .hero-section {
+    height: 60vh;
+    min-height: 400px;
+  }
+  
+  .fundacion-name {
+    font-size: 2.5rem;
+  }
+  
+  .section-header h2 {
+    font-size: 2rem;
+  }
+}
