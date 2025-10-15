@@ -1,1 +1,183 @@
-<p>kits works!</p>
+<div class="kits-container">
+  <!-- Header Section -->
+  <div class="kits-header">
+    <h1 class="kits-title">Memorias que permanecen</h1>
+    <p class="kits-subtitle">Cada kit está diseñado para conservar tus recuerdos más preciados</p>
+    
+    <!-- Filtros -->
+    <div class="kits-filters">
+      <button 
+        class="filter-btn" 
+        [class.active]="activeFilter === 'all'"
+        (click)="filterKits('all')">
+        Todos
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="activeFilter === 'basico'"
+        (click)="filterKits('basico')">
+        Kit Básico
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="activeFilter === 'intermedio'"
+        (click)="filterKits('intermedio')">
+        Kit Intermedio
+      </button>
+      <button 
+        class="filter-btn" 
+        [class.active]="activeFilter === 'premium'"
+        (click)="filterKits('premium')">
+        Kit Premium
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando kits...</p>
+  </div>
+
+  <!-- Kits Grid -->
+  <div class="kits-grid" *ngIf="!isLoading && filteredKits.length > 0">
+    <div 
+      class="kit-card" 
+      *ngFor="let kit of filteredKits"
+      [class]="getBadgeClass(kit) ? 'kit-card has-badge' : 'kit-card'">
+      
+      <!-- Badge -->
+      <div class="kit-badge" *ngIf="getBadgeClass(kit)" [class]="getBadgeClass(kit)">
+        {{ getBadgeText(kit) }}
+      </div>
+
+      <!-- Imagen -->
+      <div class="kit-image">
+        <div class="kit-icon" [innerHTML]="getKitIcon(kit.categoria)"></div>
+      </div>
+
+      <!-- Contenido -->
+      <div class="kit-content">
+        <div class="kit-category">{{ getCategoryName(kit.categoria) }}</div>
+        <h3 class="kit-name">{{ kit.nombre }}</h3>
+        <p class="kit-description">{{ kit.descripcion }}</p>
+
+        <!-- Elementos incluidos -->
+        <div class="kit-elements">
+          <h4>Contenido del kit:</h4>
+          <ul class="kit-features">
+            <li *ngFor="let element of kit.elementos">{{ element }}</li>
+          </ul>
+        </div>
+
+        <!-- Beneficios psicológicos -->
+        <div class="kit-benefits">
+          <h4>Beneficios emocionales:</h4>
+          <ul class="benefits-list">
+            <li *ngFor="let benefit of kit.beneficios">
+              <span class="benefit-icon" [innerHTML]="getBenefitIcon()"></span>
+              {{ benefit.titulo }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Precio -->
+        <div class="kit-price">
+          <span class="current-price">${{ formatPrice(kit.precio) }} COP</span>
+          <span class="original-price" *ngIf="kit.precioOriginal">
+            ${{ formatPrice(kit.precioOriginal) }} COP
+          </span>
+          <span class="discount" *ngIf="kit.descuento">
+            -{{ kit.descuento }}%
+          </span>
+        </div>
+
+        <!-- Stock -->
+        <div class="kit-stock" [class]="getStockClass(kit)">
+          {{ getStockText(kit) }}
+        </div>
+
+        <!-- Acciones -->
+        <div class="kit-actions">
+          <button 
+            class="btn-primary" 
+            (click)="solicitarKit(kit)"
+            [disabled]="!estaEnStock(kit)">
+            {{ estaEnStock(kit) ? 'Solicitar Kit' : 'Agotado' }}
+          </button>
+          <button class="btn-secondary" (click)="showKitDetails(kit)">
+            Ver Detalles
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && filteredKits.length === 0">
+    <div class="empty-icon">
+      <i data-lucide="package"></i>
+    </div>
+    <h3>No se encontraron kits</h3>
+    <p>Intenta con otros filtros</p>
+  </div>
+</div>
+
+<!-- Modal de Detalles del Kit -->
+<div class="kit-modal" [class.hidden]="!selectedKit">
+  <div class="modal-content" *ngIf="selectedKit">
+    <button class="modal-close" (click)="closeModal()">
+      <i data-lucide="x"></i>
+    </button>
+    <div class="modal-body">
+      <h2>{{ selectedKit.nombre }}</h2>
+      <p class="modal-category">{{ getCategoryName(selectedKit.categoria) }}</p>
+      
+      <div class="modal-image">
+        <div class="modal-icon" [innerHTML]="getKitIcon(selectedKit.categoria)"></div>
+      </div>
+
+      <p class="modal-description">{{ selectedKit.descripcion }}</p>
+
+      <div class="modal-section">
+        <h4>
+          <i data-lucide="package" class="section-icon"></i>
+          Contenido del kit:
+        </h4>
+        <ul class="modal-features">
+          <li *ngFor="let element of selectedKit.elementos">{{ element }}</li>
+        </ul>
+      </div>
+
+      <div class="modal-section">
+        <h4>
+          <i data-lucide="heart" class="section-icon"></i>
+          Beneficios psicológicos:
+        </h4>
+        <ul class="modal-benefits">
+          <li *ngFor="let benefit of selectedKit.beneficios">
+            <strong>{{ benefit.titulo }}</strong>: {{ benefit.descripcion }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal-price">
+        <span class="current-price">${{ formatPrice(selectedKit.precio) }} COP</span>
+        <span class="original-price" *ngIf="selectedKit.precioOriginal">
+          ${{ formatPrice(selectedKit.precioOriginal) }} COP
+        </span>
+      </div>
+
+      <div class="modal-stock" [class]="getStockClass(selectedKit)">
+        {{ getStockText(selectedKit) }}
+      </div>
+
+      <button 
+        class="btn-primary modal-add-btn"
+        (click)="solicitarKit(selectedKit)"
+        [disabled]="!estaEnStock(selectedKit)">
+        {{ estaEnStock(selectedKit) ? 'Solicitar este Kit' : 'Kit Agotado' }}
+      </button>
+    </div>
+  </div>
+</div>
