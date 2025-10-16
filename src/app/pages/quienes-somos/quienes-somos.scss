@@ -205,7 +205,7 @@ $white: #ffffff;
   &.mission-image {
     background: 
       linear-gradient(135deg, rgba($primary, 0.7), rgba($accent, 0.6)),
-      url('/assets/img/mision.jpg');
+      url('/imagenes/mision.jpg');
     background-size: cover;
     background-position: center;
   }
@@ -213,7 +213,7 @@ $white: #ffffff;
   &.vision-image {
     background: 
       linear-gradient(135deg, rgba($secondary, 0.7), rgba($accent, 0.6)),
-      url('/assets/img/vision.jpg');
+      url('/imagenes/vision.jpg');
     background-size: cover;
     background-position: center;
   }
@@ -359,7 +359,7 @@ $white: #ffffff;
     height: 300px;
     background: 
       linear-gradient(135deg, rgba($white, 0.1), rgba($accent, 0.2)),
-      url('/assets/img/impacto.jpg');
+      url('/imagenes/impacto.jpg');
     background-size: cover;
     background-position: center;
     border-radius: 15px;

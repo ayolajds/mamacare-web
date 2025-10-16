@@ -79,6 +79,7 @@
 
     <div class="steps">
       <article class="step" *ngFor="let s of pasos">
+        <div class="step-icon" [innerHTML]="s.iconSafe" aria-hidden="true"></div>
         <h3><span class="badge">{{ s.n }}</span> {{ s.t }}</h3>
         <p>{{ s.d }}</p>
       </article>
@@ -110,25 +111,23 @@
           </div>
         </div>
 
-        <blockquote class="quote">“{{ t.texto }}”</blockquote>
+        <blockquote class="quote">"{{ t.texto }}"</blockquote>
 
         <a
-          *ngIf="t.link"
           class="readmore"
-          [routerLink]="t.link"
-          aria-label="Leer historia completa de {{ t.nombre }}"
+          (click)="goToStories()"
+          aria-label="Leer más historias inspiradoras"
         >
-          Leer historia completa →
+          Leer más historias →
         </a>
       </article>
     </div>
 
-    <div class="stories__cta" *ngIf="verMasHistoriasLink">
-      <a [routerLink]="verMasHistoriasLink" class="btn btn--ghost">Ver más historias</a>
+    <div class="stories__cta">
+      <a (click)="goToStories()" class="btn btn--ghost">Ver más historias</a>
     </div>
   </div>
 </section>
-
 
 <!-- ===== SERVICIOS PREMIUM ===== -->
 <section class="services-premium">

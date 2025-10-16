@@ -1,1 +1,323 @@
-<p>recursos works!</p>
+<section class="recursos">
+  <!-- Hero Section -->
+  <div class="resources-hero">
+    <div class="hero-background">
+      <div class="hero-particles">
+        <div class="particle" *ngFor="let p of particles" [style]="p"></div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">Herramientas para acompañarte</h1>
+      <p class="hero-subtitle">
+        Encuentra recursos creados por profesionales para fortalecer tu bienestar, 
+        gestionar tus emociones y sentirte acompañada cada día.
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-number">50+</span>
+          <span class="stat-label">Recursos disponibles</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">100%</span>
+          <span class="stat-label">Gratuitos</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">24/7</span>
+          <span class="stat-label">Acceso inmediato</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-wave">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" opacity=".25"></path>
+        <path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60.65-49.24V0Z" opacity=".5"></path>
+        <path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z"></path>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Main Resources Grid -->
+  <div class="resources-main">
+    <div class="container">
+      <div class="resources-grid">
+        <!-- Guías y Materiales -->
+        <div class="resource-card" [class]="'resource-card card-1'">
+          <div class="card-glow"></div>
+          <div class="card-blob"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+              </svg>
+            </div>
+            <h3>Guías y Materiales Descargables</h3>
+          </div>
+          <div class="card-content">
+            <ul class="resource-list">
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Guía práctica para manejar la ansiedad durante el tratamiento
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Ejercicios de respiración y mindfulness para días difíciles
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Diario de gratitud Ma'Care (PDF descargable)
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Kit de autocuidado emocional semanal
+              </li>
+            </ul>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card" (click)="descargarGuias()">
+              <span>Descargar Guías</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="card-particles">
+            <div class="particle" *ngFor="let p of [1,2,3]"></div>
+          </div>
+        </div>
+
+        <!-- Podcast y Meditaciones -->
+        <div class="resource-card" [class]="'resource-card card-2'">
+          <div class="card-glow"></div>
+          <div class="card-blob"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/>
+              </svg>
+            </div>
+            <h3>Podcast y Meditaciones</h3>
+          </div>
+          <div class="card-content">
+            <ul class="resource-list">
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Episodio: Aceptar los cambios del cuerpo con amor
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Meditación guiada: Calma para un nuevo día
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Audio de relajación para dormir mejor
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Sonidos curativos para momentos de estrés
+              </li>
+            </ul>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card" (click)="escucharAhora()">
+              <span>Escuchar Ahora</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="card-particles">
+            <div class="particle" *ngFor="let p of [1,2,3]"></div>
+          </div>
+        </div>
+
+        <!-- Videos y Charlas -->
+        <div class="resource-card" [class]="'resource-card card-3'">
+          <div class="card-glow"></div>
+          <div class="card-blob"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z"/>
+              </svg>
+            </div>
+            <h3>Videos y Charlas Inspiradoras</h3>
+          </div>
+          <div class="card-content">
+            <ul class="resource-list">
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Historias reales de mujeres en remisión
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Conversaciones con psicólogas sobre resiliencia
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Talleres: "Cómo volver a conectar contigo misma"
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Sesiones de yoga y movimiento terapéutico
+              </li>
+            </ul>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card" (click)="verVideos()">
+              <span>Ver Videos</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10,16.5V7.5L16,12M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="card-particles">
+            <div class="particle" *ngFor="let p of [1,2,3]"></div>
+          </div>
+        </div>
+
+        <!-- Herramientas Interactivas -->
+        <div class="resource-card" [class]="'resource-card card-4'">
+          <div class="card-glow"></div>
+          <div class="card-blob"></div>
+          <div class="card-header">
+            <div class="card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15Z"/>
+              </svg>
+            </div>
+            <h3>Herramientas Interactivas</h3>
+          </div>
+          <div class="card-content">
+            <ul class="resource-list">
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Calendario emocional (seguimiento del ánimo)
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Test de bienestar y autocuidado
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Muro de frases positivas y esperanza
+              </li>
+              <li>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                Planificador de autocuidado semanal
+              </li>
+            </ul>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card" (click)="explorarHerramientas()">
+              <span>Explorar Herramientas</span>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14,12L10,8V11H2V13H10V16M20,18V6C20,4.89 19.1,4 18,4H6A2,2 0 0,0 4,6V9H6V6H18V18H6V15H4V18A2,2 0 0,0 6,20H18A2,2 0 0,0 20,18Z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="card-particles">
+            <div class="particle" *ngFor="let p of [1,2,3]"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Access Section -->
+  <div class="qr-section">
+    <div class="container">
+      <div class="qr-content">
+        <div class="qr-text">
+          <h2>Acceso Rápido por QR</h2>
+          <p>Escanea este código para acceder directamente a todos nuestros recursos desde tu móvil</p>
+          <div class="qr-features">
+            <div class="qr-feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+              </svg>
+              <span>Acceso instantáneo 24/7</span>
+            </div>
+            <div class="qr-feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+              </svg>
+              <span>Sin descargas adicionales</span>
+            </div>
+            <div class="qr-feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+              </svg>
+              <span>Contenido actualizado semanalmente</span>
+            </div>
+          </div>
+        </div>
+        <div class="qr-code">
+          <div class="qr-image-container">
+            <!-- Reemplaza 'assets/qr-recursos.png' con la ruta real de tu QR -->
+            <img src="/recursos/qr.jpg" alt="QR Code para acceder a recursos" class="qr-image">
+            <div class="qr-scan-animation"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <div class="container">
+      <div class="cta-content">
+        <h2>¿Necesitas apoyo más personalizado?</h2>
+        <p>
+          Cada recurso fue creado con amor y respaldo profesional para acompañarte paso a paso. 
+          Si necesitas un espacio más personal, estamos aquí para ti.
+        </p>
+        <div class="cta-buttons">
+          <button class="btn btn-primary" (click)="agendarSesion()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19,3H18V1H16V3H8V1H6V3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M19,19H5V9H19V19M19,7H5V5H19M7,11H9V13H7M11,11H13V13H11M15,11H17V13H15"/>
+            </svg>
+            Agendar Sesión
+          </button>
+          <button class="btn btn-secondary" (click)="unirseGrupo()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M16,13C15.71,13 15.38,13 15.03,13.05C16.19,13.89 17,15 17,16.5V19H23V16.5C23,14.17 18.33,13 16,13M8,13C5.67,13 1,14.17 1,16.5V19H15V16.5C15,14.17 10.33,13 8,13M8,11A3,3 0 0,0 11,8A3,3 0 0,0 8,5A3,3 0 0,0 5,8A3,3 0 0,0 8,11M16,11A3,3 0 0,0 19,8A3,3 0 0,0 16,5A3,3 0 0,0 13,8A3,3 0 0,0 16,11Z"/>
+            </svg>
+            Unirme a un Grupo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

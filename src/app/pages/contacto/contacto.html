@@ -1,1 +1,335 @@
-<p>contacto works!</p>
+<section class="contacto-section">
+  <!-- Floating Background Elements -->
+  <div class="floating-background">
+    <div class="floating-element" 
+         *ngFor="let element of floatingElements"
+         [style.width.px]="element.size"
+         [style.height.px]="element.size"
+         [style.left.%]="element.left"
+         [style.animation-delay.s]="element.delay"
+         [style.animation-duration.s]="element.duration">
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Header Section -->
+    <div class="contact-header">
+      <h1 class="header-title">Hablemos, estamos aquí para ti</h1>
+      <p class="header-subtitle">
+        Cada conversación es un paso hacia tu bienestar. Elige la forma que más te convenga.
+      </p>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="submitted" class="success-message">
+      <div class="success-content">
+        <div class="success-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+          </svg>
+        </div>
+        <div class="success-text">
+          <h3>¡Mensaje enviado con éxito!</h3>
+          <p>Te contactaremos en menos de 24 horas. Gracias por confiar en nosotros.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Contact Grid -->
+    <div class="contact-grid">
+      <!-- Contact Form -->
+      <div class="contact-form-section">
+        <div class="form-card">
+          <div class="form-header">
+            <div class="form-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
+              </svg>
+            </div>
+            <h2>Envíanos un mensaje</h2>
+            <p>Te responderemos en menos de 24 horas</p>
+          </div>
+
+          <form class="contact-form" (ngSubmit)="onSubmit()" #form="ngForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Tu nombre completo</label>
+                <div class="input-container">
+                  <div class="input-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="text" 
+                    id="name" 
+                    [(ngModel)]="contactForm.name" 
+                    name="name"
+                    placeholder="María García López"
+                    required
+                    class="form-input">
+                  <div class="input-focus-border"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="email">Correo electrónico</label>
+                <div class="input-container">
+                  <div class="input-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M22 6C22 4.9 21.1 4 20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6M20 6L12 11L4 6H20M20 18H4V8L12 13L20 8V18Z"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    [(ngModel)]="contactForm.email" 
+                    name="email"
+                    placeholder="maria@ejemplo.com"
+                    required
+                    class="form-input">
+                  <div class="input-focus-border"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Teléfono (opcional)</label>
+                <div class="input-container">
+                  <div class="input-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                    </svg>
+                  </div>
+                  <input 
+                    type="tel" 
+                    id="phone" 
+                    [(ngModel)]="contactForm.phone" 
+                    name="phone"
+                    placeholder="+34 600 000 000"
+                    class="form-input">
+                  <div class="input-focus-border"></div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="subject">Motivo de tu consulta</label>
+                <div class="input-container">
+                  <div class="input-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z"/>
+                    </svg>
+                  </div>
+                  <select 
+                    id="subject" 
+                    [(ngModel)]="contactForm.subject" 
+                    name="subject"
+                    required
+                    class="form-input">
+                    <option value="">Selecciona una opción</option>
+                    <option value="emotional-support">Apoyo emocional</option>
+                    <option value="resources">Información sobre recursos</option>
+                    <option value="appointment">Agendar cita con especialista</option>
+                    <option value="group">Unirme a grupo de apoyo</option>
+                    <option value="partnership">Colaboración o partnership</option>
+                    <option value="other">Otro motivo</option>
+                  </select>
+                  <div class="input-focus-border"></div>
+                  <div class="select-arrow">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Tu mensaje</label>
+              <div class="input-container textarea-container">
+                <div class="input-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20,2H4A2,2 0 0,0 2,4V22L6,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2M6,9H18V11H6M14,14H6V12H14M18,8H6V6H18"/>
+                  </svg>
+                </div>
+                <textarea 
+                  id="message" 
+                  [(ngModel)]="contactForm.message" 
+                  name="message"
+                  placeholder="Cuéntanos más sobre tu situación y cómo podemos ayudarte..."
+                  rows="5"
+                  required
+                  class="form-input"></textarea>
+                <div class="input-focus-border"></div>
+              </div>
+            </div>
+
+            <div class="form-checkbox">
+              <label class="checkbox-container">
+                <input 
+                  type="checkbox" 
+                  [(ngModel)]="contactForm.privacy" 
+                  name="privacy"
+                  required>
+                <span class="checkmark">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                  </svg>
+                </span>
+                <span class="checkbox-text">
+                  Acepto la <a href="#" class="privacy-link">política de privacidad</a> y el tratamiento de mis datos
+                </span>
+              </label>
+            </div>
+
+            <button type="submit" class="submit-btn" [class.loading]="isSubmitting" [disabled]="isSubmitting">
+              <span class="btn-content">
+                <span class="btn-text">{{ isSubmitting ? 'Enviando...' : 'Enviar mensaje' }}</span>
+                <span class="btn-loader" *ngIf="isSubmitting">
+                  <div class="loader-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                  </div>
+                </span>
+                <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" *ngIf="!isSubmitting">
+                  <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                </svg>
+              </span>
+              <div class="btn-shine"></div>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Contact Channels -->
+      <div class="channels-section">
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <div class="actions-header">
+            <h3>Contacto inmediato</h3>
+            <p>Elige la opción que prefieras</p>
+          </div>
+          
+          <div class="action-buttons">
+            <button class="action-btn whatsapp-btn" (click)="openWhatsApp()" [disabled]="isSubmitting">
+              <div class="action-glow"></div>
+              <div class="btn-content">
+                <div class="btn-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16.75,13.96C17,14.09 17.16,14.16 17.21,14.26C17.27,14.37 17.25,14.87 17,15.44C16.8,16 15.76,16.54 15.3,16.56C14.84,16.58 14.83,16.92 12.34,15.83C9.85,14.74 8.35,12.08 8.23,11.91C8.11,11.74 7.27,10.53 7.31,9.3C7.36,8.08 8,7.5 8.26,7.26C8.5,7 8.77,6.97 8.94,7H9.41C9.56,7 9.77,6.94 9.96,7.45L10.65,9.32C10.71,9.45 10.75,9.6 10.66,9.76L10.39,10.17L10,10.56C9.43,11.15 9.41,11.22 9.72,11.73C10.15,12.5 10.61,13 11.08,13.5C11.58,14 12.09,14.5 12.89,14.83C13.14,14.94 13.3,14.9 13.43,14.75L13.66,14.5L14,14.2C14.07,14.14 14.19,14.08 14.32,14.13L16.75,13.96M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C10.03,22 8.2,21.43 6.65,20.45L2,22L3.55,17.35C2.57,15.8 2,13.97 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12C4,13.72 4.54,15.31 5.46,16.61L4.5,19.5L7.39,18.54C8.69,19.46 10.28,20 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4Z"/>
+                  </svg>
+                </div>
+                <div class="btn-text">
+                  <strong>WhatsApp</strong>
+                  <span>Respuesta en minutos</span>
+                </div>
+              </div>
+              <div class="btn-badge">Rápido</div>
+            </button>
+
+            <button class="action-btn phone-btn" (click)="makeCall()" [disabled]="isSubmitting">
+              <div class="action-glow"></div>
+              <div class="btn-content">
+                <div class="btn-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6.62,10.79C8.06,13.62 10.38,15.94 13.21,17.38L15.41,15.18C15.69,14.9 16.08,14.82 16.43,14.93C17.55,15.3 18.75,15.5 20,15.5A1,1 0 0,1 21,16.5V20A1,1 0 0,1 20,21A17,17 0 0,1 3,4A1,1 0 0,1 4,3H7.5A1,1 0 0,1 8.5,4C8.5,5.25 8.7,6.45 9.07,7.57C9.18,7.92 9.1,8.31 8.82,8.59L6.62,10.79Z"/>
+                  </svg>
+                </div>
+                <div class="btn-text">
+                  <strong>Llamada</strong>
+                  <span>910 000 000</span>
+                </div>
+              </div>
+              <div class="btn-badge">Directo</div>
+            </button>
+
+            <button class="action-btn email-btn" (click)="sendEmail()" [disabled]="isSubmitting">
+              <div class="action-glow"></div>
+              <div class="btn-content">
+                <div class="btn-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z"/>
+                  </svg>
+                </div>
+                <div class="btn-text">
+                  <strong>Email</strong>
+                  <span>hola@macare.com</span>
+                </div>
+              </div>
+              <div class="btn-badge">24h</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+          <div class="info-card address-card">
+            <div class="card-glow"></div>
+            <div class="card-content">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z"/>
+                </svg>
+              </div>
+              <h4>Visítanos</h4>
+              <p>Calle Esperanza 123, Madrid</p>
+              <button class="card-btn" (click)="openMaps()" [disabled]="isSubmitting">
+                <span>Ver en mapa</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14,12L10,8V11H2V13H10V16M20,18V6C20,4.89 19.1,4 18,4H6A2,2 0 0,0 4,6V9H6V6H18V18H6V15H4V18A2,2 0 0,0 6,20H18A2,2 0 0,0 20,18Z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="info-card schedule-card">
+            <div class="card-glow"></div>
+            <div class="card-content">
+              <div class="card-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.2,16.2L11,13V7H12.5V12.2L17,14.7L16.2,16.2Z"/>
+                </svg>
+              </div>
+              <h4>Horarios</h4>
+              <div class="schedule-list">
+                <div class="schedule-item">
+                  <span>Lun - Vie</span>
+                  <span>9:00 - 18:00</span>
+                </div>
+                <div class="schedule-item">
+                  <span>Sábados</span>
+                  <span>10:00 - 14:00</span>
+                </div>
+                <div class="schedule-item emergency">
+                  <span>Urgencias</span>
+                  <span>24/7</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="contact-stats">
+          <div class="stat-item">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-number">15 min</div>
+            <div class="stat-label">Respuesta promedio WhatsApp</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">📧</div>
+            <div class="stat-number">24h</div>
+            <div class="stat-label">Respuesta email</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">🔒</div>
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Confidencialidad</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

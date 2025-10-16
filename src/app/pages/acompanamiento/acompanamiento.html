@@ -1,0 +1,161 @@
+<div class="acompanamiento-container">
+  <!-- Hero Section -->
+  <section class="hero-section" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 id="hero-title" class="hero-title">Acompañamiento Psicológico</h1>
+        <p class="hero-subtitle">
+          Programas clínico-humanistas para mujeres con cáncer de mama y sus familias. 
+          Integramos sesiones profesionales con herramientas terapéuticas de los Kits "Memorias que permanecen".
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" (click)="agendarCita()" aria-label="Agendar cita inicial">
+            <i data-lucide="calendar" aria-hidden="true"></i>
+            Agendar cita inicial
+          </button>
+          <button class="btn btn-secondary" (click)="scrollToPaquetes()" aria-label="Ver paquetes disponibles">
+            <i data-lucide="package" aria-hidden="true"></i>
+            Ver paquetes
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="floating-elements">
+          <div class="floating-card floating-card-1">
+            <i data-lucide="heart" aria-hidden="true"></i>
+            <span>Acompañamiento emocional</span>
+          </div>
+          <div class="floating-card floating-card-2">
+            <i data-lucide="users" aria-hidden="true"></i>
+            <span>Apoyo familiar</span>
+          </div>
+          <div class="floating-card floating-card-3">
+            <i data-lucide="shield" aria-hidden="true"></i>
+            <span>Espacio seguro</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modalidades Section -->
+  <section class="modalidades-section" aria-labelledby="modalidades-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="modalidades-title" class="section-title">Modalidades de Atención</h2>
+        <p class="section-subtitle">Diferentes formas de recibir nuestro apoyo profesional</p>
+      </div>
+      
+      <div class="modalidades-grid">
+        <div class="modalidad-card" *ngFor="let modalidad of modalidades">
+          <div class="modalidad-icon">
+            <i [attr.data-lucide]="modalidad.icon" aria-hidden="true"></i>
+          </div>
+          <h3 class="modalidad-title">{{ modalidad.titulo }}</h3>
+          <ul class="modalidad-features">
+            <li *ngFor="let bullet of modalidad.bullets">
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              {{ bullet }}
+            </li>
+          </ul>
+          <a class="btn btn-outline" [routerLink]="modalidad.cta?.link" 
+             [attr.aria-label]="modalidad.cta?.label">
+            <i data-lucide="info" aria-hidden="true"></i>
+            {{ modalidad.cta?.label }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sesión Suelta Section -->
+  <section class="solo-sesion-section" aria-labelledby="solo-sesion-title">
+    <div class="container solo-sesion">
+      <h3 id="solo-sesion-title">¿Prefieres una sesión suelta?</h3>
+      <p>También atendemos sesiones individuales sin paquete (presencial o virtual).</p>
+      <a class="btn btn-secondary" routerLink="/contacto" aria-label="Agendar sesión suelta">
+        <i data-lucide="user-check" aria-hidden="true"></i>
+        Agendar sesión suelta
+      </a>
+    </div>
+  </section>
+
+  <!-- Paquetes Section -->
+  <section class="paquetes-section" id="paquetes" aria-labelledby="paquetes-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="paquetes-title" class="section-title">Paquetes de Acompañamiento</h2>
+        <p class="section-subtitle">Programas completos que integran sesiones psicológicas con kits terapéuticos</p>
+      </div>
+
+      <div class="paquetes-grid">
+        <div class="paquete-card" 
+             *ngFor="let paquete of paquetes" 
+             [class.featured]="paquete.nombre === 'Integral'">
+          <div class="paquete-header">
+            <div class="paquete-badge" *ngIf="paquete.badge">
+              {{ paquete.badge }}
+            </div>
+            <h3 class="paquete-name">{{ paquete.nombre }}</h3>
+            <div class="paquete-price">{{ paquete.precioDesde }}</div>
+          </div>
+
+          <p class="paquete-description">{{ paquete.resumen }}</p>
+
+          <!-- Modalidades incluidas (chips) -->
+          <div class="paquete-modalidades">
+            <span class="chip" *ngFor="let mod of paquete.modalidades">
+              <i [attr.data-lucide]="iconFor(mod)" aria-hidden="true"></i>
+              {{ mod === 'individual' ? 'Individual' : mod === 'grupal' ? 'Grupal' : 'Talleres' }}
+            </span>
+          </div>
+
+          <div class="paquete-includes">
+            <h4>Incluye:</h4>
+            <ul>
+              <li *ngFor="let item of paquete.incluye">
+                <i data-lucide="check-circle" class="include-check" aria-hidden="true"></i>
+                {{ item }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="paquete-kit">
+            <div class="kit-info">
+              <i data-lucide="package" class="kit-icon" aria-hidden="true"></i>
+              <span>Incluye Kit {{ paquete.kit }}</span>
+            </div>
+          </div>
+
+          <a class="btn btn-primary paquete-cta" [routerLink]="paquete.cta.link" 
+             [attr.aria-label]="paquete.cta.label">
+            <i data-lucide="calendar" aria-hidden="true"></i>
+            {{ paquete.cta.label }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <div class="container">
+      <div class="cta-content">
+        <div class="cta-text">
+          <h3 id="cta-title">¿Lista para comenzar tu proceso de sanación?</h3>
+          <p>Agenda una cita inicial sin compromiso y recibe la orientación que necesitas</p>
+        </div>
+        <div class="cta-actions">
+          <button class="btn btn-light" (click)="agendarCita()" aria-label="Agendar consulta por teléfono">
+            <i data-lucide="phone" aria-hidden="true"></i>
+            Agendar consulta
+          </button>
+          <button class="btn btn-outline-light" (click)="contactar()" aria-label="Obtener más información">
+            <i data-lucide="message-circle" aria-hidden="true"></i>
+            Más información
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

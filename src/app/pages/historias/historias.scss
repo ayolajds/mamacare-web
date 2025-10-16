@@ -1,0 +1,566 @@
+// Variables de colores - Paleta suave
+$primary-color: #FF6B9D; // Rosa suave
+$secondary-color: #A78BFA; // Lavanda
+$accent-color: #34D399; // Verde menta
+$background-color: #FFF9FB; // Rosa muy claro
+$text-dark: #4A5568; // Gris oscuro suave
+$text-light: #718096; // Gris medio
+$white: #FFFFFF;
+$border-color: #E2E8F0;
+
+.historias-container {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background: $background-color;
+  min-height: 100vh;
+}
+
+// Hero Section
+.historias-hero {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: $white;
+  padding: 4rem 0;
+  text-align: center;
+
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+  }
+}
+
+// Testimonios Section
+.testimonios-section {
+  padding: 4rem 0;
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $text-dark;
+    margin-bottom: 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.1rem;
+    color: $text-light;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+.testimonios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto 4rem;
+}
+
+.testimonio-card {
+  background: $white;
+  border-radius: 20px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid $border-color;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  &.featured {
+    border: 2px solid $primary-color;
+  }
+
+  .testimonio-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .avatar-container {
+    margin-right: 1rem;
+  }
+
+  .testimonio-foto {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid $white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .testimonio-info {
+    .testimonio-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: $text-dark;
+      margin-bottom: 0.25rem;
+    }
+
+    .testimonio-meta {
+      color: $text-light;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+
+  .testimonio-text {
+    font-style: italic;
+    color: $text-dark;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-left: 1rem;
+    border-left: 3px solid $primary-color;
+  }
+
+  .testimonio-actions {
+    .btn-leer-mas {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      border: 2px solid $primary-color;
+      color: $primary-color;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      i {
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover {
+        background: $primary-color;
+        color: $white;
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .testimonio-decoration {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    opacity: 0.1;
+
+    i {
+      width: 40px;
+      height: 40px;
+      color: $text-dark;
+    }
+  }
+}
+
+// CTA Section
+.historias-cta {
+  background: $white;
+  border-radius: 20px;
+  padding: 3rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid $border-color;
+
+  .cta-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  h3 {
+    font-size: 1.8rem;
+    color: $text-dark;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: $text-light;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  .cta-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Modal Styles
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.modal-content {
+  background: $white;
+  border-radius: 24px;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  animation: modalSlideIn 0.3s ease;
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba($white, 0.9);
+    border: none;
+    cursor: pointer;
+    color: $text-light;
+    z-index: 1;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: $primary-color;
+      color: $white;
+      transform: scale(1.1);
+    }
+
+    i {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+  color: $white;
+  padding: 2.5rem 2rem 2rem;
+  border-radius: 24px 24px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+
+  .modal-avatar {
+    .modal-foto {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid $white;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-avatar-placeholder {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $white;
+      font-size: 2rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      border: 3px solid $white;
+      background: linear-gradient(135deg, $primary-color, $secondary-color);
+    }
+  }
+
+  .modal-info {
+    flex: 1;
+
+    .modal-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-meta {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 1rem;
+    }
+
+    .modal-tags {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: rgba($white, 0.2);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+
+        i {
+          width: 12px;
+          height: 12px;
+        }
+      }
+    }
+  }
+}
+
+.modal-body {
+  padding: 2rem;
+
+  .modal-quote {
+    font-style: italic;
+    color: $primary-color;
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    padding-left: 1rem;
+    border-left: 4px solid $primary-color;
+    position: relative;
+
+    .quote-icon {
+      position: absolute;
+      left: -10px;
+      top: -10px;
+      width: 24px;
+      height: 24px;
+      opacity: 0.3;
+    }
+  }
+
+  .modal-story {
+    margin-bottom: 2rem;
+
+    h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: $text-dark;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+
+      i {
+        width: 20px;
+        height: 20px;
+        color: $primary-color;
+      }
+    }
+
+    .story-content {
+      color: $text-dark;
+      line-height: 1.7;
+
+      p {
+        margin-bottom: 1rem;
+      }
+    }
+  }
+
+  .modal-impact {
+    background: rgba($accent-color, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: $accent-color;
+      margin-bottom: 0.5rem;
+      font-size: 1.1rem;
+
+      i {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    p {
+      color: $text-dark;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+.modal-footer {
+  padding: 1.5rem 2rem 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid $border-color;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+
+  i {
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &.btn-primary {
+    background: linear-gradient(135deg, $primary-color, #EC4899);
+    color: $white;
+  }
+
+  &.btn-secondary {
+    background: transparent;
+    border: 2px solid $primary-color;
+    color: $primary-color;
+  }
+
+  &.btn-outline {
+    background: transparent;
+    border: 2px solid $border-color;
+    color: $text-dark;
+  }
+}
+
+// Container
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+// Animations
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .historias-hero {
+    padding: 3rem 0;
+    
+    .hero-title {
+      font-size: 2.5rem;
+    }
+  }
+
+  .testimonios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .cta-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 1rem;
+  }
+
+  .modal-content {
+    margin: 0;
+  }
+
+  .testimonio-card {
+    padding: 1.5rem;
+  }
+
+  .historias-cta {
+    padding: 2rem 1.5rem;
+  }
+}

@@ -1,1 +1,151 @@
-<p>historias works!</p>
+<div class="historias-container">
+  <!-- Hero Section -->
+  <section class="historias-hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Historias que Inspiran</h1>
+        <p class="hero-subtitle">
+          Voces reales de mujeres valientes que han encontrado luz en su camino. 
+          Cada historia es un testimonio de fortaleza y esperanza.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonios Grid -->
+  <section class="testimonios-section" aria-labelledby="testimonios-title">
+    <div class="container">
+      <div class="section-header">
+        <h2 id="testimonios-title" class="section-title">Testimonios Reales</h2>
+        <p class="section-subtitle">Conoce las experiencias de quienes han caminado este proceso con nosotras</p>
+      </div>
+
+      <div class="testimonios-grid">
+        <article 
+          class="testimonio-card" 
+          *ngFor="let testimonio of testimonios; let i = index"
+          [style.background]="getCardColor(i)"
+          [class.featured]="i === 1"
+          (click)="abrirModal(testimonio)">
+          
+          <div class="testimonio-header">
+            <div class="avatar-container">
+              <img 
+                [src]="testimonio.foto" 
+                [alt]="'Foto de ' + testimonio.nombre"
+                class="testimonio-foto"
+                loading="lazy"
+                (error)="handleImageError($event, testimonio)"
+              />
+            </div>
+            <div class="testimonio-info">
+              <h3 class="testimonio-name">{{ testimonio.nombre }}</h3>
+              <p class="testimonio-meta">{{ testimonio.meta }}</p>
+            </div>
+          </div>
+
+          <blockquote class="testimonio-text">
+            "{{ testimonio.textoCorto }}"
+          </blockquote>
+
+          <div class="testimonio-actions">
+            <button class="btn-leer-mas" aria-label="Leer historia completa de {{ testimonio.nombre }}">
+              <i data-lucide="book-open" aria-hidden="true"></i>
+              Leer historia completa
+            </button>
+          </div>
+
+          <div class="testimonio-decoration">
+            <i data-lucide="quote" aria-hidden="true"></i>
+          </div>
+        </article>
+      </div>
+
+      <!-- CTA Section -->
+      <div class="historias-cta">
+        <div class="cta-content">
+          <h3>¿Tienes una historia que compartir?</h3>
+          <p>Tu experiencia puede inspirar a otras mujeres en su camino</p>
+          <div class="cta-actions">
+            <a 
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeEXAMPLE/viewform" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="btn btn-primary">
+              <i data-lucide="edit-3" aria-hidden="true"></i>
+              Compartir mi historia
+            </a>
+            <button class="btn btn-secondary" (click)="verMasTestimonios()">
+              <i data-lucide="heart" aria-hidden="true"></i>
+              Ver más testimonios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal de Historia Completa -->
+<div class="modal-overlay" [class.active]="modalAbierto" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="testimonioSeleccionado">
+    <button class="modal-close" (click)="cerrarModal()" aria-label="Cerrar modal">
+      <i data-lucide="x" aria-hidden="true"></i>
+    </button>
+
+    <div class="modal-header">
+      <div class="modal-avatar">
+        <img 
+          [src]="testimonioSeleccionado.foto" 
+          [alt]="'Foto de ' + testimonioSeleccionado.nombre"
+          class="modal-foto"
+          (error)="handleModalImageError($event)"
+        />
+      </div>
+      <div class="modal-info">
+        <h2 class="modal-name">{{ testimonioSeleccionado.nombre }}</h2>
+        <p class="modal-meta">{{ testimonioSeleccionado.meta }}</p>
+        <div class="modal-tags">
+          <span class="tag" *ngFor="let tag of testimonioSeleccionado.tags">
+            <i [attr.data-lucide]="getTagIcon(tag)" aria-hidden="true"></i>
+            {{ tag }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <blockquote class="modal-quote">
+        <i data-lucide="quote" class="quote-icon" aria-hidden="true"></i>
+        "{{ testimonioSeleccionado.textoCorto }}"
+      </blockquote>
+
+      <div class="modal-story">
+        <h3>
+          <i data-lucide="book-open" aria-hidden="true"></i>
+          Mi Historia Completa
+        </h3>
+        <div class="story-content" [innerHTML]="testimonioSeleccionado.historiaCompleta"></div>
+      </div>
+
+      <div class="modal-impact" *ngIf="testimonioSeleccionado.impacto">
+        <h4>
+          <i data-lucide="star" aria-hidden="true"></i>
+          El impacto en mi vida
+        </h4>
+        <p>{{ testimonioSeleccionado.impacto }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="compartirHistoria()">
+        <i data-lucide="share-2" aria-hidden="true"></i>
+        Compartir esta historia
+      </button>
+      <button class="btn btn-primary" (click)="inspirarme()">
+        <i data-lucide="sparkles" aria-hidden="true"></i>
+        Esta historia me inspira
+      </button>
+    </div>
+  </div>
+</div>

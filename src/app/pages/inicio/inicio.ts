@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -12,7 +12,10 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 })
 export class Inicio implements OnInit, OnDestroy {
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(
+    private sanitizer: DomSanitizer,
+    private router: Router
+  ) {}
 
   // ===== HERO =====
   slides = [
@@ -37,6 +40,13 @@ export class Inicio implements OnInit, OnDestroy {
       ...p,
       iconSafe: this.sanitizer.bypassSecurityTrustHtml(p.icon)
     }));
+
+    // Sanitizar iconos de pasos
+    this.pasos = this.pasos.map(p => ({
+      ...p,
+      iconSafe: this.sanitizer.bypassSecurityTrustHtml(p.icon)
+    }));
+
     this.start();
   }
 
@@ -61,6 +71,13 @@ export class Inicio implements OnInit, OnDestroy {
   onVisibility(): void {
     if (document.hidden) this.stop();
     else this.start();
+  }
+
+  // Navegar a historias con scroll arriba
+  goToStories(): void {
+    this.router.navigate(['/historias']).then(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 
   // ===== CONTENIDO DE LAS SECCIONES =====
@@ -92,63 +109,74 @@ export class Inicio implements OnInit, OnDestroy {
     }
   ];
 
-  pasos = [
-    { n: 1, t: 'Escucha',        d: 'Validamos tus emociones y tu contexto sin prisa ni juicios.' },
-    { n: 2, t: 'Herramientas',   d: 'Mindfulness, respiración, escritura terapéutica y psicoeducación.' },
-    { n: 3, t: 'Acompañamiento', d: 'Metas realistas, seguimiento y cuidado también a tu familia.' }
+  pasos: Array<{ n: number; t: string; d: string; icon: string; iconSafe?: SafeHtml }> = [
+    { 
+      n: 1, 
+      t: 'Escucha',        
+      d: 'Validamos tus emociones y tu contexto sin prisa ni juicios.',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm-1-9h2v6h-2zm0-4h2v2h-2z"/>
+            </svg>`
+    },
+    { 
+      n: 2, 
+      t: 'Herramientas',   
+      d: 'Mindfulness, respiración, escritura terapéutica y psicoeducación.',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M21 6h-4V3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v3H3a1 1 0 0 0-1 1v11a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V7a1 1 0 0 0-1-1zM9 4h6v2H9zm11 14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8h2v2h12V8h2z"/>
+            </svg>`
+    },
+    { 
+      n: 3, 
+      t: 'Acompañamiento', 
+      d: 'Metas realistas, seguimiento y cuidado también a tu familia.',
+      icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+              <path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm5-9h-2v2h2v2h-2v2h-2v-2h-2v2H9v-2H7v-2h2v-2H7V9h2V7h2v2h2V7h2v2h2z"/>
+            </svg>`
+    }
   ];
 
-verMasHistoriasLink = '/historias'; // o null si no quieres el botón
+  testimonios = [
+    {
+      nombre: 'María',
+      meta: '3 años en remisión',
+      texto: 'Encontré un espacio seguro para hablar del miedo y volver a dormir.',
+      img: 'inspiran/1.jpg'
+    },
+    {
+      nombre: 'Carolina',
+      meta: 'En tratamiento',
+      texto: 'Las herramientas me ayudaron a organizar mis días y bajar la ansiedad.',
+      img: 'inspiran/2.jpg'
+    },
+    {
+      nombre: 'Carmen',
+      meta: '10 años en remisión',
+      texto: 'Ser mentora me permite dar lo que recibí. No hay mayor satisfacción que acompañar a otras.',
+      img: 'inspiran/3.jpg'
+    }
+  ];
 
-testimonios = [
-  {
-    nombre: 'María',
-    meta: '3 años en remisión',
-    texto:
-      'Encontré un espacio seguro para hablar del miedo y volver a dormir.',
-    img: 'inspiran/1.jpg',
-    link: '/historias/maria' // opcional
-  },
-  {
-    nombre: 'Carolina',
-    meta: 'En tratamiento',
-    texto:
-      'Las herramientas me ayudaron a organizar mis días y bajar la ansiedad.',
-    img: 'inspiran/2.jpg',
-    link: '/historias/carolina'
-  },
-  {
-    nombre: 'Carmen',
-    meta: '10 años en remisión',
-    texto:
-      'Ser mentora me permite dar lo que recibí. No hay mayor satisfacción que acompañar a otras.',
-    img: 'inspiran/3.jpg',
-    link: '/historias/carmen'
-  }
-];
-
-
-// En tu componente TypeScript
-servicios = [
-  {
-    title: 'Sesiones individuales',
-    desc: 'Espacios personalizados uno a uno con psicólogas especializadas en cáncer de mama, para trabajar emociones, ansiedad y resiliencia.',
-    img: 'img/1.jpg',
-    link: '/servicios/sesiones'
-  },
-  {
-    title: 'Terapia grupal',
-    desc: 'Encuentros con otras mujeres que viven procesos similares. Compartir fortalece, inspira y ayuda a no sentirse sola.',
-    img: 'img/4.jpg',
-    link: '/servicios/grupal'
-  },
-  {
-    title: 'Talleres educativos',
-    desc: 'Actividades prácticas sobre autocuidado, manejo del estrés, comunicación familiar y herramientas psicológicas.',
-    img: 'img/2.jpg',
-    link: '/servicios/talleres'
-  }
-];
+  servicios = [
+    {
+      title: 'Sesiones individuales',
+      desc: 'Espacios personalizados uno a uno con psicólogas especializadas en cáncer de mama, para trabajar emociones, ansiedad y resiliencia.',
+      img: 'img/1.jpg',
+      link: '/servicios/sesiones'
+    },
+    {
+      title: 'Terapia grupal',
+      desc: 'Encuentros con otras mujeres que viven procesos similares. Compartir fortalece, inspira y ayuda a no sentirse sola.',
+      img: 'img/4.jpg',
+      link: '/servicios/grupal'
+    },
+    {
+      title: 'Talleres educativos',
+      desc: 'Actividades prácticas sobre autocuidado, manejo del estrés, comunicación familiar y herramientas psicológicas.',
+      img: 'img/2.jpg',
+      link: '/servicios/talleres'
+    }
+  ];
 
   // CTA WhatsApp
   whatsappPhone = '57XXXXXXXXXX';

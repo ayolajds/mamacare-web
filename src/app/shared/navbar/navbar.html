@@ -18,64 +18,66 @@
 
     <!-- Menú Desktop -->
     <ul class="navbar__menu navbar__menu--desktop" role="menubar">
-      <li (mouseenter)="closeAllDropdowns()">
+      <li>
         <a routerLink="/quienes-somos" routerLinkActive="is-active" role="menuitem">¿Quiénes somos?</a>
       </li>
 
-      <li (mouseenter)="closeAllDropdowns()">
+      <li>
         <a routerLink="/kits" routerLinkActive="is-active" role="menuitem">Kits</a>
       </li>
 
-      <!-- Servicios con dropdown -->
-      <li class="navbar__dropdown"
-          (mouseenter)="openDropdown()"
-          (mouseleave)="closeDropdown()">
-        <a href="#"
-           class="navbar__link navbar__trigger"
-           role="button"
-           aria-haspopup="true"
-           [attr.aria-expanded]="isDropdownOpen"
-           (click)="toggleDropdown($event)">
-          Servicios <span class="caret">▾</span>
-        </a>
-
-        <ul class="navbar__dropdown-menu"
-            [class.is-open]="isDropdownOpen"
-            (mouseenter)="keepDropdownOpen()"
-            (mouseleave)="closeDropdown()">
-          <li><a routerLink="/servicios/sesiones" routerLinkActive="is-active">Sesiones individuales</a></li>
-          <li><a routerLink="/servicios/grupal" routerLinkActive="is-active">Terapia grupal</a></li>
-          <li><a routerLink="/servicios/talleres" routerLinkActive="is-active">Talleres educativos</a></li>
-        </ul>
+      <!-- Enlace directo (reemplaza el antiguo dropdown de Servicios) -->
+      <li>
+        <a routerLink="/acompanamiento" routerLinkActive="is-active" role="menuitem">Acompañamiento Psicológico</a>
       </li>
 
-      <li (mouseenter)="closeAllDropdowns()">
+      <li>
         <a routerLink="/recursos" routerLinkActive="is-active" role="menuitem">Recursos</a>
       </li>
 
-      <li (mouseenter)="closeAllDropdowns()">
+      <li>
         <a routerLink="/historias" routerLinkActive="is-active" role="menuitem">Historias</a>
       </li>
 
-      <li (mouseenter)="closeAllDropdowns()">
+      <li>
         <a routerLink="/contacto" routerLinkActive="is-active" role="menuitem">Contacto</a>
       </li>
     </ul>
 
     <!-- Acciones Desktop -->
-    <div class="navbar__actions navbar__actions--desktop" (mouseenter)="closeAllDropdowns()">
+    <div class="navbar__actions navbar__actions--desktop">
       <a routerLink="/login" class="btn btn--secondary">Iniciar sesión</a>
 
-      <!-- Selector de idioma (desktop) -->
-      <div class="lang" (mouseenter)="openLang()" (mouseleave)="closeLang()">
-        <button class="lang__btn" (click)="toggleLang($event)" aria-haspopup="true" [attr.aria-expanded]="isLangOpen">
+      <!-- Selector de idioma (desktop) CORREGIDO -->
+      <div class="lang" 
+           (mouseenter)="openLang()" 
+           (mouseleave)="closeLangWithDelay()">
+        <button class="lang__btn" 
+                (click)="toggleLang($event)" 
+                aria-haspopup="true" 
+                [attr.aria-expanded]="isLangOpen">
           <span class="lang__icon" aria-hidden="true">🌐</span>
           <span class="lang__code">{{ currentLang.toUpperCase() }}</span>
           <span class="caret">▾</span>
         </button>
-        <ul class="lang__menu" [class.is-open]="isLangOpen">
-          <li><a href="#" (click)="setLanguage($event, 'es')">Español</a></li>
-          <li><a href="#" (click)="setLanguage($event, 'en')">English</a></li>
+        <ul class="lang__menu" 
+            [class.is-open]="isLangOpen"
+            (mouseenter)="keepLangOpen()"
+            (mouseleave)="closeLangWithDelay()">
+          <li>
+            <a href="#" 
+               (click)="setLanguage($event, 'es')"
+               [class.is-active]="currentLang === 'es'">
+              Español
+            </a>
+          </li>
+          <li>
+            <a href="#" 
+               (click)="setLanguage($event, 'en')"
+               [class.is-active]="currentLang === 'en'">
+              English
+            </a>
+          </li>
         </ul>
       </div>
     </div>
@@ -93,19 +95,8 @@
       <li><a routerLink="/quienes-somos" (click)="closeMobileMenu()">¿Quiénes somos?</a></li>
       <li><a routerLink="/kits" (click)="closeMobileMenu()">Kits</a></li>
 
-      <!-- Servicios acordeón móvil -->
-      <li class="mobile__accordion">
-        <button class="mobile__accordion-btn"
-                (click)="toggleMobileServices()"
-                [attr.aria-expanded]="isMobileServicesOpen">
-          Servicios <span class="caret">▾</span>
-        </button>
-        <ul class="mobile__submenu" [class.is-open]="isMobileServicesOpen">
-          <li><a routerLink="/servicios/sesiones" (click)="closeMobileMenu()">Sesiones individuales</a></li>
-          <li><a routerLink="/servicios/grupal" (click)="closeMobileMenu()">Terapia grupal</a></li>
-          <li><a routerLink="/servicios/talleres" (click)="closeMobileMenu()">Talleres educativos</a></li>
-        </ul>
-      </li>
+      <!-- Enlace directo (sin acordeón de Servicios) -->
+      <li><a routerLink="/acompanamiento" (click)="closeMobileMenu()">Acompañamiento Psicológico</a></li>
 
       <li><a routerLink="/recursos" (click)="closeMobileMenu()">Recursos</a></li>
       <li><a routerLink="/historias" (click)="closeMobileMenu()">Historias</a></li>

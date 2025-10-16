@@ -9,86 +9,77 @@ import { RouterModule } from '@angular/router';
   styleUrls: ['./navbar.scss']
 })
 export class Navbar {
-  /* Desktop: Servicios */
-  isDropdownOpen = false;
-  private closeTimeout: any;
-
-  /* Desktop: Idioma */
+  /* ===== Desktop: Idioma ===== */
   isLangOpen = false;
   currentLang: 'es' | 'en' = (localStorage.getItem('lang') as 'es' | 'en') || 'es';
+  private langCloseTimeout: any;
 
-  /* Mobile */
+  /* ===== Mobile ===== */
   isMobileMenuOpen = false;
-  isMobileServicesOpen = false;
 
-  /* ===== Desktop: Servicios ===== */
-  openDropdown(): void {
-    this.clearCloseTimeout();
-    this.isDropdownOpen = true;
-    this.isLangOpen = false;
+  /* ----- Desktop: Idioma ----- */
+  openLang(): void { 
+    this.clearLangTimeout();
+    this.isLangOpen = true; 
   }
-  closeDropdown(): void {
-    this.closeTimeout = setTimeout(() => (this.isDropdownOpen = false), 140);
+
+  closeLang(): void { 
+    this.clearLangTimeout();
+    this.isLangOpen = false; 
   }
-  keepDropdownOpen(): void {
-    this.clearCloseTimeout();
-    this.isDropdownOpen = true;
+
+  closeLangWithDelay(): void {
+    this.clearLangTimeout();
+    this.langCloseTimeout = setTimeout(() => {
+      this.isLangOpen = false;
+    }, 300); // Pequeño delay para permitir movimiento entre botón y menú
   }
-  toggleDropdown(event: Event): void {
-    event.preventDefault();
-    event.stopPropagation();
-    this.isDropdownOpen = !this.isDropdownOpen;
-    if (this.isDropdownOpen) this.isLangOpen = false;
+
+  keepLangOpen(): void {
+    this.clearLangTimeout();
   }
-  closeAllDropdowns(): void {
-    this.clearCloseTimeout();
-    this.isDropdownOpen = false;
-    this.isLangOpen = false;
-  }
-  private clearCloseTimeout(): void {
-    if (this.closeTimeout) {
-      clearTimeout(this.closeTimeout);
-      this.closeTimeout = null;
+
+  private clearLangTimeout(): void {
+    if (this.langCloseTimeout) {
+      clearTimeout(this.langCloseTimeout);
+      this.langCloseTimeout = null;
     }
   }
 
-  /* ===== Desktop: Idioma ===== */
-  openLang(): void { this.isLangOpen = true; this.isDropdownOpen = false; }
-  closeLang(): void { this.isLangOpen = false; }
   toggleLang(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.isLangOpen = !this.isLangOpen;
-    if (this.isLangOpen) this.isDropdownOpen = false;
+    this.clearLangTimeout();
   }
+
   setLanguage(event: Event, lang: 'es' | 'en'): void {
     event.preventDefault();
+    event.stopPropagation();
     this.currentLang = lang;
     localStorage.setItem('lang', lang);
     this.isLangOpen = false;
-    // integrar con i18n si aplica: this.translate.use(lang);
+    this.clearLangTimeout();
+    // Si usas i18n: this.translate.use(lang);
   }
 
-  /* ===== Mobile ===== */
+  /* ----- Mobile ----- */
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    if (!this.isMobileMenuOpen) this.isMobileServicesOpen = false;
-    this.closeAllDropdowns();
-  }
-  closeMobileMenu(): void {
-    this.isMobileMenuOpen = false;
-    this.isMobileServicesOpen = false;
-  }
-  toggleMobileServices(): void {
-    this.isMobileServicesOpen = !this.isMobileServicesOpen;
+    if (!this.isMobileMenuOpen) this.closeLang();
   }
 
-  /* Cerrar todo al hacer click fuera */
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen = false;
+    this.closeLang();
+  }
+
+  /* Cerrar al hacer click fuera */
   @HostListener('document:click', ['$event'])
   onDocumentClick(e: Event): void {
     const target = e.target as HTMLElement;
 
-    // Si panel móvil está abierto y el click NO fue en el burger, ciérralo con backdrop
+    // Si panel móvil está abierto y el click NO fue en el burger ni en el panel, ciérralo
     if (this.isMobileMenuOpen) {
       const clickedBurger = !!target.closest('.navbar__burger');
       const clickedMobilePanel = !!target.closest('.mobile');
@@ -98,21 +89,32 @@ export class Navbar {
       }
     }
 
-    const insideDropdown = !!target.closest('.navbar__dropdown');
-    const insideLang = !!target.closest('.lang');
-    if (!insideDropdown && !insideLang) this.closeAllDropdowns();
+    // Cerrar selector de idioma si el click fue fuera (solo para desktop)
+    if (this.isLangOpen) {
+      const insideLang = !!target.closest('.lang');
+      if (!insideLang) {
+        this.closeLang();
+      }
+    }
   }
 
   /* Escape cierra menús */
   @HostListener('document:keydown.escape')
   onEsc(): void {
-    this.closeAllDropdowns();
+    this.closeLang();
     this.closeMobileMenu();
   }
 
   /* Al redimensionar: si paso a desktop, cierro panel móvil */
   @HostListener('window:resize')
   onResize(): void {
-    if (window.innerWidth >= 1024 && this.isMobileMenuOpen) this.closeMobileMenu();
+    if (window.innerWidth >= 1024 && this.isMobileMenuOpen) {
+      this.closeMobileMenu();
+    }
+  }
+
+  /* Limpiar timeout al destruir componente */
+  ngOnDestroy(): void {
+    this.clearLangTimeout();
   }
 }

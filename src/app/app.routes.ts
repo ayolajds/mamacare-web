@@ -33,6 +33,14 @@ export const routes: Routes = [
       import('./pages/kits/kits').then(m => m.Kits),
   },
   {
+  path: 'acompanamiento',
+  title: 'MamaCare | Acompañamiento',
+  loadComponent: () =>
+    import('./pages/acompanamiento/acompanamiento').then(
+      m => m.Acompanamiento
+    ),
+},
+  {
     path: 'recursos',
     title: 'MamaCare | Recursos',
     loadComponent: () =>
@@ -55,42 +63,6 @@ export const routes: Routes = [
       import('./pages/contacto/contacto').then(
         m => m.Contacto
       ),
-  },
-
-  // Servicios (rutas hijas)
-  {
-    path: 'servicios',
-    children: [
-      {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'sesiones', // landing por defecto de servicios
-      },
-      {
-        path: 'sesiones',
-        title: 'MamaCare | Sesiones individuales',
-        loadComponent: () =>
-          import('./pages/servicios/sesiones/sesiones').then(
-            m => m.Sesiones
-          ),
-      },
-      {
-        path: 'grupal',
-        title: 'MamaCare | Terapia grupal',
-        loadComponent: () =>
-          import('./pages/servicios/grupal/grupal').then(
-            m => m.Grupal
-          ),
-      },
-      {
-        path: 'talleres',
-        title: 'MamaCare | Talleres educativos',
-        loadComponent: () =>
-          import('./pages/servicios/talleres/talleres').then(
-            m => m.Talleres
-          ),
-      },
-    ],
   },
 
   // Not found → Inicio
