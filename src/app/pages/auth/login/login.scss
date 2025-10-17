@@ -1,0 +1,297 @@
+/* Importar Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* Paleta de colores Mamacare */
+$rosa-suave: #f8b4d9;
+$rosa-principal: #f48fb1;
+$verde-suave: #a5d6a7;
+$verde-principal: #81c784;
+$beige: #f8f6f0;
+$beige-oscuro: #e8e6e0;
+$lavanda: #e8e6fa;
+$lavanda-oscuro: #d8d6f0;
+$texto-oscuro: #5d4037;
+$texto-medio: #795548;
+$texto-claro: #8d6e63;
+
+/* Reset y Fuente Poppins */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, $beige 0%, $lavanda 50%, #f0e8f8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    line-height: 1.4;
+}
+
+/* Login Wrapper */
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    animation: fadeIn 0.8s ease;
+}
+
+/* Contenedor con nuevos colores */
+.login-container {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    border: 2px solid $lavanda;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba($verde-principal, 0.12);
+    background: linear-gradient(145deg, #ffffff 0%, $beige 100%);
+    margin: 20px 0;
+    animation: slideUp 0.6s ease;
+}
+
+/* Imagen */
+.login-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    animation: zoomIn 0.5s ease;
+    border: 2px solid $lavanda;
+}
+
+/* Título con color rosa */
+.card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.6rem;
+    color: $rosa-principal;
+    text-align: center;
+    margin-bottom: 25px;
+    animation: fadeIn 0.4s ease;
+    text-shadow: 0 2px 4px rgba($rosa-principal, 0.15);
+}
+
+/* Form groups */
+.form-group {
+    margin-bottom: 18px;
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 11px 45px 11px 14px;
+    border-radius: 8px;
+    border: 2px solid $lavanda;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    background-color: $beige;
+    color: $texto-oscuro;
+    
+    &::placeholder {
+        color: $texto-claro;
+        opacity: 0.7;
+    }
+}
+
+.form-control:focus {
+    border-color: $rosa-principal;
+    box-shadow: 0 0 0 3px rgba($rosa-principal, 0.15);
+    outline: none;
+    background-color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Toggle password con SVG */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: $rosa-principal;
+    padding: 6px;
+    transition: all 0.3s ease;
+    background: $lavanda;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    z-index: 2;
+    
+    .icon-eye, .icon-eye-slash {
+        width: 18px;
+        height: 18px;
+        fill: currentColor;
+        transition: all 0.3s ease;
+    }
+}
+
+.toggle-password:hover {
+    color: $rosa-suave;
+    background: $lavanda-oscuro;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Button group */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+/* Botones con nuevos colores */
+.btn-login, .btn-register {
+    padding: 11px 16px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, $rosa-principal, $rosa-suave);
+    box-shadow: 0 4px 12px rgba($rosa-principal, 0.25);
+}
+
+.btn-login:hover {
+    background: linear-gradient(135deg, $rosa-suave, $rosa-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba($rosa-principal, 0.35);
+}
+
+.btn-register {
+    background: linear-gradient(135deg, $verde-principal, $verde-suave);
+    box-shadow: 0 4px 12px rgba($verde-principal, 0.25);
+}
+
+.btn-register:hover {
+    background: linear-gradient(135deg, $verde-suave, $verde-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba($verde-principal, 0.35);
+}
+
+/* Forgot password */
+.forgot-password {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+}
+
+.forgot-password a {
+    color: $verde-principal;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.forgot-password a:hover {
+    color: $verde-suave;
+    background-color: $lavanda;
+    text-decoration: none;
+}
+
+/* Animaciones mejoradas */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 480px) {
+    .login-wrapper {
+        padding: 15px;
+    }
+    
+    .login-container {
+        padding: 25px;
+        max-width: 100%;
+        margin: 10px;
+    }
+    
+    .login-image {
+        max-height: 170px;
+        margin-bottom: 20px;
+    }
+    
+    .card-title {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-control {
+        padding: 10px 40px 10px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .button-group {
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-login, .btn-register {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .toggle-password {
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        
+        .icon-eye, .icon-eye-slash {
+            width: 16px;
+            height: 16px;
+        }
+    }
+}

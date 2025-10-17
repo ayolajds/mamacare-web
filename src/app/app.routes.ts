@@ -33,35 +33,47 @@ export const routes: Routes = [
       import('./pages/kits/kits').then(m => m.Kits),
   },
   {
-  path: 'acompanamiento',
-  title: 'MamaCare | Acompañamiento',
-  loadComponent: () =>
-    import('./pages/acompanamiento/acompanamiento').then(
-      m => m.Acompanamiento
-    ),
-},
+    path: 'acompanamiento',
+    title: 'MamaCare | Acompañamiento',
+    loadComponent: () =>
+      import('./pages/acompanamiento/acompanamiento').then(
+        m => m.Acompanamiento
+      ),
+  },
   {
     path: 'recursos',
     title: 'MamaCare | Recursos',
     loadComponent: () =>
-      import('./pages/recursos/recursos').then(
-        m => m.Recursos
-      ),
+      import('./pages/recursos/recursos').then(m => m.Recursos),
   },
   {
     path: 'historias',
     title: 'MamaCare | Historias',
     loadComponent: () =>
-      import('./pages/historias/historias').then(
-        m => m.Historias
-      ),
+      import('./pages/historias/historias').then(m => m.Historias),
   },
   {
     path: 'contacto',
     title: 'MamaCare | Contacto',
     loadComponent: () =>
-      import('./pages/contacto/contacto').then(
-        m => m.Contacto
+      import('./pages/contacto/contacto').then(m => m.Contacto),
+  },
+
+  // 🔐 Autenticación
+  {
+    path: 'login',
+    title: 'MamaCare | Iniciar sesión',
+    loadComponent: () =>
+      import('./pages/auth/login/login').then(
+        m => m.Login
+      ),
+  },
+  {
+    path: 'register',
+    title: 'MamaCare | Crear cuenta',
+    loadComponent: () =>
+      import('./pages/auth/register/register').then(
+        m => m.Register
       ),
   },
 
