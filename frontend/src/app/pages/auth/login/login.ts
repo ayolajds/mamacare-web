@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+
+// 👇 tu AuthService está en app/services/auth.ts
 import { AuthService, LoginRequest } from '../../../shared/services/auth';
 
 @Component({
@@ -35,9 +37,8 @@ export class Login {
     this.auth.login(payload).subscribe({
       next: (res) => {
         this.loading = false;
-        // ✅ Login correcto → token ya guardado por AuthService
-        alert(`Bienvenido, ${res.user.name}`);
-        this.router.navigate(['/dashboard/mi-cuenta']);
+        // ✅ token y user ya quedaron en localStorage por el servicio
+        this.router.navigate(['/profile']); // ← página de perfil
       },
       error: (err) => {
         this.loading = false;
@@ -47,10 +48,11 @@ export class Login {
   }
 
   navigateToRegister() {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/register']); // tus rutas del router
   }
 
   navigateToResetPassword() {
-    this.router.navigate(['/auth/reset-password']);
+    // cámbialo a '/reset-password' cuando exista
+    this.router.navigate(['/contacto']);
   }
 }

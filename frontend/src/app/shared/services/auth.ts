@@ -25,6 +25,7 @@ export interface User {
   role?: string;
   phone?: string;
   birthDate?: string;
+  createdAt?: string;
 }
 
 export interface LoginResponse {

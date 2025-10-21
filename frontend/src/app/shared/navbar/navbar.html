@@ -46,9 +46,25 @@
 
     <!-- Acciones Desktop -->
     <div class="navbar__actions navbar__actions--desktop">
-      <a routerLink="/login" class="btn btn--secondary">Iniciar sesión</a>
+      <!-- Si NO está logueado: botón Iniciar sesión -->
+      <a *ngIf="!isLoggedIn"
+         routerLink="/login"
+         class="btn btn--secondary">Iniciar sesión</a>
 
-      <!-- Selector de idioma (desktop) CORREGIDO -->
+      <!-- Si SÍ está logueado: dropdown con nombre e icono (AUTO HOVER) -->
+      <div *ngIf="isLoggedIn" class="user">
+        <button class="user__btn">
+          <span class="user__icon">👤</span>
+          {{ displayName }} <span class="caret">▾</span>
+        </button>
+        <ul class="user__menu">
+          <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu()">Mi Cuenta</a></li>
+          <li *ngIf="isAdmin"><a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">Panel de Administración</a></li>
+          <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
+        </ul>
+      </div>
+
+      <!-- Selector de idioma (desktop) -->
       <div class="lang" 
            (mouseenter)="openLang()" 
            (mouseleave)="closeLangWithDelay()">
@@ -92,18 +108,37 @@
     </div>
 
     <ul class="mobile__menu">
-      <li><a routerLink="/quienes-somos" (click)="closeMobileMenu()">¿Quiénes somos?</a></li>
-      <li><a routerLink="/kits" (click)="closeMobileMenu()">Kits</a></li>
+      <li><a routerLink="/quienes-somos" routerLinkActive="is-active" (click)="closeMobileMenu()">¿Quiénes somos?</a></li>
+      <li><a routerLink="/kits" routerLinkActive="is-active" (click)="closeMobileMenu()">Kits</a></li>
 
       <!-- Enlace directo (sin acordeón de Servicios) -->
-      <li><a routerLink="/acompanamiento" (click)="closeMobileMenu()">Acompañamiento Psicológico</a></li>
+      <li><a routerLink="/acompanamiento" routerLinkActive="is-active" (click)="closeMobileMenu()">Acompañamiento Psicológico</a></li>
 
-      <li><a routerLink="/recursos" (click)="closeMobileMenu()">Recursos</a></li>
-      <li><a routerLink="/historias" (click)="closeMobileMenu()">Historias</a></li>
-      <li><a routerLink="/contacto" (click)="closeMobileMenu()">Contacto</a></li>
+      <li><a routerLink="/recursos" routerLinkActive="is-active" (click)="closeMobileMenu()">Recursos</a></li>
+      <li><a routerLink="/historias" routerLinkActive="is-active" (click)="closeMobileMenu()">Historias</a></li>
+      <li><a routerLink="/contacto" routerLinkActive="is-active" (click)="closeMobileMenu()">Contacto</a></li>
 
-      <li class="mobile__login">
+      <!-- Si NO está logueado: botón Iniciar sesión -->
+      <li class="mobile__login" *ngIf="!isLoggedIn">
         <a routerLink="/login" class="btn btn--secondary" (click)="closeMobileMenu()">Iniciar sesión</a>
+      </li>
+
+      <!-- Si SÍ está logueado: dropdown de usuario en móvil (SOLO SE ABRE CON CLICK) -->
+      <li class="mobile__login" *ngIf="isLoggedIn">
+        <div class="mobile-user">
+          <button class="mobile-user__btn" 
+                  (click)="toggleUserMenu($event)" 
+                  aria-haspopup="true" 
+                  [attr.aria-expanded]="isUserMenuOpen">
+            <span class="mobile-user__icon">👤</span>
+            {{ displayName }} <span class="caret">▾</span>
+          </button>
+          <ul class="mobile-user__menu" [class.is-open]="isUserMenuOpen">
+            <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">Mi Cuenta</a></li>
+            <li *ngIf="isAdmin"><a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">Panel de Administración</a></li>
+            <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
+          </ul>
+        </div>
       </li>
 
       <!-- Idioma móvil -->

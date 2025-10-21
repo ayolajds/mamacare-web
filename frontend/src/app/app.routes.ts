@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 
 // Nota: todas las rutas usan loadComponent (standalone + lazy-load).
 // Asegúrate de que cada componente exista en la ruta indicada.
@@ -76,6 +77,13 @@ export const routes: Routes = [
         m => m.Register
       ),
   },
+  {
+  path: 'profile',
+  title: 'MamaCare | Profile',
+  canActivate: [authGuard],
+  loadComponent: () =>
+    import('./pages/auth/profile/profile').then(m => m.Profile),
+},
 
   // Not found → Inicio
   {
