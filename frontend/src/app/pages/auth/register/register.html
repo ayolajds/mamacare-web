@@ -4,32 +4,50 @@
     <h2 class="card-title">Crear Cuenta</h2>
 
     <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
-      <!-- Nombre y Apellido en línea -->
+      <!-- Nombre y Apellido -->
       <div class="name-group">
         <div class="form-group">
-          <input type="text" [(ngModel)]="nombre" name="nombre"
-                 class="form-control" placeholder="Nombre" required />
+          <input
+            type="text"
+            [(ngModel)]="nombre"
+            name="nombre"
+            class="form-control"
+            placeholder="Nombre"
+            required />
         </div>
 
         <div class="form-group">
-          <input type="text" [(ngModel)]="apellido" name="apellido"
-                 class="form-control" placeholder="Apellido" required />
+          <input
+            type="text"
+            [(ngModel)]="apellido"
+            name="apellido"
+            class="form-control"
+            placeholder="Apellido"
+            required />
         </div>
       </div>
 
       <!-- Email -->
       <div class="form-group">
-        <input type="email" [(ngModel)]="email" name="email"
-               class="form-control" placeholder="Correo electrónico" required />
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          class="form-control"
+          placeholder="Correo electrónico"
+          required />
       </div>
 
       <!-- Contraseña -->
       <div class="form-group password-group">
-        <input [type]="showPassword ? 'text' : 'password'"
-               [(ngModel)]="password" name="password"
-               class="form-control password-input"
-               placeholder="Contraseña"
-               required minlength="6" />
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="password"
+          name="password"
+          class="form-control password-input"
+          placeholder="Contraseña"
+          required
+          minlength="6" />
         <button type="button" class="toggle-password" (click)="showPassword = !showPassword">
           <svg class="icon-eye" [class.hidden]="showPassword" viewBox="0 0 24 24">
             <path d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/>
@@ -42,11 +60,13 @@
 
       <!-- Confirmar Contraseña -->
       <div class="form-group password-group">
-        <input [type]="showConfirmPassword ? 'text' : 'password'"
-               [(ngModel)]="confirmPassword" name="confirmPassword"
-               class="form-control password-input"
-               placeholder="Confirmar contraseña"
-               required />
+        <input
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          [(ngModel)]="confirmPassword"
+          name="confirmPassword"
+          class="form-control password-input"
+          placeholder="Confirmar contraseña"
+          required />
         <button type="button" class="toggle-password" (click)="showConfirmPassword = !showConfirmPassword">
           <svg class="icon-eye" [class.hidden]="showConfirmPassword" viewBox="0 0 24 24">
             <path d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5z"/>
@@ -57,27 +77,51 @@
         </button>
       </div>
 
-      <!-- Fecha de Nacimiento y Teléfono en línea -->
+      <!-- Fecha de Nacimiento y Teléfono -->
       <div class="contact-group">
         <div class="form-group">
           <label class="form-label">Fecha de Nacimiento</label>
-          <input type="date" [(ngModel)]="fechaNacimiento" name="fechaNacimiento"
-                 class="form-control" [min]="minDate" [max]="maxDate" required />
+          <input
+            type="date"
+            [(ngModel)]="fechaNacimiento"
+            name="fechaNacimiento"
+            class="form-control"
+            [min]="minDate"
+            [max]="maxDate"
+            required />
         </div>
 
         <div class="form-group">
           <label class="form-label">Teléfono</label>
-          <input type="tel" [(ngModel)]="telefono" name="telefono"
-                 class="form-control" placeholder="+57 300 123 4567" />
+          <input
+            type="tel"
+            [(ngModel)]="telefono"
+            name="telefono"
+            class="form-control"
+            placeholder="+57 300 123 4567"
+            required />
         </div>
       </div>
 
+      <!-- Mensaje de error -->
+      <p *ngIf="errorMsg" class="error" style="color:#d21; margin:.5rem 0;">
+        {{ errorMsg }}
+      </p>
+
+      <!-- Botones -->
       <div class="button-group">
-        <button type="submit" class="btn-register" [disabled]="loading">
+        <button
+          type="submit"
+          class="btn-register"
+          [disabled]="loading || registerForm.invalid">
           <span *ngIf="loading" class="loading-spinner"></span>
           {{ loading ? 'Creando Cuenta...' : 'Registrarme' }}
         </button>
-        <button type="button" class="btn-login" (click)="navigateToLogin()">
+
+        <button
+          type="button"
+          class="btn-login"
+          (click)="navigateToLogin()">
           ¿Ya tienes cuenta? Inicia Sesión
         </button>
       </div>

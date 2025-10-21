@@ -1,49 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService, LoginRequest } from '../../../shared/services/auth';
 
 @Component({
-    selector: 'app-login',
-    imports: [FormsModule, CommonModule],
-    templateUrl: './login.html',
-    styleUrls: ['./login.scss']
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+  templateUrl: './login.html',
+  styleUrls: ['./login.scss']
 })
 export class Login {
-  email: string = '';
-  password: string = '';
-  showPassword: boolean = false;
+  private router = inject(Router);
+  private auth = inject(AuthService);
 
-  constructor(private router: Router) {}
+  email = '';
+  password = '';
+  showPassword = false;
+  loading = false;
+  errorMsg = '';
 
   onSubmit(loginForm: NgForm) {
-    if (loginForm.valid) {
-      // Simulación de login exitoso
-      const user = {
-        id: 1,
-        firstName: 'Usuario',
-        lastName: 'Mamacare',
-        email: this.email,
-        role: 'user'
-      };
+    if (loginForm.invalid || this.loading) return;
 
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
+    const payload: LoginRequest = {
+      email: this.email.trim(),
+      password: this.password
+    };
 
-      // Redirigir directamente sin SweetAlert
-      this.router.navigate(['/dashboard/mi-cuenta']);
-    } else {
-      // Mostrar alerta nativa si el formulario no es válido
-      alert('Por favor, completa todos los campos correctamente.');
-    }
+    this.loading = true;
+    this.errorMsg = '';
+
+    this.auth.login(payload).subscribe({
+      next: (res) => {
+        this.loading = false;
+        // ✅ Login correcto → token ya guardado por AuthService
+        alert(`Bienvenido, ${res.user.name}`);
+        this.router.navigate(['/dashboard/mi-cuenta']);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.errorMsg = err?.error?.message || 'Credenciales incorrectas';
+      }
+    });
   }
 
-  // Método para redirigir a la página de registro
   navigateToRegister() {
     this.router.navigate(['/register']);
   }
 
-  // Método para redirigir a la página de restablecer contraseña
   navigateToResetPassword() {
     this.router.navigate(['/auth/reset-password']);
   }
