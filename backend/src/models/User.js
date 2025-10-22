@@ -11,11 +11,16 @@ const userSchema = new mongoose.Schema(
     role:       { type: String, enum: ROLES, default: 'paciente', index: true },
     phone:      { type: String, required: true, trim: true },
     birthDate:  { type: Date, required: true },
-    isActive:   { type: Boolean, default: true }
+    isActive:   { type: Boolean, default: true },
+    
+    // ✅ CAMPOS NUEVOS PARA FORGOT PASSWORD
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    isVerified: { type: Boolean, default: false }
   },
   { timestamps: true }
 );
 
-// 🧩 prevención del OverwriteModelError
+// 🧩 Prevención del OverwriteModelError
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
 export const USER_ROLES = ROLES;
