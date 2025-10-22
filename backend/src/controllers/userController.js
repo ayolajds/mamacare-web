@@ -1,4 +1,4 @@
-import { User, USER_ROLES } from '../models/user.js';
+import { User, USER_ROLES } from '../models/User.js';
 
 export async function listUsers(req, res) {
   const { q = '' } = req.query;
