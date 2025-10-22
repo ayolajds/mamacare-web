@@ -105,6 +105,215 @@ $borde: #e1e1e1;
   border: 1px solid $borde;
 }
 
+/* Tarjeta de cambiar contraseña */
+.password-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid $borde;
+  margin-bottom: 20px;
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: $texto;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .header-icon {
+      width: 20px;
+      height: 20px;
+      color: $rosa-strong;
+    }
+    
+    .close-btn {
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      svg {
+        width: 20px;
+        height: 20px;
+        color: $texto-light;
+      }
+      
+      &:hover {
+        background: #f5f5f5;
+        
+        svg {
+          color: $texto;
+        }
+      }
+    }
+  }
+}
+
+/* Formulario de contraseña mejorado */
+.password-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.form-group {
+  margin-bottom: 24px;
+  
+  label {
+    display: block;
+    font-weight: 700;
+    color: $texto;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.password-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+  
+  .form-control {
+    flex: 1;
+    padding: 14px 50px 14px 16px;
+    border: 2px solid $borde;
+    border-radius: 12px;
+    background: white;
+    font-size: 1rem;
+    color: $texto;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    
+    /* DESACTIVAR EL ICONO NATIVO DEL NAVEGADOR */
+    &::-webkit-credentials-auto-fill-button,
+    &::-webkit-strong-password-auto-fill-button,
+    &::-webkit-textfield-decoration-container {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+    
+    /* Para Firefox */
+    &[type="password"] {
+        -moz-appearance: textfield;
+    }
+    
+    /* Para Edge/IE */
+    &::-ms-reveal,
+    &::-ms-clear {
+        display: none;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: $rosa-strong;
+      box-shadow: 0 0 0 3px rgba($rosa-strong, 0.1);
+    }
+    
+    &::placeholder {
+      color: $texto-light;
+      opacity: 0.7;
+    }
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    svg {
+      width: 20px;
+      height: 20px;
+      color: $texto-light;
+      transition: color 0.2s ease;
+    }
+    
+    &:hover {
+      background: rgba($rosa, 0.1);
+      
+      svg {
+        color: $rosa-strong;
+      }
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+/* Botones del formulario */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid $borde;
+  
+  .btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    min-width: 140px;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  .secondary-btn {
+    background: transparent;
+    color: $texto;
+    border: 2px solid $borde;
+    
+    &:hover {
+      background: #f5f5f5;
+      border-color: $texto-light;
+    }
+  }
+  
+  .primary-btn {
+    background: $rosa-strong;
+    color: white;
+    
+    &:hover {
+      background: color.adjust($rosa-strong, $lightness: -10%);
+      box-shadow: 0 4px 16px rgba(225, 88, 134, 0.3);
+    }
+    
+    &:disabled {
+      background: $texto-light;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+}
+
 .card-header {
   margin-bottom: 30px;
   display: flex;
@@ -270,7 +479,7 @@ $borde: #e1e1e1;
   }
 }
 
-/* Sección de acciones minimalista */
+/* Sección de acciones - SOLO CAMBIAR CONTRASEÑA */
 .actions-section {
   margin-top: 30px;
   padding-top: 24px;
@@ -278,11 +487,15 @@ $borde: #e1e1e1;
 }
 
 .actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
   gap: 12px;
+  justify-content: center;
   max-width: 400px;
   margin: 0 auto;
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 }
 
 .action-btn {
@@ -299,6 +512,7 @@ $borde: #e1e1e1;
   transition: all 0.2s ease;
   text-decoration: none;
   font-family: inherit;
+  flex: 1;
   
   .btn-icon {
     width: 18px;
@@ -321,13 +535,12 @@ $borde: #e1e1e1;
 }
 
 .secondary-btn {
-  background: transparent;
+  background: $verde;
   color: $texto;
-  border: 1px solid $borde;
   
   &:hover {
-    background: #f5f5f5;
-    border-color: $texto-light;
+    background: color.adjust($verde, $lightness: -10%);
+    box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
   }
 }
 
@@ -369,7 +582,8 @@ $borde: #e1e1e1;
   }
   
   .profile-header,
-  .profile-card {
+  .profile-card,
+  .password-card {
     padding: 20px;
   }
   
@@ -379,15 +593,24 @@ $borde: #e1e1e1;
     gap: 16px;
   }
   
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-  
   .info-item {
     padding: 14px;
   }
   
   .info-grid {
     gap: 16px;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    
+    .btn {
+      min-width: auto;
+      width: 100%;
+    }
+  }
+  
+  .password-input-group .form-control {
+    padding: 12px 45px 12px 14px;
   }
 }

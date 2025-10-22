@@ -3,24 +3,25 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { delay, tap, map, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
 export interface RegisterRequest {
-  nombre: string;
-  apellido: string;
+  name: string;              // ← AGREGADO
+  lastName: string;          
   email: string;
   password: string;
-  telefono: string;
-  fechaNacimiento: string;
+  phone: string;             
+  birthDate: string;         
 }
 
 export interface User {
   id: string;
   name: string;
-  lastName: string;   // obligatorio
+  lastName: string;
   email: string;
   role?: string;
   phone?: string;
@@ -37,12 +38,10 @@ export interface LoginResponse {
 export class AuthService {
   private http = inject(HttpClient);
 
-  private readonly MOCK = false; // si lo pones true, los mocks cumplen el tipo
+  private readonly MOCK = false;
   private readonly BASE = `${environment.apiUrl}/auth`;
   private readonly ACCESS_KEY = 'mamacare_access';
   private readonly USER_KEY = 'mamacare_user';
-
-  // ======= Auth API =======
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     if (this.MOCK) {
@@ -51,9 +50,11 @@ export class AuthService {
         user: {
           id: '1',
           name: 'Usuario',
-          lastName: 'Demo',      // 👈 añadimos lastName para cumplir el tipo
+          lastName: 'Demo',
           email: payload.email,
-          role: 'paciente'
+          role: 'paciente',
+          phone: '+57 300 123 4567',
+          birthDate: '1990-01-01'
         }
       };
       return of(mock).pipe(
@@ -72,10 +73,12 @@ export class AuthService {
     if (this.MOCK) {
       const mockUser: User = {
         id: crypto.randomUUID(),
-        name: payload.nombre,
-        lastName: payload.apellido,  // 👈 ahora presente
+        name: payload.name,
+        lastName: payload.lastName,
         email: payload.email,
-        role: 'paciente'
+        role: 'paciente',
+        phone: payload.phone,
+        birthDate: payload.birthDate
       };
       return of(mockUser).pipe(delay(500));
     }
@@ -94,7 +97,6 @@ export class AuthService {
       Authorization: `Bearer ${this.token()}`
     });
 
-    // El backend responde { user: {...} }
     return this.http.get<{ user: User }>(`${this.BASE}/me`, { headers }).pipe(
       map(r => r.user),
       tap(u => localStorage.setItem(this.USER_KEY, JSON.stringify(u))),
@@ -106,8 +108,6 @@ export class AuthService {
     localStorage.removeItem(this.ACCESS_KEY);
     localStorage.removeItem(this.USER_KEY);
   }
-
-  // ======= Helpers =======
 
   isLoggedIn(): boolean {
     return !!localStorage.getItem(this.ACCESS_KEY);

@@ -4,13 +4,13 @@
     <h2 class="card-title">Crear Cuenta</h2>
 
     <form (ngSubmit)="onSubmit(registerForm)" #registerForm="ngForm">
-      <!-- Nombre y Apellido -->
+      <!-- Name and Last Name -->
       <div class="name-group">
         <div class="form-group">
           <input
             type="text"
-            [(ngModel)]="nombre"
-            name="nombre"
+            [(ngModel)]="name"
+            name="name"                  
             class="form-control"
             placeholder="Nombre"
             required />
@@ -19,8 +19,8 @@
         <div class="form-group">
           <input
             type="text"
-            [(ngModel)]="apellido"
-            name="apellido"
+            [(ngModel)]="lastName"       
+            name="lastName"              
             class="form-control"
             placeholder="Apellido"
             required />
@@ -38,7 +38,7 @@
           required />
       </div>
 
-      <!-- Contraseña -->
+      <!-- Password -->
       <div class="form-group password-group">
         <input
           [type]="showPassword ? 'text' : 'password'"
@@ -58,7 +58,7 @@
         </button>
       </div>
 
-      <!-- Confirmar Contraseña -->
+      <!-- Confirm Password -->
       <div class="form-group password-group">
         <input
           [type]="showConfirmPassword ? 'text' : 'password'"
@@ -77,14 +77,14 @@
         </button>
       </div>
 
-      <!-- Fecha de Nacimiento y Teléfono -->
+      <!-- Birth Date and Phone -->
       <div class="contact-group">
         <div class="form-group">
           <label class="form-label">Fecha de Nacimiento</label>
           <input
             type="date"
-            [(ngModel)]="fechaNacimiento"
-            name="fechaNacimiento"
+            [(ngModel)]="birthDate"          
+            name="birthDate"                 
             class="form-control"
             [min]="minDate"
             [max]="maxDate"
@@ -95,8 +95,8 @@
           <label class="form-label">Teléfono</label>
           <input
             type="tel"
-            [(ngModel)]="telefono"
-            name="telefono"
+            [(ngModel)]="phone"  
+            name="phone"                     
             class="form-control"
             placeholder="+57 300 123 4567"
             required />

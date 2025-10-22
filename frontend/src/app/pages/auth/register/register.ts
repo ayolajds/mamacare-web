@@ -15,14 +15,14 @@ export class Register {
   private router = inject(Router);
   private auth = inject(AuthService);
 
-  // form model
-  nombre = '';
-  apellido = '';
+  // form model - TODO EN INGLÉS para consistencia
+  name = '';
+  lastName = '';
   email = '';
   password = '';
   confirmPassword = '';
-  fechaNacimiento = '';
-  telefono = '';
+  birthDate = '';
+  phone = '';
 
   // UI state
   showPassword = false;
@@ -46,7 +46,7 @@ export class Register {
     this.maxDate = eighteenYearsAgo.toISOString().split('T')[0];
 
     // por defecto: 18 años atrás
-    this.fechaNacimiento = this.maxDate;
+    this.birthDate = this.maxDate;
   }
 
   onSubmit(form: NgForm) {
@@ -59,7 +59,7 @@ export class Register {
     }
 
     // validación de edad (18+)
-    const birthDate = new Date(this.fechaNacimiento);
+    const birthDate = new Date(this.birthDate);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const month = today.getMonth() - birthDate.getMonth();
@@ -71,12 +71,12 @@ export class Register {
 
     // payload que espera tu backend
     const payload: RegisterRequest = {
-      nombre: this.nombre.trim(),
-      apellido: this.apellido.trim(),
+      name: this.name.trim(),
+      lastName: this.lastName.trim(),
       email: this.email.trim(),
       password: this.password,
-      telefono: this.telefono.trim(),
-      fechaNacimiento: this.fechaNacimiento // YYYY-MM-DD
+      phone: this.phone.trim(),
+      birthDate: this.birthDate
     };
 
     this.loading = true;
@@ -88,7 +88,7 @@ export class Register {
         // éxito: tu AuthService ya guardó token y user en localStorage
         alert(`✅ Registro exitoso: ${user.name} ${user.lastName}`);
         // redirige donde quieras:
-        this.router.navigate(['/dashboard/mi-cuenta']);
+        this.router.navigate(['/profile']);
       },
       error: (err) => {
         this.loading = false;
