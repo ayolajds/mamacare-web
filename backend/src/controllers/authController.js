@@ -2,17 +2,11 @@ import { User } from '../models/User.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { signToken } from '../utils/jwt.js';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
-import { resetPasswordTemplate, passwordUpdatedTemplate } from '../utils/emailTemplates.js';
+import { sendMail } from '../utils/mailer.js'; // ✅ CORREGIDO: usa tu mailer.js
 
-// Configuración de email (usa Gmail, SendGrid, etc.)
-const transporter = nodemailer.createTransport({
-  service: 'Gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Agrega esto después de los imports para debug
+console.log('🔍 Debug: sendMail disponible?', typeof sendMail);
+console.log('🔍 Debug: sendEmail disponible?', typeof sendEmail);
 
 // Mapeo consistente para la respuesta de usuario
 function mapUser(u) {
@@ -130,45 +124,88 @@ export async function forgotPassword(req, res) {
       isActive: true 
     });
     
-    // ✅ VERSIÓN TEMPORAL - SIN EMAIL
+    // Por seguridad, siempre devolver éxito
     if (!user) {
-      console.log('❌ Usuario no encontrado:', email);
       return res.json({
         message: 'Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña'
       });
     }
 
+    // Generar token
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = crypto
       .createHash('sha256')
       .update(resetToken)
       .digest('hex');
 
+    // Guardar en BD
     user.resetPasswordToken = resetTokenHash;
     user.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
     await user.save();
 
-    // ✅ SOLO LOG EN CONSOLA - NO ENVÍA EMAIL
-    console.log('🎯 ===== FORGOT PASSWORD - MODO PRUEBAS =====');
-    console.log(`📧 Usuario: ${user.email}`);
-    console.log(`🔑 Token: ${resetToken}`);
-    console.log(`🔗 Enlace para resetear: http://localhost:4200/reset-password/${resetToken}`);
-    console.log('⏰ Expira:', new Date(user.resetPasswordExpires).toLocaleString());
-    console.log('🎯 ===========================================');
+    const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    // ✅ CORREGIDO: sendMail no sendEmail
+    await sendMail({
+      to: user.email,
+      subject: 'Restablece tu contraseña - MamaCare',
+      html: `
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f7f9fc 0%, #ffffff 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+  <!-- Header -->
+  <div style="background: linear-gradient(135deg, #e15886 0%, #f7d3e1 100%); padding: 2rem; text-align: center;">
+    <div style="background: white; width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+      <span style="font-size: 24px; color: #e15886;">🔑</span>
+    </div>
+    <h1 style="color: white; margin: 0; font-size: 1.5rem; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Restablecer Contraseña</h1>
+  </div>
+  
+  <!-- Content -->
+  <div style="padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="color: #2a2a2a; margin: 0 0 1rem 0; font-size: 1.25rem;">Hola <strong>${user.name}</strong>,</h2>
+      <p style="color: #666; line-height: 1.6; margin: 0;">
+        Has solicitado restablecer tu contraseña. Haz clic en el botón para continuar.
+      </p>
+    </div>
+
+    <!-- CTA Button -->
+    <div style="text-align: center; margin: 2rem 0;">
+      <a href="${resetURL}" style="background: linear-gradient(135deg, #e15886 0%, #d14a7a 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 12px; display: inline-block; font-weight: 700; font-size: 1rem; box-shadow: 0 4px 15px rgba(225, 88, 134, 0.3); transition: all 0.3s ease;">
+        Restablecer Contraseña
+      </a>
+    </div>
+
+    <!-- Security Info -->
+    <div style="background: #f8f9fa; border-radius: 8px; padding: 1rem; text-align: center;">
+      <p style="color: #6c757d; margin: 0; font-size: 0.85rem;">
+        ⏰ Este enlace expirará en <strong>1 hora</strong><br>
+        🔒 Por seguridad, no compartas este enlace con nadie
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background: #f8f9fa; padding: 1.5rem; text-align: center; border-top: 1px solid #e9ecef;">
+    <p style="color: #6c757d; margin: 0 0 0.5rem 0; font-size: 0.8rem;">
+      ¿No solicitaste este cambio? <a href="mailto:soporte@mamacare.com" style="color: #e15886; text-decoration: none;">Ignora este email</a>
+    </p>
+    <p style="color: #adb5bd; margin: 0; font-size: 0.75rem;">
+      © 2024 MamaCare. Todos los derechos reservados.
+    </p>
+  </div>
+</div>
+      `
+    });
+
+    console.log('✅ Email de recuperación enviado a:', user.email);
 
     res.json({
-      success: true,
-      message: 'Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña',
-      // ✅ Datos para pruebas (quitar en producción)
-      resetToken: resetToken,
-      resetURL: `http://localhost:4200/reset-password/${resetToken}`,
-      userEmail: user.email
+      message: 'Si el email existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña'
     });
 
   } catch (error) {
     console.error('Error en forgotPassword:', error);
     res.status(500).json({ 
-      success: false,
       message: 'Error del servidor' 
     });
   }
@@ -258,13 +295,64 @@ export async function resetPassword(req, res) {
 
     console.log('🎉 Contraseña actualizada exitosamente para:', user.email);
 
-    // ✅ COMENTA TEMPORALMENTE EL EMAIL DE CONFIRMACIÓN
-    console.log('📧 (Email de confirmación desactivado en modo pruebas)');
-    // await sendMail({
-    //   to: user.email,
-    //   subject: 'Contraseña actualizada - MamaCare',
-    //   html: `...`
-    // });
+    // ✅ CORREGIDO: sendMail no sendEmail
+    await sendMail({
+      to: user.email,
+      subject: 'Contraseña actualizada - MamaCare',
+      html: `
+        <div style="font-family: 'Arial', sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #f7f9fc 0%, #ffffff 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.1);">
+  <!-- Header -->
+  <div style="background: linear-gradient(135deg, #2d7d32 0%, #4caf50 100%); padding: 2rem; text-align: center;">
+    <div style="background: white; width: 60px; height: 60px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+      <span style="font-size: 24px; color: #2d7d32;">✓</span>
+    </div>
+    <h1 style="color: white; margin: 0; font-size: 1.5rem; font-weight: 700;">¡Contraseña Actualizada!</h1>
+  </div>
+  
+  <!-- Content -->
+  <div style="padding: 2.5rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <h2 style="color: #2d7d32; margin: 0 0 1rem 0; font-size: 1.25rem;">Hola <strong style="color: #2a2a2a;">${user.name}</strong>,</h2>
+      <p style="color: #666; line-height: 1.6; margin: 0;">
+        Tu contraseña ha sido restablecida exitosamente.
+      </p>
+    </div>
+
+    <!-- Info Box -->
+    <div style="background: #f8fff9; border: 2px solid #e8f5e9; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="background: #2d7d32; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+          <span style="color: white; font-size: 18px;">🔒</span>
+        </div>
+        <div>
+          <h3 style="color: #2a2a2a; margin: 0 0 0.25rem 0; font-size: 1rem;">Seguridad de tu cuenta</h3>
+          <p style="color: #666; margin: 0; font-size: 0.9rem; line-height: 1.4;">
+            Tu cuenta ahora está protegida con una nueva contraseña segura.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div style="background: #fff3e0; border: 2px solid #ffecb3; border-radius: 8px; padding: 1rem; text-align: center;">
+      <p style="color: #e65100; margin: 0; font-size: 0.85rem; font-weight: 600;">
+        ⚠️ Si no realizaste esta acción, por favor contacta con soporte inmediatamente.
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background: #f8f9fa; padding: 1.5rem; text-align: center; border-top: 1px solid #e9ecef;">
+    <p style="color: #6c757d; margin: 0 0 0.5rem 0; font-size: 0.8rem;">
+      ¿Necesitas ayuda? <a href="mailto:soporte@mamacare.com" style="color: #2d7d32; text-decoration: none;">Contáctanos</a>
+    </p>
+    <p style="color: #adb5bd; margin: 0; font-size: 0.75rem;">
+      © 2024 MamaCare. Todos los derechos reservados.
+    </p>
+  </div>
+</div>
+      `
+    });
 
     return res.json({
       success: true,
