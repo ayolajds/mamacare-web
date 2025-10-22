@@ -88,7 +88,7 @@ export class Register {
         // éxito: tu AuthService ya guardó token y user en localStorage
         alert(`✅ Registro exitoso: ${user.name} ${user.lastName}`);
         // redirige donde quieras:
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
@@ -98,6 +98,6 @@ export class Register {
   }
 
   navigateToLogin() {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/login']);
   }
 }

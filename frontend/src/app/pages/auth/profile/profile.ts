@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService, User } from '../../../shared/services/auth';
+import { AuthService, User, UpdateProfileRequest, ChangePasswordRequest } from '../../../shared/services/auth'; // 👈 Agregar imports
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,6 +18,7 @@ export class Profile {
   user: User | null = null;
   loading = true;
   showPasswordForm = false;
+  updating = false; // 👈 Agregar estado de carga
 
   passwordData = {
     currentPassword: '',
@@ -81,7 +82,10 @@ export class Profile {
     this.passwordVisibility[field] = !this.passwordVisibility[field];
   }
 
+  // 👇 MÉTODO ACTUALIZADO - LLAMADA REAL AL BACKEND
   updatePassword() {
+    if (this.updating) return;
+
     // Validar que las contraseñas coincidan
     if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
       alert('Las contraseñas no coinciden');
@@ -94,30 +98,71 @@ export class Profile {
       return;
     }
 
-    // Aquí iría la lógica para actualizar la contraseña
-    console.log('Actualizando contraseña...', this.passwordData);
-    
-    // Simular actualización
-    setTimeout(() => {
-      alert('Contraseña actualizada correctamente');
-      this.showPasswordForm = false;
-      this.resetPasswordForm();
-    }, 1000);
+    this.updating = true;
+
+    const passwordRequest: ChangePasswordRequest = {
+      currentPassword: this.passwordData.currentPassword,
+      newPassword: this.passwordData.newPassword,
+      confirmPassword: this.passwordData.confirmPassword
+    };
+
+    console.log('🔄 Enviando cambio de contraseña al backend...');
+
+    this.auth.changePassword(passwordRequest).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta del backend:', response);
+        this.updating = false;
+        
+        if (response.success) {
+          alert('Contraseña actualizada correctamente');
+          this.showPasswordForm = false;
+          this.resetPasswordForm();
+        } else {
+          alert('Error: ' + response.message);
+        }
+      },
+      error: (error) => {
+        console.log('❌ Error del backend:', error);
+        this.updating = false;
+        alert('Error al cambiar contraseña: ' + (error.error?.message || error.message));
+      }
+    });
   }
 
+  // 👇 MÉTODO ACTUALIZADO - LLAMADA REAL AL BACKEND
   updateUserInfo() {
-    // Aquí iría la lógica para actualizar la información del usuario
-    console.log('Actualizando información del usuario...', this.editableUserData);
-    
-    // Simular actualización
-    setTimeout(() => {
-      alert('Información actualizada correctamente');
-      if (this.user) {
-        this.user.name = this.editableUserData.name;
-        this.user.lastName = this.editableUserData.lastName;
-        this.user.phone = this.editableUserData.phone;
+    if (this.updating) return;
+
+    this.updating = true;
+
+    const profileRequest: UpdateProfileRequest = {
+      name: this.editableUserData.name,
+      lastName: this.editableUserData.lastName,
+      phone: this.editableUserData.phone
+    };
+
+    console.log('🔄 Enviando actualización de perfil al backend...', profileRequest);
+
+    this.auth.updateProfile(profileRequest).subscribe({
+      next: (response) => {
+        console.log('✅ Respuesta del backend:', response);
+        this.updating = false;
+        
+        if (response.success && response.user) {
+          alert('Información actualizada correctamente');
+          // Actualizar datos locales con la respuesta del backend
+          this.user = response.user;
+          this.loadEditableData(); // Recargar datos editables por si acaso
+        } else {
+          alert('Error: ' + response.message);
+        }
+      },
+      error: (error) => {
+        console.log('❌ Error del backend:', error);
+        this.updating = false;
+        alert('Error al actualizar información: ' + (error.error?.message || error.message));
       }
-    }, 1000);
+    });
   }
 
   private resetPasswordForm() {

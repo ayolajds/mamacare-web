@@ -50,9 +50,7 @@ export class Login {
   navigateToRegister() {
     this.router.navigate(['/register']); // tus rutas del router
   }
-
-  navigateToResetPassword() {
-    // cámbialo a '/reset-password' cuando exista
-    this.router.navigate(['/contacto']);
-  }
+navigateToResetPassword() {
+  this.router.navigate(['/forgot-password']);
+}
 }

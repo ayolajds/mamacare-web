@@ -77,6 +77,22 @@ export const routes: Routes = [
         m => m.Register
       ),
   },
+    {
+    path: 'forgot-password', // ✅ RUTA DEL COMPONENTE QUE ACABAS DE CREAR
+    title: 'MamaCare | Recuperar contraseña',
+    loadComponent: () =>
+      import('./pages/auth/forgot-password/forgot-password').then(
+        m => m.ForgotPassword
+      ),
+  },
+{
+  path: 'reset-password/:token',
+  title: 'MamaCare | Restablecer contraseña',
+  loadComponent: () =>
+    import('./pages/auth/reset-password/reset-password').then(
+      m => m.ResetPassword
+    ),
+},
   {
   path: 'profile',
   title: 'MamaCare | Profile',
