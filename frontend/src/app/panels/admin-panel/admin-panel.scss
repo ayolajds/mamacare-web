@@ -1,0 +1,167 @@
+.admin-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 80vh;
+}
+
+.panel-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  .panel-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 1rem 0;
+    line-height: 1.2;
+  }
+  
+  .panel-subtitle {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.panel-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  position: relative;
+  min-height: 140px;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #3498db;
+    
+    .card-arrow {
+      transform: translateX(4px);
+      color: #3498db;
+    }
+  }
+  
+  &.coming-soon {
+    opacity: 0.7;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: #e9ecef;
+    }
+  }
+}
+
+.card-icon {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .icon {
+    width: 24px;
+    height: 24px;
+    color: white;
+  }
+  
+  .coming-soon & {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  }
+}
+
+.card-content {
+  flex: 1;
+  
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.3;
+  }
+  
+  .card-description {
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.95rem;
+  }
+}
+
+.coming-soon-badge {
+  display: inline-block;
+  background: #f8f9fa;
+  color: #6c757d;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  border: 1px solid #dee2e6;
+}
+
+.card-arrow {
+  color: #6c757d;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  align-self: center;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 1rem;
+  }
+  
+  .panel-header {
+    .panel-title {
+      font-size: 2rem;
+    }
+    
+    .panel-subtitle {
+      font-size: 1rem;
+    }
+  }
+  
+  .panel-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .panel-card {
+    padding: 1.5rem;
+    min-height: auto;
+  }
+  
+  .card-icon {
+    width: 50px;
+    height: 50px;
+    
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

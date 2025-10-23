@@ -59,7 +59,11 @@
         </button>
         <ul class="user__menu">
           <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu()">Mi Cuenta</a></li>
-          <li *ngIf="isAdmin"><a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">Panel de Administración</a></li>
+          <li *ngIf="isAdmin">
+  <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">
+    Panel de Administración
+  </a>
+</li>
           <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
         </ul>
       </div>
@@ -135,7 +139,11 @@
           </button>
           <ul class="mobile-user__menu" [class.is-open]="isUserMenuOpen">
             <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">Mi Cuenta</a></li>
-            <li *ngIf="isAdmin"><a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">Panel de Administración</a></li>
+            <li *ngIf="isAdmin">
+  <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">
+    Panel de Administración
+  </a>
+</li>
             <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
           </ul>
         </div>

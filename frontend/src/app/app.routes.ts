@@ -1,8 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
-
-// Nota: todas las rutas usan loadComponent (standalone + lazy-load).
-// Asegúrate de que cada componente exista en la ruta indicada.
+import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
   // Home
@@ -77,29 +75,59 @@ export const routes: Routes = [
         m => m.Register
       ),
   },
-    {
-    path: 'forgot-password', // ✅ RUTA DEL COMPONENTE QUE ACABAS DE CREAR
+  {
+    path: 'forgot-password',
     title: 'MamaCare | Recuperar contraseña',
     loadComponent: () =>
       import('./pages/auth/forgot-password/forgot-password').then(
         m => m.ForgotPassword
       ),
   },
-{
-  path: 'reset-password/:token',
-  title: 'MamaCare | Restablecer contraseña',
-  loadComponent: () =>
-    import('./pages/auth/reset-password/reset-password').then(
-      m => m.ResetPassword
-    ),
-},
   {
-  path: 'profile',
-  title: 'MamaCare | Profile',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./pages/auth/profile/profile').then(m => m.Profile),
-},
+    path: 'reset-password/:token',
+    title: 'MamaCare | Restablecer contraseña',
+    loadComponent: () =>
+      import('./pages/auth/reset-password/reset-password').then(
+        m => m.ResetPassword
+      ),
+  },
+  {
+    path: 'profile',
+    title: 'MamaCare | Profile',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/auth/profile/profile').then(m => m.Profile),
+  },
+
+  // 👑 Panel de Administración (SOLO las rutas que realmente tienes)
+   {
+    path: 'admin',
+    title: 'MamaCare | Panel de Administración',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./panels/admin-panel/admin-panel').then(m => m.AdminPanel),
+  },
+  {
+    path: 'admin/dashboard',
+    title: 'MamaCare | Dashboard Admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./admin/dashboard/dashboard').then(m => m.Dashboard),
+  },
+  {
+    path: 'admin/users/user-list',
+    title: 'MamaCare | Lista de Usuarios',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./admin/users/user-list/user-list').then(m => m.UserList),
+  },
+  {
+    path: 'admin/users/user-edit/:id',
+    title: 'MamaCare | Editar Usuario',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./admin/users/user-edit/user-edit').then(m => m.UserEdit),
+  },
 
   // Not found → Inicio
   {

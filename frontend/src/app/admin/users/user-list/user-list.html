@@ -1,0 +1,258 @@
+<div class="user-management">
+  <!-- Header -->
+  <div class="management-header">
+    <div class="header-content">
+      <h1 class="management-title">Gestión de Usuarios</h1>
+      <p class="management-subtitle">Administra usuarios, roles y estados de cuenta</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="loadUsers(pagination.currentPage)" [disabled]="isLoading">
+        <svg class="refresh-icon" [class.loading]="isLoading" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        {{ isLoading ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filtros y Búsqueda - Mejor organizados -->
+  <div class="filters-section">
+    <div class="filters-main">
+      <div class="search-box">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            (input)="onSearch()"
+            placeholder="Buscar por nombre, apellido o email..." 
+            class="search-input"
+          >
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <select [(ngModel)]="roleFilter" (change)="onFilterChange()" class="filter-select">
+          <option value="">Todos los roles</option>
+          <option value="paciente">Pacientes</option>
+          <option value="profesional">Profesionales</option>
+          <option value="voluntario">Voluntarios</option>
+        </select>
+
+        <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="filter-select">
+          <option value="">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+
+        <button (click)="clearFilters()" class="btn-clear-filters">
+          <svg class="clear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+          Limpiar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estados de carga y error -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando usuarios...</p>
+  </div>
+
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </div>
+    <h3>Error al cargar los usuarios</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="loadUsers(pagination.currentPage)">Reintentar</button>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div *ngIf="!isLoading && !error" class="users-container">
+    <!-- Resumen -->
+    <div class="summary-bar">
+      <span class="summary-text">
+        Mostrando {{ users.length }} de {{ pagination.totalUsers }} usuarios
+        <span *ngIf="searchTerm || roleFilter || statusFilter" class="filtered-indicator">
+          (filtrados)
+        </span>
+      </span>
+    </div>
+
+    <!-- Tabla -->
+    <div class="table-container">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th class="user-col">Usuario</th>
+            <th class="role-col">Rol</th>
+            <th class="status-col">Estado</th>
+            <th class="date-col">Fecha Registro</th>
+            <th class="date-col">Último Acceso</th>
+            <th class="actions-col">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users" class="user-row">
+            <!-- Información del usuario -->
+            <td class="user-info-cell">
+              <div class="user-avatar">
+                {{ getUserInitials(user) }}
+              </div>
+              <div class="user-details">
+                <span class="user-name">{{ user.name || 'Sin nombre' }} {{ user.lastName || '' }}</span>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+            </td>
+
+            <!-- Rol con colores -->
+            <td class="role-cell">
+              <div class="role-display">
+                <span class="role-badge" [class]="getRoleBadgeClass(user.role)">
+                  {{ getRoleDisplayName(user.role) }}
+                </span>
+                <select 
+                  [value]="user.role" 
+                  (change)="onRoleChange(user, $event)"
+                  [disabled]="isUpdating[user._id]"
+                  class="role-select"
+                >
+                  <option *ngFor="let role of roles" [value]="role">
+                    {{ getRoleDisplayName(role) }}
+                  </option>
+                </select>
+              </div>
+            </td>
+
+            <!-- Estado -->
+            <td class="status-cell">
+              <span class="status-badge" [class]="getStatusBadgeClass(user.isActive)">
+                {{ user.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
+            <!-- Fecha Registro -->
+            <td class="date-cell">
+              <div class="date-info">
+                <span class="date-main">{{ formatDate(user.createdAt) }}</span>
+              </div>
+            </td>
+
+            <!-- Último Acceso -->
+            <td class="date-cell">
+              <div class="date-info">
+                <span class="date-main" *ngIf="user.lastLogin; else neverLoggedIn">
+                  {{ formatDate(user.lastLogin) }}
+                </span>
+                <ng-template #neverLoggedIn>
+                  <span class="date-secondary">Nunca</span>
+                </ng-template>
+              </div>
+            </td>
+
+            <!-- Acciones -->
+            <td class="actions-cell">
+              <div class="action-buttons">
+                <button 
+                  (click)="toggleUserStatus(user)"
+                  [disabled]="isUpdating[user._id]"
+                  [class]="user.isActive ? 'btn-deactivate' : 'btn-activate'"
+                  class="btn-status"
+                >
+                  <span *ngIf="!isUpdating[user._id]">
+                    {{ user.isActive ? 'Desactivar' : 'Activar' }}
+                  </span>
+                  <span *ngIf="isUpdating[user._id]" class="loading-text">
+                    <svg class="loading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m8-10h-4M6 12H2"></path>
+                    </svg>
+                    Procesando...
+                  </span>
+                </button>
+
+                <a [routerLink]="['/admin/users/user-edit', user._id]" class="btn-edit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                  Editar
+                </a>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Estado vacío -->
+          <tr *ngIf="users.length === 0">
+            <td colspan="6" class="empty-state">
+              <div class="empty-content">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3>No se encontraron usuarios</h3>
+                <p *ngIf="searchTerm || roleFilter || statusFilter">
+                  Intenta ajustar los filtros de búsqueda
+                </p>
+                <p *ngIf="!searchTerm && !roleFilter && !statusFilter">
+                  No hay usuarios registrados en el sistema
+                </p>
+                <button *ngIf="searchTerm || roleFilter || statusFilter" 
+                        (click)="clearFilters()" 
+                        class="btn-clear-filters">
+                  Limpiar filtros
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div *ngIf="pagination.totalPages > 1" class="pagination-container">
+      <div class="pagination-info">
+        Página {{ pagination.currentPage }} de {{ pagination.totalPages }}
+      </div>
+      
+      <div class="pagination-controls">
+        <button 
+          (click)="prevPage()" 
+          [disabled]="!pagination.hasPrev"
+          class="pagination-btn"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Anterior
+        </button>
+
+        <div class="page-numbers">
+          <button 
+            *ngFor="let page of getPageNumbers()" 
+            (click)="goToPage(page)"
+            [class.active]="page === pagination.currentPage"
+            class="page-btn"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button 
+          (click)="nextPage()" 
+          [disabled]="!pagination.hasNext"
+          class="pagination-btn"
+        >
+          Siguiente
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
