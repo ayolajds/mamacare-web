@@ -81,11 +81,20 @@ export async function login(req, res) {
     const ok = await comparePassword(password, user.passwordHash);
     if (!ok) return res.status(401).json({ message: 'Credenciales inválidas' });
 
+    // ✅ IMPLEMENTACIÓN SEGURA DE lastLogin
+    try {
+      user.lastLogin = new Date();
+      await user.save();
+    } catch (saveError) {
+      console.log('Error guardando lastLogin, pero continuando login:', saveError);
+      // No bloqueamos el login si falla lastLogin
+    }
+
     const token = signToken({ sub: user._id.toString(), role: user.role });
     
     return res.json({
       token,
-      user: mapUser(user) // ← Usar mapUser para consistencia
+      user: mapUser(user) // ← Esto ya funciona, tu mapper existe
     });
   } catch (err) {
     return res.status(500).json({ message: 'Error al iniciar sesión' });

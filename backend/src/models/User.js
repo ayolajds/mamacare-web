@@ -16,7 +16,14 @@ const userSchema = new mongoose.Schema(
     // ✅ CAMPOS NUEVOS PARA FORGOT PASSWORD
     resetPasswordToken: String,
     resetPasswordExpires: Date,
-    isVerified: { type: Boolean, default: false }
+    isVerified: { type: Boolean, default: false },
+    
+    // ✅ NUEVO CAMPO: ÚLTIMO ACCESO
+    lastLogin: { 
+      type: Date, 
+      default: null,
+      required: false
+    }
   },
   { timestamps: true }
 );
