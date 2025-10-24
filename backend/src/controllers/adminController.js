@@ -1,4 +1,3 @@
-// controllers/adminController.js
 import { User, USER_ROLES } from '../models/User.js';
 import Logger from '../utils/logger.js';
 
@@ -64,7 +63,7 @@ export const getDashboardStats = async (req, res) => {
 // 👥 Listar usuarios (CON PAGINACIÓN - mejorada)
 export const listUsers = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', role = '' } = req.query;
+    const { page = 1, limit = 10, search = '', role = '', status = '' } = req.query;
     const skip = (page - 1) * limit;
 
     Logger.info('Admin listando usuarios', { 
@@ -72,7 +71,8 @@ export const listUsers = async (req, res) => {
       page, 
       limit, 
       search,
-      role
+      role,
+      status
     });
 
     // Construir filtro
@@ -88,6 +88,13 @@ export const listUsers = async (req, res) => {
     
     if (role) {
       filter.role = role;
+    }
+
+    // ✅ FILTRO POR ESTADO AGREGADO
+    if (status === 'active') {
+      filter.isActive = true;
+    } else if (status === 'inactive') {
+      filter.isActive = false;
     }
 
     const [users, total] = await Promise.all([

@@ -9,6 +9,7 @@ import { connectDB } from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js'; // ✅ AGREGAR ESTA IMPORTACIÓN
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(`/api/${API_VERSION}/auth`, authRoutes);
 app.use(`/api/${API_VERSION}/users`, userRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
+app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes); // ✅ AGREGAR ESTA RUTA
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
@@ -51,6 +53,7 @@ app.use((error, req, res, next) => {
       console.log(`   🔐 Auth: http://localhost:${PORT}/api/${API_VERSION}/auth`);
       console.log(`   👤 Users: http://localhost:${PORT}/api/${API_VERSION}/users`);
       console.log(`   👑 Admin: http://localhost:${PORT}/api/${API_VERSION}/admin`);
+      console.log(`   📅 Appointments: http://localhost:${PORT}/api/${API_VERSION}/appointments`); // ✅ AGREGAR ESTA LÍNEA
     });
   } catch (err) {
     console.error('❌ No se pudo conectar a MongoDB:', err.message);

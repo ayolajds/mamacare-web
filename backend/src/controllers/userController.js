@@ -156,3 +156,111 @@ export async function changePassword(req, res) {
     res.status(500).json({ success: false, message: 'Error al cambiar la contraseña' });
   }
 }
+
+// 🆕 NUEVAS FUNCIONES PARA OBTENER USUARIOS POR ROL
+
+// Obtener usuarios por rol
+export async function getUsersByRole(req, res) {
+  try {
+    const { role } = req.params;
+    
+    Logger.info('Obteniendo usuarios por rol', { role });
+
+    // Validar y mapear roles
+    const roleMap = {
+      'patient': ['patient', 'paciente'],
+      'professional': ['professional', 'profesional', 'doctor'],
+      'admin': ['admin']
+    };
+
+    const validRoles = roleMap[role];
+    if (!validRoles) {
+      Logger.warn('Rol no válido solicitado', { role });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Rol no válido. Use: patient, professional o admin' 
+      });
+    }
+
+    const users = await User.find({ 
+      role: { $in: validRoles } 
+    }).select('name lastName email role phone isActive createdAt')
+      .sort({ name: 1 });
+
+    Logger.success('Usuarios obtenidos por rol', { 
+      role, 
+      count: users.length 
+    });
+
+    res.json({
+      success: true,
+      data: users,
+      count: users.length
+    });
+
+  } catch (err) {
+    Logger.error('Error al obtener usuarios por rol', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener usuarios' 
+    });
+  }
+}
+
+// Obtener solo pacientes
+export async function getPatients(req, res) {
+  try {
+    Logger.info('Obteniendo lista de pacientes');
+
+    const patients = await User.find({ 
+      role: { $in: ['patient', 'paciente'] } 
+    }).select('name lastName email role phone isActive createdAt')
+      .sort({ name: 1 });
+
+    Logger.success('Pacientes obtenidos exitosamente', { 
+      count: patients.length 
+    });
+
+    res.json({
+      success: true,
+      data: patients,
+      count: patients.length
+    });
+
+  } catch (err) {
+    Logger.error('Error al obtener pacientes', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener pacientes' 
+    });
+  }
+}
+
+// Obtener solo profesionales
+export async function getProfessionals(req, res) {
+  try {
+    Logger.info('Obteniendo lista de profesionales');
+
+    const professionals = await User.find({ 
+      role: { $in: ['professional', 'profesional', 'doctor'] } 
+    }).select('name lastName email role phone isActive createdAt')
+      .sort({ name: 1 });
+
+    Logger.success('Profesionales obtenidos exitosamente', { 
+      count: professionals.length 
+    });
+
+    res.json({
+      success: true,
+      data: professionals,
+      count: professionals.length
+    });
+
+  } catch (err) {
+    Logger.error('Error al obtener profesionales', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener profesionales' 
+    });
+  }
+}
