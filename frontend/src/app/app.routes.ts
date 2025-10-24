@@ -99,36 +99,43 @@ export const routes: Routes = [
       import('./pages/auth/profile/profile').then(m => m.Profile),
   },
 
-  // 👑 Panel de Administración (SOLO las rutas que realmente tienes)
-   {
-    path: 'admin',
-    title: 'MamaCare | Panel de Administración',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () =>
-      import('./panels/admin-panel/admin-panel').then(m => m.AdminPanel),
-  },
-  {
-    path: 'admin/dashboard',
-    title: 'MamaCare | Dashboard Admin',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () =>
-      import('./admin/dashboard/dashboard').then(m => m.Dashboard),
-  },
-  {
-    path: 'admin/users/user-list',
-    title: 'MamaCare | Lista de Usuarios',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () =>
-      import('./admin/users/user-list/user-list').then(m => m.UserList),
-  },
-  {
-    path: 'admin/users/user-edit/:id',
-    title: 'MamaCare | Editar Usuario',
-    canActivate: [authGuard, adminGuard],
-    loadComponent: () =>
-      import('./admin/users/user-edit/user-edit').then(m => m.UserEdit),
-  },
-
+// 👑 Panel de Administración (SOLO las rutas que realmente tienes)
+{
+  path: 'admin',
+  title: 'MamaCare | Panel de Administración',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./panels/admin-panel/admin-panel').then(m => m.AdminPanel),
+},
+{
+  path: 'admin/dashboard',
+  title: 'MamaCare | Dashboard Admin',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./admin/dashboard/dashboard').then(m => m.Dashboard),
+},
+{
+  path: 'admin/users/user-list',
+  title: 'MamaCare | Lista de Usuarios',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./admin/users/user-list/user-list').then(m => m.UserList),
+},
+{
+  path: 'admin/users/user-edit/:id',
+  title: 'MamaCare | Editar Usuario',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./admin/users/user-edit/user-edit').then(m => m.UserEdit),
+},
+// ✅ NUEVA RUTA: Gestión de Sesiones
+{
+  path: 'admin/appointments',
+  title: 'MamaCare | Gestión de Sesiones',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./admin/appointments/appointments').then(m => m.Appointments),
+},
   // Not found → Inicio
   {
     path: '**',

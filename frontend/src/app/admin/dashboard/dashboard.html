@@ -34,7 +34,7 @@
 
   <!-- Contenido principal -->
   <div *ngIf="!isLoading && !error">
-    <!-- Estadísticas Principales -->
+    <!-- Estadísticas Principales - USUARIOS -->
     <div class="stats-grid">
       <!-- Usuarios Totales -->
       <div class="stat-card">
@@ -46,8 +46,8 @@
         <div class="stat-content">
           <h3 class="stat-value">{{ stats.totalUsers }}</h3>
           <p class="stat-label">Usuarios Totales</p>
-          <div class="stat-trend" [class.positive]="stats.userGrowth > 0" [class.negative]="stats.userGrowth < 0">
-            <span>{{ stats.userGrowth > 0 ? '+' : '' }}{{ stats.userGrowth }}% crecimiento</span>
+          <div class="stat-trend" [class.positive]="getUserGrowth() > 0" [class.negative]="getUserGrowth() < 0">
+            <span>{{ getUserGrowth() > 0 ? '+' : '' }}{{ getUserGrowth() }}% crecimiento</span>
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@
           <h3 class="stat-value">{{ stats.activeUsers }}</h3>
           <p class="stat-label">Usuarios Activos</p>
           <div class="stat-trend positive">
-            <span>{{ stats.activeGrowth }}% del total</span>
+            <span>{{ getActiveGrowth() }}% del total</span>
           </div>
         </div>
       </div>
@@ -99,6 +99,73 @@
             <span class="breakdown-item">P: {{ stats.patientsCount }}</span>
             <span class="breakdown-item">Pr: {{ stats.professionalsCount }}</span>
             <span class="breakdown-item">V: {{ stats.volunteersCount }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas Principales - CITAS -->
+    <div class="stats-grid">
+      <!-- Citas Totales -->
+      <div class="stat-card">
+        <div class="stat-icon appointments">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ appointmentStats.totalAppointments }}</h3>
+          <p class="stat-label">Citas Totales</p>
+          <div class="stat-trend positive" *ngIf="appointmentStats.totalAppointments > 0">
+            <span>{{ appointmentStats.totalAppointments }} sesiones</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Citas Hoy -->
+      <div class="stat-card">
+        <div class="stat-icon today">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ appointmentStats.todayAppointments }}</h3>
+          <p class="stat-label">Citas Hoy</p>
+          <div class="stat-trend" [class.positive]="appointmentStats.todayAppointments > 0">
+            <span>{{ appointmentStats.todayAppointments > 0 ? '+' : '' }}{{ appointmentStats.todayAppointments }} hoy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Próximas Sesiones -->
+      <div class="stat-card">
+        <div class="stat-icon upcoming">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ appointmentStats.upcomingAppointments }}</h3>
+          <p class="stat-label">Próximas Sesiones</p>
+          <div class="stat-trend positive" *ngIf="appointmentStats.upcomingAppointments > 0">
+            <span>Próximos 7 días</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasa de Asistencia -->
+      <div class="stat-card">
+        <div class="stat-icon attendance">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-value">{{ appointmentStats.attendanceRate }}%</h3>
+          <p class="stat-label">Tasa de Asistencia</p>
+          <div class="stat-trend" [class.positive]="appointmentStats.attendanceRate >= 80" [class.negative]="appointmentStats.attendanceRate < 80">
+            <span>{{ appointmentStats.attendanceRate >= 80 ? 'Excelente' : 'Por mejorar' }}</span>
           </div>
         </div>
       </div>
@@ -142,31 +209,24 @@
         </div>
       </div>
 
-      <!-- Estado de Usuarios -->
+      <!-- Estado de Citas -->
       <div class="chart-card">
         <div class="chart-header">
-          <h3 class="chart-title">Estado de Usuarios</h3>
+          <h3 class="chart-title">Estado de Citas</h3>
         </div>
         <div class="status-grid">
-          <div class="status-item">
-            <div class="status-indicator active"></div>
+          <div class="status-item" *ngFor="let status of appointmentStats.statusStats">
+            <div class="status-indicator" [class]="getAppointmentStatusClass(status._id)"></div>
             <div class="status-info">
-              <span class="status-value">{{ stats.activeUsers }}</span>
-              <span class="status-label">Activos</span>
+              <span class="status-value">{{ status.count }}</span>
+              <span class="status-label">{{ getAppointmentStatusDisplay(status._id) }}</span>
             </div>
           </div>
-          <div class="status-item">
+          <div class="status-item" *ngIf="appointmentStats.statusStats.length === 0">
             <div class="status-indicator inactive"></div>
             <div class="status-info">
-              <span class="status-value">{{ stats.inactiveUsers }}</span>
-              <span class="status-label">Inactivos</span>
-            </div>
-          </div>
-          <div class="status-item">
-            <div class="status-indicator new"></div>
-            <div class="status-info">
-              <span class="status-value">{{ stats.newUsersThisMonth }}</span>
-              <span class="status-label">Nuevos (mes)</span>
+              <span class="status-value">0</span>
+              <span class="status-label">Sin citas</span>
             </div>
           </div>
         </div>
@@ -185,6 +245,14 @@
               </svg>
             </div>
             <span class="action-label">Gestionar Usuarios</span>
+          </a>
+          <a routerLink="/admin/appointments" class="action-item">
+            <div class="action-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+            <span class="action-label">Gestionar Sesiones</span>
           </a>
           <a routerLink="/admin/users/user-list" class="action-item">
             <div class="action-icon">

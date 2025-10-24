@@ -71,7 +71,8 @@ export class UserList implements OnInit, OnDestroy {
       page,
       this.itemsPerPage,
       this.searchTerm,
-      this.roleFilter
+      this.roleFilter,
+      this.statusFilter // ✅ AGREGADO: Enviar statusFilter al backend
     ).subscribe({
       next: (response) => {
         if (response.success) {

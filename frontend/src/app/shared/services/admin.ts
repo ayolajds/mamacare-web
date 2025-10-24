@@ -58,16 +58,17 @@ export class AdminService {
     );
   }
 
-  // 👥 Obtener lista de usuarios (con paginación y filtros)
-  getUsers(page: number = 1, limit: number = 10, search: string = '', role: string = ''): Observable<UserListResponse> {
+  // 👥 Obtener lista de usuarios (con paginación y filtros) - CORREGIDO
+  getUsers(page: number = 1, limit: number = 10, search: string = '', role: string = '', status: string = ''): Observable<UserListResponse> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
 
     if (search) params = params.set('search', search);
     if (role) params = params.set('role', role);
+    if (status) params = params.set('status', status); // ✅ AGREGADO: Parámetro status
 
-    console.log('👥 Obteniendo lista de usuarios:', { page, limit, search, role });
+    console.log('👥 Obteniendo lista de usuarios:', { page, limit, search, role, status });
     
     return this.http.get<UserListResponse>(`${this.baseUrl}/users`, { params });
   }

@@ -456,3 +456,30 @@
     font-size: 1.75rem;
   }
 }
+
+// Agregar después de los estilos de .stat-icon existentes
+
+.stat-icon {
+  &.appointments {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+  }
+  
+  &.today {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+  }
+  
+  &.upcoming {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+  }
+  
+  &.attendance {
+    background: linear-gradient(135deg, #27ae60, #229954);
+  }
+}
+
+// Agregar después de los estilos de .status-indicator existentes
+.status-indicator {
+  &.scheduled {
+    background: #f39c12;
+  }
+}
