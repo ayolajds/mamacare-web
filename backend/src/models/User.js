@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import mongoosePaginate from 'mongoose-paginate-v2'; // ✅ IMPORTAR
 
 const ROLES = ['admin', 'paciente', 'profesional', 'voluntario'];
 
@@ -27,6 +28,9 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// ✅ AGREGAR PLUGIN DE PAGINACIÓN
+userSchema.plugin(mongoosePaginate);
 
 // 🧩 Prevención del OverwriteModelError
 export const User = mongoose.models.User || mongoose.model('User', userSchema);
