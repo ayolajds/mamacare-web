@@ -1,0 +1,144 @@
+<div class="appointments-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="goToDashboard()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Volver al Panel
+      </button>
+      <h1>Gestión de Citas</h1>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label>Estado</label>
+        <select [(ngModel)]="filtros.status" (change)="onFiltroChange()">
+          <option value="">Todos los estados</option>
+          <option value="scheduled">Programadas</option>
+          <option value="confirmed">Confirmadas</option>
+          <option value="completed">Completadas</option>
+          <option value="cancelled">Canceladas</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Desde</label>
+        <input type="date" [(ngModel)]="filtros.dateFrom" (change)="onFiltroChange()">
+      </div>
+
+      <div class="filter-group">
+        <label>Hasta</label>
+        <input type="date" [(ngModel)]="filtros.dateTo" (change)="onFiltroChange()">
+      </div>
+
+      <div class="filter-group search-group">
+        <label>Buscar</label>
+        <input 
+          type="text" 
+          [(ngModel)]="filtros.search" 
+          (input)="onSearchChange()"
+          placeholder="Buscar por paciente, título..."
+        >
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn-clear" (click)="limpiarFiltros()">
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando citas...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>Error al cargar las citas</h3>
+    <p>{{ error }}</p>
+    <!-- ✅ CORREGIDO: loadCitas ahora es público -->
+    <button class="btn-retry" (click)="loadCitas()">Reintentar</button>
+  </div>
+
+  <!-- Citas List -->
+  <div *ngIf="!isLoading && !error" class="citas-container">
+    <div class="citas-header">
+      <h2>Citas Programadas ({{ filteredCitas.length }})</h2>
+    </div>
+
+    <div *ngIf="filteredCitas.length === 0" class="empty-state">
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <h3>No se encontraron citas</h3>
+      <p>No hay citas que coincidan con tus filtros actuales.</p>
+      <button class="btn-primary" (click)="limpiarFiltros()">Ver todas las citas</button>
+    </div>
+
+    <div *ngIf="filteredCitas.length > 0" class="citas-list">
+      <div *ngFor="let cita of filteredCitas" class="cita-card">
+        <div class="cita-header">
+          <div class="cita-time">
+            <span class="time">{{ formatTime(cita.date) }}</span>
+            <span class="date">{{ formatDate(cita.date) }}</span>
+          </div>
+          <span class="status-badge" [class]="getStatusBadgeClass(cita.status)">
+            {{ getStatusDisplay(cita.status) }}
+          </span>
+        </div>
+
+        <div class="cita-content">
+          <h3 class="cita-title">{{ cita.title }}</h3>
+          <p class="cita-type">{{ cita.type }}</p>
+          
+          <div class="patient-info">
+            <div class="patient-avatar">
+              {{ cita.patientId.name[0] }}{{ cita.patientId.lastName[0] }}
+            </div>
+            <div class="patient-details">
+              <h4>{{ cita.patientId.name }} {{ cita.patientId.lastName }}</h4>
+              <p>{{ cita.patientId.email }}</p>
+              <p *ngIf="cita.patientId.phone">{{ cita.patientId.phone }}</p>
+            </div>
+          </div>
+
+          <div class="cita-actions">
+            <button class="btn-secondary" (click)="viewCitaDetails(cita)">
+              Ver Detalles
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paginación -->
+    <div *ngIf="pagination.totalPages > 1" class="pagination">
+      <button 
+        class="btn-pagination" 
+        [disabled]="!pagination.hasPrev"
+        (click)="goToPage(pagination.currentPage - 1)">
+        Anterior
+      </button>
+      
+      <span class="pagination-info">
+        Página {{ pagination.currentPage }} de {{ pagination.totalPages }}
+      </span>
+      
+      <button 
+        class="btn-pagination" 
+        [disabled]="!pagination.hasNext"
+        (click)="goToPage(pagination.currentPage + 1)">
+        Siguiente
+      </button>
+    </div>
+  </div>
+</div>

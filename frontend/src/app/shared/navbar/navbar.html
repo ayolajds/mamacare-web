@@ -2,9 +2,9 @@
   <div class="navbar__container">
 
     <!-- Marca -->
-    <a routerLink="/" class="navbar__brand" aria-label="MamaCare - Inicio">
-      <img src="/Logo.jpg" alt="MamaCare" class="navbar__logo-img" />
-      <span class="navbar__brand-name">MamaCare</span>
+    <a routerLink="/" class="navbar__brand" aria-label="Ma´Care - Inicio">
+      <img src="/Logo.jpg" alt="Ma´Care" class="navbar__logo-img" />
+      <span class="navbar__brand-name">Ma´Care</span>
     </a>
 
     <!-- Botón Hamburguesa (móvil) -->
@@ -59,11 +59,32 @@
         </button>
         <ul class="user__menu">
           <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu()">Mi Cuenta</a></li>
+          
+          <!-- ✅ NUEVO: Paneles según rol -->
           <li *ngIf="isAdmin">
-  <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">
-    Panel de Administración
-  </a>
-</li>
+            <a routerLink="/Panel-admin" routerLinkActive="is-active" (click)="closeUserMenu()">
+              Panel de Administración
+            </a>
+          </li>
+          
+          <li *ngIf="isProfesional">
+            <a routerLink="/Panel-profesional" routerLinkActive="is-active" (click)="closeUserMenu()">
+              Panel Profesional
+            </a>
+          </li>
+          
+          <li *ngIf="isPaciente">
+            <a routerLink="/Panel-paciente" routerLinkActive="is-active" (click)="closeUserMenu()">
+              Panel Paciente
+            </a>
+          </li>
+          
+          <li *ngIf="isVoluntario">
+            <a routerLink="/Panel-voluntario" routerLinkActive="is-active" (click)="closeUserMenu()">
+              Panel Voluntario
+            </a>
+          </li>
+
           <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
         </ul>
       </div>
@@ -139,11 +160,32 @@
           </button>
           <ul class="mobile-user__menu" [class.is-open]="isUserMenuOpen">
             <li><a routerLink="/profile" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">Mi Cuenta</a></li>
+            
+            <!-- ✅ NUEVO: Paneles según rol (móvil) -->
             <li *ngIf="isAdmin">
-  <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu()">
-    Panel de Administración
-  </a>
-</li>
+              <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+                Panel de Administración
+              </a>
+            </li>
+            
+            <li *ngIf="isProfesional">
+              <a routerLink="/profesional" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+                Panel Profesional
+              </a>
+            </li>
+            
+            <li *ngIf="isPaciente">
+              <a routerLink="/paciente" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+                Panel Paciente
+              </a>
+            </li>
+            
+            <li *ngIf="isVoluntario">
+              <a routerLink="/voluntario" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+                Panel Voluntario
+              </a>
+            </li>
+
             <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
           </ul>
         </div>

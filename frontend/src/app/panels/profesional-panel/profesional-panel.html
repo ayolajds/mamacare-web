@@ -1,0 +1,200 @@
+<div class="professional-panel">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando panel profesional...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <h3>Error al cargar el panel</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="refreshData()">Reintentar</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error" class="panel-content">
+    <!-- Header del Panel -->
+    <div class="panel-header">
+      <div class="user-info">
+        <div class="avatar">
+          <span class="avatar-initials">{{ getInitials(profesional.name) }}</span>
+        </div>
+        <div class="user-details">
+          <h1 class="user-name">Bienvenido, {{ profesional.name }}</h1>
+          <p class="user-specialty">{{ profesional.specialty }}</p>
+          <p class="user-contact">{{ profesional.email }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="goToAgenda()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Mi Agenda
+        </button>
+        <button class="btn-refresh" (click)="refreshData()" title="Actualizar datos">
+          <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="stats-grid">
+      <div class="stat-card" (click)="goToCitas()">
+        <div class="stat-icon today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.citasHoy }}</h3>
+          <p class="stat-label">Citas Hoy</p>
+        </div>
+      </div>
+
+      <div class="stat-card" (click)="goToCitas()">
+        <div class="stat-icon pending">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.citasPendientes }}</h3>
+          <p class="stat-label">Pendientes</p>
+        </div>
+      </div>
+
+      <div class="stat-card" (click)="goToCitas()">
+        <div class="stat-icon week">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.citasEstaSemana }}</h3>
+          <p class="stat-label">Esta Semana</p>
+        </div>
+      </div>
+
+      <div class="stat-card" (click)="goToPacientes()">
+        <div class="stat-icon patients">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.pacientesActivos }}</h3>
+          <p class="stat-label">Pacientes Activos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dos columnas: Próximas Citas y Acciones Rápidas -->
+    <div class="content-columns">
+      <!-- Columna izquierda: Próximas Citas -->
+      <div class="column">
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title">Próximas Citas</h2>
+            <button class="btn-secondary" (click)="goToCitas()">
+              Ver Todas
+            </button>
+          </div>
+
+          <div class="citas-list">
+            <div *ngFor="let cita of proximasCitas" class="cita-item">
+              <div class="cita-time">
+                <span class="time">{{ formatTime(cita.date) }}</span>
+                <span class="date">{{ formatDate(cita.date) }}</span>
+              </div>
+              <div class="cita-info">
+                <h4 class="paciente-name">
+                  {{ cita.patientId.name }} {{ cita.patientId.lastName }}
+                </h4>
+                <p class="cita-type">{{ cita.title || 'Consulta' }}</p>
+                <span class="status-badge" [class]="getStatusClass(cita.status)">
+                  {{ getStatusDisplay(cita.status) }}
+                </span>
+              </div>
+              <div class="cita-actions">
+                <button class="btn-action" 
+                        (click)="viewCitaDetails(cita)"
+                        title="Ver detalles">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="proximasCitas.length === 0" class="empty-state">
+              <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <p>No tienes citas programadas</p>
+              <button class="btn-primary" (click)="goToAgenda()">Programar Cita</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna derecha: Acciones Rápidas -->
+      <div class="column">
+        <div class="section">
+          <h2 class="section-title">Acciones Rápidas</h2>
+          <div class="actions-grid">
+            <button class="action-card" (click)="goToCitas()">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+              </div>
+              <h3>Gestión de Citas</h3>
+              <p>Administra tus citas y agenda</p>
+            </button>
+
+            <button class="action-card" (click)="goToPacientes()">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+              </div>
+              <h3>Mis Pacientes</h3>
+              <p>Gestiona información de pacientes</p>
+            </button>
+
+            <button class="action-card" (click)="goToAgenda()">
+              <div class="action-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <h3>Mi Agenda</h3>
+              <p>Configura tu disponibilidad</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Métricas Adicionales -->
+        <div class="section">
+          <h2 class="section-title">Métricas del Mes</h2>
+          <div class="metrics-grid">
+            <div class="metric-item">
+              <span class="metric-value">{{ stats.citasCompletadasMes }}</span>
+              <span class="metric-label">Citas Completadas</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-value">{{ stats.tasaAsistencia }}%</span>
+              <span class="metric-label">Tasa de Asistencia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

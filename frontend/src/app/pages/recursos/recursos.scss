@@ -689,7 +689,7 @@ $bg-soft: #fff6f9;
     color: $rosa-strong;
     
     &:hover {
-      background: darken($white, 5%);
+      background: color.adjust($white, $lightness: -5%);
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
@@ -700,7 +700,7 @@ $bg-soft: #fff6f9;
     color: $white;
     
     &:hover {
-      background: darken($verde, 10%);
+      background: color.adjust($verde, $lightness: -10%);
       transform: translateY(-2px);
       box-shadow: 0 8px 25px rgba($verde, 0.3);
     }

@@ -1,4 +1,4 @@
-// Variables
+@use "sass:color";
 $primary-color: #3498db;
 $primary-hover: #2980b9;
 $secondary-color: #6c757d;
@@ -120,7 +120,7 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
         transition: all 0.2s ease;
 
         &:hover:not(:disabled) {
-          background: darken($bg-tertiary, 2%);
+          background: color.adjust($bg-tertiary, $lightness: -2%);
           color: $text-primary;
         }
 
@@ -310,7 +310,7 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
       cursor: pointer;
 
       &:hover:not(:disabled) {
-        background: darken($error-color, 10%);
+        background: color.adjust($error-color, $lightness: -10%);
       }
     }
   }
@@ -398,7 +398,7 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
             transform: translateY(-1px);
             
             &::before {
-              background: darken($error-color, 10%);
+              background: color.adjust($error-color, $lightness: -10%);
             }
           }
         }
@@ -922,7 +922,7 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
         transition: all 0.2s ease;
 
         &:hover:not(:disabled) {
-          background: darken($bg-tertiary, 5%);
+          background: color.adjust($bg-tertiary, $lightness: -5%);
         }
       }
 

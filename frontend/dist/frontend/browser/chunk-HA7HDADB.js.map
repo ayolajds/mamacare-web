@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/panels/voluntario-panel/voluntario-panel.ts", "src/app/panels/voluntario-panel/voluntario-panel.html"],
+  "sourcesContent": ["import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-voluntario-panel',\r\n  imports: [],\r\n  templateUrl: './voluntario-panel.html',\r\n  styleUrl: './voluntario-panel.scss'\r\n})\r\nexport class VoluntarioPanel {\r\n\r\n}\r\n", "<p>voluntario-panel works!</p>\r\n"],
+  "mappings": ";;;;;;;;;;;AAQM,IAAO,kBAAP,MAAO,iBAAe;;qCAAf,kBAAe;EAAA;yEAAf,kBAAe,WAAA,CAAA,CAAA,sBAAA,CAAA,GAAA,OAAA,GAAA,MAAA,GAAA,UAAA,SAAA,yBAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;ACR5B,MAAA,4BAAA,GAAA,GAAA;AAAG,MAAA,iBAAA,GAAA,yBAAA;AAAuB,MAAA,0BAAA;;;;;sEDQb,iBAAe,CAAA;UAN3B;uBACW,wBAAsB,SACvB,CAAA,GAAE,UAAA,qCAAA,CAAA;;;;6EAIA,iBAAe,EAAA,WAAA,mBAAA,UAAA,uDAAA,YAAA,EAAA,CAAA;AAAA,GAAA;",
+  "names": []
+}

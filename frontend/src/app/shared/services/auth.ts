@@ -76,8 +76,8 @@ export class AuthService {
   private readonly MOCK = false;
   private readonly BASE = `${environment.apiUrl}/auth`;
   private readonly USERS_BASE = `${environment.apiUrl}/users`;
-  private readonly ACCESS_KEY = 'mamacare_access';
-  private readonly USER_KEY = 'mamacare_user';
+  private readonly ACCESS_KEY = 'Ma´Care_access';
+  private readonly USER_KEY = 'Ma´Care_user';
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     if (this.MOCK) {

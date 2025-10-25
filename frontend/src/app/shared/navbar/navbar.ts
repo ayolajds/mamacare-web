@@ -40,8 +40,24 @@ export class Navbar {
     return [name, last].filter(Boolean).join(' ') || u.email;
   }
 
+  // ✅ NUEVOS: Helpers para roles
   get isAdmin(): boolean {
     return (this.user?.role || '').toLowerCase() === 'admin';
+  }
+
+  get isProfesional(): boolean {
+    const role = (this.user?.role || '').toLowerCase();
+    return role === 'profesional' || role === 'professional';
+  }
+
+  get isPaciente(): boolean {
+    const role = (this.user?.role || '').toLowerCase();
+    return role === 'paciente' || role === 'patient';
+  }
+
+  get isVoluntario(): boolean {
+    const role = (this.user?.role || '').toLowerCase();
+    return role === 'voluntario' || role === 'volunteer';
   }
 
   /* ===== Acciones menú usuario ===== */

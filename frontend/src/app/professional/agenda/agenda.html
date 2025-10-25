@@ -1,0 +1,226 @@
+<div class="agenda-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <button class="btn-back" (click)="goToDashboard()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Volver al Panel
+      </button>
+      <h1>Mi Agenda</h1>
+    </div>
+  </div>
+
+  <!-- Navegación entre secciones -->
+  <div class="navigation-tabs">
+    <button 
+      class="tab-button" 
+      [class.active]="vistaActual === 'horarios'"
+      (click)="cambiarVista('horarios')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      Horarios
+    </button>
+    
+    <button 
+      class="tab-button" 
+      [class.active]="vistaActual === 'configuracion'"
+      (click)="cambiarVista('configuracion')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Configuración
+    </button>
+    
+    <button 
+      class="tab-button" 
+      [class.active]="vistaActual === 'dias-libres'"
+      (click)="cambiarVista('dias-libres')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      Días Libres
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando configuración...</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="error" class="error-message">
+    <div class="message-icon">⚠️</div>
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="success" class="success-message">
+    <div class="message-icon">✅</div>
+    <p>{{ success }}</p>
+  </div>
+
+  <!-- Sección: Horarios -->
+  <div *ngIf="vistaActual === 'horarios' && !isLoading" class="section-container">
+    <div class="section-header">
+      <h2>Horarios de Atención</h2>
+      <p>Configura tus horarios de disponibilidad para cada día de la semana</p>
+    </div>
+
+    <div class="horarios-grid">
+      <div *ngFor="let horario of horarios; let i = index" class="horario-card" [class.inactive]="!horario.activo">
+        <div class="horario-header">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="horario.activo">
+            <span class="checkmark"></span>
+            <strong>{{ horario.dia }}</strong>
+          </label>
+        </div>
+
+        <div class="horario-content" *ngIf="horario.activo">
+          <div class="time-inputs">
+            <div class="time-group">
+              <label>Inicio</label>
+              <input type="time" [(ngModel)]="horario.horarioInicio">
+            </div>
+            <div class="time-group">
+              <label>Fin</label>
+              <input type="time" [(ngModel)]="horario.horarioFin">
+            </div>
+          </div>
+
+          <!-- Descansos -->
+          <div class="descansos-section">
+            <div class="descansos-header">
+              <h4>Descansos</h4>
+              <button class="btn-small" (click)="agregarDescanso(i)">
+                + Agregar Descanso
+              </button>
+            </div>
+            
+            <div *ngFor="let descanso of horario.descansos; let j = index" class="descanso-item">
+              <div class="time-inputs">
+                <div class="time-group">
+                  <label>Inicio</label>
+                  <input type="time" [(ngModel)]="descanso.inicio">
+                </div>
+                <div class="time-group">
+                  <label>Fin</label>
+                  <input type="time" [(ngModel)]="descanso.fin">
+                </div>
+              </div>
+              <button class="btn-remove" (click)="eliminarDescanso(i, j)" title="Eliminar descanso">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="horario-inactive" *ngIf="!horario.activo">
+          <p>No disponible</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Configuración -->
+  <div *ngIf="vistaActual === 'configuracion' && !isLoading" class="section-container">
+    <div class="section-header">
+      <h2>Configuración General</h2>
+      <p>Personaliza el comportamiento de tu agenda</p>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-card">
+        <h3>Duración de Citas</h3>
+        <div class="config-input">
+          <input type="number" [(ngModel)]="configuracion.duracionCita" min="15" max="240" step="15">
+          <span>minutos</span>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <h3>Tiempo entre Citas</h3>
+        <div class="config-input">
+          <input type="number" [(ngModel)]="configuracion.tiempoEntreCitas" min="0" max="60" step="5">
+          <span>minutos</span>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <h3>Máximo de Citas por Día</h3>
+        <div class="config-input">
+          <input type="number" [(ngModel)]="configuracion.maxCitasPorDia" min="1" max="50">
+          <span>citas</span>
+        </div>
+      </div>
+
+      <div class="config-card full-width">
+        <h3>Recordatorios</h3>
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="configuracion.recordatorioEmail">
+            <span class="checkmark"></span>
+            Enviar recordatorio por email
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="configuracion.recordatorioSMS">
+            <span class="checkmark"></span>
+            Enviar recordatorio por SMS
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Días Libres -->
+  <div *ngIf="vistaActual === 'dias-libres' && !isLoading" class="section-container">
+    <div class="section-header">
+      <h2>Días Libres</h2>
+      <p>Agrega días específicos en los que no estarás disponible</p>
+    </div>
+
+    <div class="dias-libres-form">
+      <div class="form-group">
+        <label>Agregar día libre</label>
+        <div class="input-with-button">
+          <input type="date" [(ngModel)]="nuevoDiaLibre">
+          <button class="btn-primary" (click)="agregarDiaLibre()" [disabled]="!nuevoDiaLibre">
+            Agregar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="dias-libres-list" *ngIf="diasLibres.length > 0">
+      <h3>Días libres programados</h3>
+      <div class="dias-grid">
+        <div *ngFor="let dia of diasLibres" class="dia-libre-card">
+          <span>{{ formatTime(dia) }}</span>
+          <button class="btn-remove" (click)="eliminarDiaLibre(dia)" title="Eliminar día libre">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="diasLibres.length === 0" class="empty-state">
+      <p>No hay días libres programados</p>
+    </div>
+  </div>
+
+  <!-- Botón Guardar -->
+  <div class="actions-footer" *ngIf="!isLoading">
+    <button class="btn-save" (click)="guardarConfiguracion()" [disabled]="isLoading">
+      <span *ngIf="!isLoading">💾 Guardar Configuración</span>
+      <span *ngIf="isLoading">Guardando...</span>
+    </button>
+  </div>
+</div>

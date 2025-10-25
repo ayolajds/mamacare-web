@@ -1,4 +1,4 @@
-// Variables de colores
+@use "sass:color";
 $primary: #d48ea8;
 $primary-light: #e8b5ce;
 $primary-dark: #b86f8d;
@@ -434,7 +434,7 @@ $white: #ffffff;
     }
     
     &:hover {
-      background: darken($white, 5%);
+      background: color.adjust($white, $lightness: -5%);
       transform: translateY(-2px);
     }
   }
@@ -448,7 +448,7 @@ $white: #ffffff;
     }
     
     &:hover {
-      background: darken($secondary, 10%);
+      background: color.adjust($secondary, $lightness: -10%);
       transform: translateY(-2px);
     }
   }

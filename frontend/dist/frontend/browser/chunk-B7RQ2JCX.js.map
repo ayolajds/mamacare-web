@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/admin/users/user-edit/user-edit.ts", "src/app/admin/users/user-edit/user-edit.html"],
+  "sourcesContent": ["import { Component } from '@angular/core';\r\n\r\n@Component({\r\n  selector: 'app-user-edit',\r\n  imports: [],\r\n  templateUrl: './user-edit.html',\r\n  styleUrl: './user-edit.scss'\r\n})\r\nexport class UserEdit {\r\n\r\n}\r\n", "<p>user-edit works!</p>\r\n"],
+  "mappings": ";;;;;;;;;;;AAQM,IAAO,WAAP,MAAO,UAAQ;;qCAAR,WAAQ;EAAA;yEAAR,WAAQ,WAAA,CAAA,CAAA,eAAA,CAAA,GAAA,OAAA,GAAA,MAAA,GAAA,UAAA,SAAA,kBAAA,IAAA,KAAA;AAAA,QAAA,KAAA,GAAA;ACRrB,MAAA,4BAAA,GAAA,GAAA;AAAG,MAAA,iBAAA,GAAA,kBAAA;AAAgB,MAAA,0BAAA;;;;;sEDQN,UAAQ,CAAA;UANpB;uBACW,iBAAe,SAChB,CAAA,GAAE,UAAA,8BAAA,CAAA;;;;6EAIA,UAAQ,EAAA,WAAA,YAAA,UAAA,8CAAA,YAAA,EAAA,CAAA;AAAA,GAAA;",
+  "names": []
+}

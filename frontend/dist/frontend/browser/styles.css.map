@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/styles.scss"],
+  "sourcesContent": ["@use \"sass:color\";\r\n@use \"sass:math\";\r\n@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');\r\n\r\nhtml, body {\r\n  margin: 0;\r\n  padding: 0;\r\n  color: #2a2a2a;\r\n  font-family: 'Poppins', 'Sour Gummy', system-ui, -apple-system, \"Segoe UI\", Roboto, sans-serif;\r\n  -webkit-font-smoothing: antialiased;\r\n  -moz-osx-font-smoothing: grayscale;\r\n}"],
+  "mappings": ";;;AAIA;AAAA;AACE,UAAA;AACA,WAAA;AACA,SAAA;AACA;IAAA,SAAA;IAAA,YAAA;IAAA,SAAA;IAAA,aAAA;IAAA,UAAA;IAAA,MAAA;IAAA;AACA,0BAAA;AACA,2BAAA;;",
+  "names": []
+}

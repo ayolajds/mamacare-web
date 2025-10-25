@@ -1009,12 +1009,22 @@ export class Appointments implements OnInit, OnDestroy {
       return false;
     }
 
-    // Validar que la fecha no sea en el pasado
-    const selectedDateTime = new Date(`${this.newAppointment.date}T${this.newAppointment.time}`);
-    if (selectedDateTime < new Date()) {
-      alert('No puedes crear citas en fechas pasadas');
-      return false;
-    }
+    
+
+  // ✅ NUEVA VALIDACIÓN: Horario laboral (8am - 6pm)
+  const selectedDateTime = new Date(`${this.newAppointment.date}T${this.newAppointment.time}`);
+  const selectedHour = selectedDateTime.getHours();
+  
+  if (selectedHour < 8 || selectedHour > 18) {
+    alert('Las citas deben estar entre 8:00 AM y 6:00 PM');
+    return false;
+  }
+
+  // Validación existente de fecha pasada
+  if (selectedDateTime < new Date()) {
+    alert('No puedes crear citas en fechas pasadas');
+    return false;
+  }
 
     return true;
   }

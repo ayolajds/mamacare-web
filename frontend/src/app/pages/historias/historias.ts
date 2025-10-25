@@ -63,7 +63,7 @@ export class Historias implements OnInit, AfterViewInit {
       historiaCompleta: `
         <p>Cuando me diagnosticaron cáncer de mama, el mundo se me vino encima. El miedo era mi compañero constante, especialmente en las noches cuando todo estaba en silencio.</p>
         
-        <p>Llegar a MamaCare fue encontrar un faro en la tormenta. A través de las sesiones de terapia y el kit de memorias, aprendí a expresar mis emociones de manera sana. Cada carta que escribía, cada foto que guardaba en mi caja de recuerdos, era un paso hacia la aceptación y la paz.</p>
+        <p>Llegar a Ma´Care fue encontrar un faro en la tormenta. A través de las sesiones de terapia y el kit de memorias, aprendí a expresar mis emociones de manera sana. Cada carta que escribía, cada foto que guardaba en mi caja de recuerdos, era un paso hacia la aceptación y la paz.</p>
         
         <p>Hoy, tres años después, miro hacia atrás y veo cómo cada herramienta, cada sesión, cada palabra de aliento, me ayudó a reconstruir mi vida no solo como sobreviviente, sino como una mujer más fuerte y consciente de su valor.</p>
       `,
@@ -80,7 +80,7 @@ export class Historias implements OnInit, AfterViewInit {
       historiaCompleta: `
         <p>El tratamiento de quimioterapia era abrumador. Los días se mezclaban, las citas médicas se acumulaban y la ansiedad por lo que vendría me paralizaba.</p>
         
-        <p>El paquete integral de MamaCare llegó en el momento perfecto. Las sesiones virtuales me permitían conectar con mi psicóloga desde la comodidad de mi casa en los días difíciles, y el kit intermedio me dio estructura. Empecé a usar la agenda para organizar mis medicamentos y citas, y los ejercicios de mindfulness me ayudaban a centrarme en el presente.</p>
+        <p>El paquete integral de Ma´Care llegó en el momento perfecto. Las sesiones virtuales me permitían conectar con mi psicóloga desde la comodidad de mi casa en los días difíciles, y el kit intermedio me dio estructura. Empecé a usar la agenda para organizar mis medicamentos y citas, y los ejercicios de mindfulness me ayudaban a centrarme en el presente.</p>
         
         <p>Lo más valioso fue entender que no estaba sola. El grupo de apoyo se convirtió en mi red de contención, donde podía compartir mis miedos y celebrar mis pequeños logros con mujeres que realmente entendían por lo que estaba pasando.</p>
       `,
@@ -97,7 +97,7 @@ export class Historias implements OnInit, AfterViewInit {
       historiaCompleta: `
         <p>Hace una década, cuando me dijeron que tenía cáncer, pensé que mi vida había terminado. Hoy sé que fue un nuevo comienzo.</p>
         
-        <p>El proceso con MamaCare no solo me ayudó a sanar emocionalmente, sino que me mostró la belleza de la resiliencia. Las herramientas que aprendí las he aplicado en cada área de mi vida, y la fuerza que encontré en mi propio proceso me llevó a querer ayudar a otras.</p>
+        <p>El proceso con Ma´Care no solo me ayudó a sanar emocionalmente, sino que me mostró la belleza de la resiliencia. Las herramientas que aprendí las he aplicado en cada área de mi vida, y la fuerza que encontré en mi propio proceso me llevó a querer ayudar a otras.</p>
         
         <p>Ahora, como mentora voluntaria, tengo el privilegio de caminar junto a otras mujeres en su proceso. Verlas transformar su miedo en fortaleza, su dolor en propósito, es el regago más grande que he recibido. Cada historia que acompaño sana una parte más de la mía.</p>
       `,
@@ -173,7 +173,7 @@ export class Historias implements OnInit, AfterViewInit {
       const texto = `"${this.testimonioSeleccionado.textoCorto}" - ${this.testimonioSeleccionado.nombre}`;
       if (navigator.share) {
         navigator.share({
-          title: 'Historia Inspiradora - MamaCare',
+          title: 'Historia Inspiradora - Ma´Care',
           text: texto,
           url: window.location.href
         });

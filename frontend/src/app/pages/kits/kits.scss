@@ -1,4 +1,4 @@
-// Variables de colores - Paleta suave para memorias
+@use "sass:color";
 $primary-color: #FF6B9D; // Rosa suave
 $secondary-color: #A78BFA; // Lavanda
 $accent-color: #34D399; // Verde menta
@@ -781,5 +781,6 @@ $border-color: #E2E8F0;
 }
 
 .modal-content::-webkit-scrollbar-thumb:hover {
-  background: darken($primary-color, 10%);
+  background: color.adjust($primary-color, $lightness: -10%);
+
 }
