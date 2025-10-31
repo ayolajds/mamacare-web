@@ -72,7 +72,6 @@ export const getProfessionalAppointments = async (req, res) => {
 };
 
 // GET /api/v1/professional/stats
-// GET /api/v1/professional/stats
 export const getProfessionalStats = async (req, res) => {
   try {
     const professionalId = req.user.id;
@@ -357,4 +356,18 @@ export const updateAppointmentNotes = async (req, res) => {
       error: error.message
     });
   }
+};
+
+//crear tratamiento
+export const createPatientTreatment = async (req, res) => {
+  const { patientId } = req.params;
+  const professionalId = req.user.id;
+  
+  const treatment = new PatientTreatment({
+    patientId,
+    professionalId, // ← El profesional que lo crea
+    ...req.body
+  });
+  
+  await treatment.save();
 };

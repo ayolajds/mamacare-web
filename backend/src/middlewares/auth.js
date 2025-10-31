@@ -34,7 +34,7 @@ export async function auth(req, res, next) {
     req.user = {
       sub: String(user._id),
       id: String(user._id),
-      role: user.role || 'paciente',
+      role: user.role || 'patient',
       email: user.email,
       name: user.name,
       lastName: user.lastName,

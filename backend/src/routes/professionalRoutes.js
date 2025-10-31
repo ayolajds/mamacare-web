@@ -4,7 +4,8 @@ import {
   getProfessionalStats,
   getProfessionalPatients,
   updateAppointmentNotes,
-  updateAppointmentStatus
+  updateAppointmentStatus,
+  createPatientTreatment
 } from '../controllers/professionalController.js';
 import { auth } from '../middlewares/auth.js';
 
@@ -16,5 +17,6 @@ router.get('/stats', auth, getProfessionalStats);
 router.get('/patients', auth, getProfessionalPatients);
 router.patch('/appointments/:id/status', auth, updateAppointmentStatus);
 router.patch('/appointments/:id/notes', auth, updateAppointmentNotes);
+router.post('/patients/:patientId/treatment',createPatientTreatment);
 
 export default router;
