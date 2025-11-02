@@ -1,1 +1,324 @@
-<p>paciente-panel works!</p>
+<div class="paciente-panel">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando tu información...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+      </svg>
+    </div>
+    <h3>Error al cargar el dashboard</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="refrescarDatos()">Reintentar</button>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading && !error" class="dashboard-content">
+    
+    <!-- Header -->
+    <div class="dashboard-header">
+      <div class="welcome-section">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </div>
+        <div class="welcome-text">
+          <h1>Hola, {{ patientName }}</h1>
+          <p>Te acompañamos en tu tratamiento contra el cáncer de mama</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="solicitarCita()">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          Solicitar Cita
+        </button>
+        <button class="btn-refresh" (click)="refrescarDatos()" title="Actualizar">
+          <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumen de Tratamiento (cuando SÍ hay datos) -->
+    <div class="treatment-summary" *ngIf="tieneTratamiento()">
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="section-title">
+            <div class="title-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+            </div>
+            <h3>Mi Tratamiento</h3>
+          </div>
+          <button class="btn-text" (click)="goToTratamiento()">Ver Detalles</button>
+        </div>
+        <div class="treatment-info">
+          <div class="info-item" *ngIf="dashboardData.treatment && dashboardData.treatment.treatmentPhase">
+            <span class="label">Fase Actual:</span>
+            <span class="value phase-badge">
+              {{ getFaseTratamientoDisplay(dashboardData.treatment.treatmentPhase) }}
+            </span>
+          </div>
+          <div class="info-item" *ngIf="dashboardData.treatment && dashboardData.treatment.cancerType">
+            <span class="label">Tipo de Cáncer:</span>
+            <span class="value">{{ getTipoCancerDisplay(dashboardData.treatment.cancerType) }}</span>
+          </div>
+          <div class="info-item" *ngIf="dashboardData.treatment && dashboardData.treatment.cancerStage">
+            <span class="label">Etapa:</span>
+            <span class="value">Etapa {{ dashboardData.treatment.cancerStage }}</span>
+          </div>
+          <div class="info-item" *ngIf="dashboardData.treatment && dashboardData.treatment.professionalId && dashboardData.treatment.professionalId.name">
+            <span class="label">Oncólogo:</span>
+            <span class="value">Dr. {{ dashboardData.treatment.professionalId.name }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mensaje cuando NO hay tratamiento -->
+    <div class="treatment-summary" *ngIf="!tieneTratamiento()">
+      <div class="summary-card">
+        <div class="summary-header">
+          <div class="section-title">
+            <div class="title-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+              </svg>
+            </div>
+            <h3>Mi Tratamiento</h3>
+          </div>
+        </div>
+        <div class="treatment-info">
+          <div class="no-treatment-info">
+            <div class="info-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+            <div class="info-content">
+              <p>Aún no tienes información de tratamiento registrada.</p>
+              <button class="btn-text" (click)="goToTratamiento()">Completar información</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="quick-stats">
+      <div class="stat-card" (click)="goToCitas()">
+        <div class="stat-icon today">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ dashboardData.todaysAppointments }}</h3>
+          <p class="stat-label">Citas Hoy</p>
+        </div>
+      </div>
+
+      <div class="stat-card" (click)="goToCitas()">
+        <div class="stat-icon upcoming">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ dashboardData.upcomingAppointments.length }}</h3>
+          <p class="stat-label">Próximas Citas</p>
+        </div>
+      </div>
+
+      <div class="stat-card" (click)="goToSalud()">
+        <div class="stat-icon symptoms">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ dashboardData.recentSymptoms.length }}</h3>
+          <p class="stat-label">Síntomas Registrados</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dos Columnas -->
+    <div class="dashboard-columns">
+      <!-- Columna Izquierda: Próximas Citas -->
+      <div class="column">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <h2>Próximas Citas</h2>
+            </div>
+            <button class="btn-text" (click)="goToCitas()">Ver Todas</button>
+          </div>
+
+          <div class="citas-list">
+            <div *ngFor="let cita of dashboardData.upcomingAppointments" 
+                 class="cita-item"
+                 (click)="verDetallesCita(cita)">
+              <div class="cita-time">
+                <span class="time">{{ formatearHora(cita.date) }}</span>
+                <span class="date">{{ formatearFecha(cita.date) }}</span>
+              </div>
+              <div class="cita-info">
+                <h4 class="professional-name">
+                  {{ cita.professionalId?.name || 'Profesional no asignado' }}
+                </h4>
+                <p class="cita-type">{{ cita.type || 'Consulta médica' }}</p>
+                <span class="status-badge" [class]="getStatusClass(cita.status)">
+                  {{ getStatusDisplay(cita.status) }}
+                </span>
+              </div>
+              <div class="cita-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </div>
+
+            <div *ngIf="dashboardData.upcomingAppointments.length === 0" 
+                 class="empty-state">
+              <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <p>No tienes citas programadas</p>
+              <button class="btn-primary" (click)="solicitarCita()">Solicitar Cita</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Columna Derecha: Síntomas Recientes -->
+      <div class="column">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="title-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+              </div>
+              <h2>Síntomas Recientes</h2>
+            </div>
+            <button class="btn-text" (click)="abrirModalSintoma()">Registrar</button>
+          </div>
+
+          <div class="sintomas-list">
+            <div *ngFor="let sintoma of dashboardData.recentSymptoms" class="sintoma-item">
+              <div class="sintoma-header">
+                <span class="sintoma-name">{{ sintoma.symptom }}</span>
+                <span class="intensity-badge" [class]="getColorIntensidad(sintoma.intensity)">
+                  {{ sintoma.intensity }}/10 - {{ getTextoIntensidad(sintoma.intensity) }}
+                </span>
+              </div>
+              <div class="sintoma-details">
+                <span class="sintoma-date">{{ formatearFecha(sintoma.date) }}</span>
+                <span class="sintoma-notes" *ngIf="sintoma.notes">"{{ sintoma.notes }}"</span>
+              </div>
+            </div>
+
+            <div *ngIf="dashboardData.recentSymptoms.length === 0" 
+                 class="empty-state">
+              <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <p>No hay síntomas registrados</p>
+              <button class="btn-primary" (click)="abrirModalSintoma()">Registrar Primer Síntoma</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Registrar Síntoma -->
+  <div *ngIf="showSymptomModal" class="modal-overlay" (click)="cerrarModalSintoma()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+          </div>
+          <h3>Registrar Síntoma</h3>
+        </div>
+        <button class="btn-close" (click)="cerrarModalSintoma()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="symptom">Síntoma *</label>
+          <input type="text" id="symptom" [(ngModel)]="newSymptom.symptom" 
+                 placeholder="Ej: Náuseas, Fatiga, Dolor..." class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="intensity">Intensidad (1-10)</label>
+          <div class="intensity-selector">
+            <input type="range" id="intensity" min="1" max="10" 
+                   [(ngModel)]="newSymptom.intensity" class="intensity-slider">
+            <div class="intensity-labels">
+              <span class="intensity-value">{{ newSymptom.intensity }}/10</span>
+              <span class="intensity-text">{{ getTextoIntensidad(newSymptom.intensity) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notas adicionales (opcional)</label>
+          <textarea id="notes" [(ngModel)]="newSymptom.notes" 
+                    placeholder="Describe tu síntoma, cuándo empezó, qué lo alivia..." 
+                    class="form-textarea" rows="3"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarModalSintoma()" [disabled]="isSubmittingSymptom">
+          Cancelar
+        </button>
+        <button class="btn-primary" (click)="agregarSintoma()" 
+                [disabled]="!newSymptom.symptom.trim() || isSubmittingSymptom">
+          <span *ngIf="!isSubmittingSymptom">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Registrar Síntoma
+          </span>
+          <span *ngIf="isSubmittingSymptom">
+            <svg class="loading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2v4m0 12v4m8-10h-4M6 12H2m15.364-7.364l-2.828 2.828M7.464 17.536l-2.828 2.828m0-12.728l2.828 2.828m9.9 4.95l2.828 2.829"/>
+            </svg>
+            Registrando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

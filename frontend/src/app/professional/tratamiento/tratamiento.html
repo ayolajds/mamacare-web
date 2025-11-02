@@ -1,0 +1,154 @@
+<div class="treatment-container">
+  <div class="treatment-header">
+    <button class="btn-back" (click)="cancel()">
+      ← Volver a Pacientes
+    </button>
+    <h1>🎗️ Crear Tratamiento</h1>
+    <p>Para: <strong>{{ patientName }}</strong> (ID: {{ patientId }})</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="treatment-form">
+    
+    <!-- Mensaje de Error -->
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Diagnóstico -->
+    <div class="form-group">
+      <label for="diagnosis">Diagnóstico *</label>
+      <textarea
+        id="diagnosis"
+        [(ngModel)]="treatmentData.diagnosis"
+        name="diagnosis"
+        rows="3"
+        placeholder="Describe el diagnóstico del paciente..."
+        required
+      ></textarea>
+    </div>
+
+    <!-- Tipo de Cáncer -->
+    <div class="form-group">
+      <label for="cancerType">Tipo de Cáncer *</label>
+      <select
+        id="cancerType"
+        [(ngModel)]="treatmentData.cancerType"
+        name="cancerType"
+        required
+      >
+        <option value="">Selecciona un tipo</option>
+        <option *ngFor="let type of cancerTypes" [value]="type.value">
+          {{ type.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Etapa del Cáncer -->
+    <div class="form-group">
+      <label for="cancerStage">Etapa del Cáncer *</label>
+      <select
+        id="cancerStage"
+        [(ngModel)]="treatmentData.cancerStage"
+        name="cancerStage"
+        required
+      >
+        <option value="">Selecciona una etapa</option>
+        <option *ngFor="let stage of cancerStages" [value]="stage.value">
+          {{ stage.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Fase de Tratamiento -->
+    <div class="form-group">
+      <label for="treatmentPhase">Fase de Tratamiento *</label>
+      <select
+        id="treatmentPhase"
+        [(ngModel)]="treatmentData.treatmentPhase"
+        name="treatmentPhase"
+        required
+      >
+        <option value="">Selecciona una fase</option>
+        <option *ngFor="let phase of treatmentPhases" [value]="phase.value">
+          {{ phase.label }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Plan de Tratamiento -->
+    <div class="form-group">
+      <label for="treatmentPlan">Plan de Tratamiento *</label>
+      <textarea
+        id="treatmentPlan"
+        [(ngModel)]="treatmentData.treatmentPlan"
+        name="treatmentPlan"
+        rows="4"
+        placeholder="Describe el plan de tratamiento, procedimientos, frecuencia de seguimiento..."
+        required
+      ></textarea>
+    </div>
+
+    <!-- Medicamentos (Opcional) -->
+    <div class="medications-section">
+      <div class="section-header">
+        <h3>💊 Medicamentos (Opcional)</h3>
+        <button type="button" class="btn-add" (click)="addMedication()">
+          + Agregar Medicamento
+        </button>
+      </div>
+
+      <div *ngFor="let med of treatmentData.medications; let i = index" class="medication-item">
+        <div class="medication-header">
+          <h4>Medicamento {{ i + 1 }}</h4>
+          <button type="button" class="btn-remove" (click)="removeMedication(i)">
+            🗑️ Eliminar
+          </button>
+        </div>
+        
+        <div class="medication-fields">
+          <input
+            [(ngModel)]="med.name"
+            [name]="'medName' + i"
+            placeholder="Nombre del medicamento"
+          >
+          <input
+            [(ngModel)]="med.dosage"
+            [name]="'medDosage' + i"
+            placeholder="Dosis (ej: 500mg)"
+          >
+          <input
+            [(ngModel)]="med.frequency"
+            [name]="'medFrequency' + i"
+            placeholder="Frecuencia (ej: Cada 8 horas)"
+          >
+          <input
+            type="date"
+            [(ngModel)]="med.startDate"
+            [name]="'medStartDate' + i"
+            placeholder="Fecha inicio"
+          >
+          <input
+            type="date"
+            [(ngModel)]="med.endDate"
+            [name]="'medEndDate' + i"
+            placeholder="Fecha fin"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="cancel()">
+        Cancelar
+      </button>
+      <button 
+        type="submit" 
+        class="btn-submit" 
+        [disabled]="!isFormValid() || isLoading"
+      >
+        {{ isLoading ? 'Creando...' : '🎗️ Crear Tratamiento' }}
+      </button>
+    </div>
+  </form>
+</div>

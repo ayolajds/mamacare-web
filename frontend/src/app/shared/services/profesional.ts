@@ -24,7 +24,6 @@ export interface ProfessionalStats {
   tasaAsistencia: number;
 }
 
-// ✅ INTERFAZ CORREGIDA - COINCIDE CON EL BACKEND
 export interface Appointment {
   _id: string;
   title: string;
@@ -51,7 +50,6 @@ export interface Appointment {
   endDate?: string;
 }
 
-// ✅ INTERFAZ PAGINADA CORREGIDA
 export interface PaginatedResponse<T> {
   docs: T[];
   totalDocs: number;
@@ -65,7 +63,6 @@ export interface PaginatedResponse<T> {
   nextPage: number | null;
 }
 
-// ✅ INTERFAZ DE RESPUESTA CORREGIDA
 export interface AppointmentsResponse {
   success: boolean;
   data: PaginatedResponse<Appointment>;
@@ -82,10 +79,25 @@ export interface ProfessionalResponse {
   data: Professional;
 }
 
-// ✅ INTERFAZ PARA RESPUESTA DE PACIENTES
 export interface PatientsResponse {
   success: boolean;
   data: PaginatedResponse<any>;
+}
+
+// ✅ NUEVA INTERFAZ PARA TRATAMIENTOS
+export interface TreatmentResponse {
+  success: boolean;
+  data: any;
+  message?: string;
+}
+
+export interface TreatmentData {
+  diagnosis: string;
+  cancerType: 'ductal_in_situ' | 'lobular_in_situ' | 'invasive_ductal' | 'invasive_lobular' | 'inflammatory' | 'other';
+  cancerStage: '0' | 'I' | 'II' | 'III' | 'IV';
+  treatmentPhase: 'diagnosis' | 'pre_op' | 'post_op' | 'chemotherapy' | 'radiotherapy' | 'hormone_therapy' | 'follow_up';
+  treatmentPlan: string;
+  medications?: any[];
 }
 
 @Injectable({
@@ -137,7 +149,6 @@ export class ProfessionalService {
       return [];
     }
     
-    // Usar la estructura corregida con PaginatedResponse
     return response.data?.docs || [];
   }
 
@@ -181,7 +192,6 @@ export class ProfessionalService {
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.search) httpParams = httpParams.set('search', params.search);
 
-    // ✅ AGREGAR TIMESTAMP PARA EVITAR CACHÉ
     httpParams = httpParams.set('_t', Date.now().toString());
 
     console.log('👥 Obteniendo pacientes del profesional:', params);
@@ -207,6 +217,23 @@ export class ProfessionalService {
     return this.http.patch<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments/${appointmentId}/notes`,
       { notes }
+    );
+  }
+
+  // 🎗️ CREAR TRATAMIENTO PARA PACIENTE - NUEVO MÉTODO
+  createPatientTreatment(patientId: string, treatmentData: TreatmentData): Observable<TreatmentResponse> {
+    console.log('🎗️ Creando tratamiento para paciente:', { patientId, treatmentData });
+    return this.http.post<TreatmentResponse>(
+      `${this.baseUrl}/patients/${patientId}/treatment`,
+      treatmentData
+    );
+  }
+
+  // 🎗️ OBTENER TRATAMIENTO DE PACIENTE - NUEVO MÉTODO
+  getPatientTreatment(patientId: string): Observable<TreatmentResponse> {
+    console.log('🎗️ Obteniendo tratamiento del paciente:', patientId);
+    return this.http.get<TreatmentResponse>(
+      `${this.baseUrl}/patients/${patientId}/treatment`
     );
   }
 }

@@ -163,19 +163,19 @@
             
             <!-- ✅ NUEVO: Paneles según rol (móvil) -->
             <li *ngIf="isAdmin">
-              <a routerLink="/admin" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+              <a routerLink="/Panel-admin" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
                 Panel de Administración
               </a>
             </li>
             
             <li *ngIf="isProfesional">
-              <a routerLink="/profesional" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+              <a routerLink="/Panel-profesional" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
                 Panel Profesional
               </a>
             </li>
             
             <li *ngIf="isPaciente">
-              <a routerLink="/paciente" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
+              <a routerLink="/Panel-paciente" routerLinkActive="is-active" (click)="closeUserMenu(); closeMobileMenu()">
                 Panel Paciente
               </a>
             </li>

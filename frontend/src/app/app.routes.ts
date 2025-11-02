@@ -33,6 +33,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/kits/kits').then(m => m.Kits),
   },
+    // ✅ NUEVA RUTA DE PAGOS - AGREGAR ESTA
+  {
+    path: 'pagos/:kitId',
+    title: 'Ma´Care | Procesar Pago',
+    canActivate: [authGuard], // Solo usuarios logueados
+    loadComponent: () =>
+      import('./pages/pagos/pagos').then(m => m.Pagos), // Asegúrate que la ruta sea correcta
+  },
   {
     path: 'acompanamiento',
     title: 'Ma´Care | Acompañamiento',
@@ -167,6 +175,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./professional/pacientes/pacientes').then(m => m.Pacientes),
   },
+  // 🎗️ NUEVA RUTA PARA TRATAMIENTOS - AGREGAR ESTA
+{
+  path: 'profesional/pacientes/:patientId/tratamiento',
+  title: 'Ma´Care | Crear Tratamiento',
+  canActivate: [authGuard, profesionalGuard],
+  loadComponent: () =>
+    import('./professional/tratamiento/tratamiento').then(m => m.Tratamiento),
+},
   {
     path: 'profesional/citas/:id',
     title: 'Ma´Care | Detalles de Cita',

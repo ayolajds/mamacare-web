@@ -7,7 +7,11 @@
 
   <!-- Error State -->
   <div *ngIf="error && !isLoading" class="error-state">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+      </svg>
+    </div>
     <h3>Error al cargar el panel</h3>
     <p>{{ error }}</p>
     <button class="btn-retry" (click)="refreshData()">Reintentar</button>
@@ -176,6 +180,21 @@
               </div>
               <h3>Mi Agenda</h3>
               <p>Configura tu disponibilidad</p>
+            </button>
+
+            <!-- 🎗️ NUEVA ACCIÓN: GESTIONAR TRATAMIENTOS -->
+            <button class="action-card treatment-action" (click)="goToPacientes()">
+              <div class="action-icon treatment-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2v16z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h6m-6 4h6m-6 4h6"/>
+                </svg>
+              </div>
+              <div class="action-content">
+                <h3>Gestionar Tratamientos</h3>
+                <p>Crear y editar tratamientos de pacientes</p>
+                <span class="action-badge">Nuevo</span>
+              </div>
             </button>
           </div>
         </div>

@@ -155,7 +155,6 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
         .subscribe({
           next: (response: AppointmentsResponse) => {
             console.log('📅 Próximas citas cargadas:', response);
-            // ✅ USANDO EL MÉTODO HELPER - LIMPIO Y SEGURO
             this.proximasCitas = this.professionalService.extractAppointments(response);
             resolve();
           },
@@ -268,6 +267,12 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
   goToPacientes(): void {
     console.log('📍 Navegando a pacientes...');
     this.router.navigate(['/profesional/pacientes']);
+  }
+
+  // 🎗️ NUEVO: Navegar a crear tratamiento para paciente
+  goToCreateTreatment(patientId: string): void {
+    console.log('🎗️ Navegando a crear tratamiento para paciente:', patientId);
+    this.router.navigate(['/profesional/pacientes', patientId, 'tratamiento']);
   }
 
   viewCitaDetails(cita: Appointment): void {

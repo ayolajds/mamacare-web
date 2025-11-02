@@ -49,7 +49,11 @@ export class Pacientes implements OnInit, OnDestroy {
   isLoading = true;
   error = '';
   
-  // Paginación - ACTUALIZADO
+  // Modal de detalles
+  showDetailsModal = false;
+  selectedPatient: Patient | null = null;
+  
+  // Paginación
   pagination = {
     currentPage: 1,
     totalPages: 1,
@@ -61,7 +65,6 @@ export class Pacientes implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   async ngOnInit(): Promise<void> {
-    // Escuchar cambios en los query params
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -88,11 +91,9 @@ export class Pacientes implements OnInit, OnDestroy {
       }).toPromise();
 
       if (response?.success && response.data) {
-        // ✅ CORREGIDO: Usar la estructura correcta
         this.pacientes = response.data.docs || [];
         this.filteredPacientes = [...this.pacientes];
         
-        // ✅ ACTUALIZADO: Usar la estructura correcta de PaginatedResponse
         this.pagination = {
           currentPage: response.data.page || 1,
           totalPages: response.data.totalPages || 1,
@@ -101,7 +102,6 @@ export class Pacientes implements OnInit, OnDestroy {
           hasPrev: response.data.hasPrevPage || false
         };
 
-        // Aplicar filtro de búsqueda local
         this.aplicarFiltroBusqueda();
       } else {
         this.error = 'Error al cargar los pacientes';
@@ -134,6 +134,23 @@ export class Pacientes implements OnInit, OnDestroy {
   // Navegación
   goToDashboard(): void {
     this.router.navigate(['/Panel-profesional']);
+  }
+
+  // 🎗️ Navegar a crear tratamiento
+  goToCreateTreatment(patientId: string): void {
+    console.log('🎗️ Navegando a crear tratamiento para paciente:', patientId);
+    this.router.navigate(['/profesional/pacientes', patientId, 'tratamiento']);
+  }
+
+  // Modal de detalles
+  openPatientDetails(paciente: Patient): void {
+    this.selectedPatient = paciente;
+    this.showDetailsModal = true;
+  }
+
+  closePatientDetails(): void {
+    this.showDetailsModal = false;
+    this.selectedPatient = null;
   }
 
   // Filtros
@@ -170,11 +187,9 @@ export class Pacientes implements OnInit, OnDestroy {
     }
   }
 
-  // ✅ MÉTODOS NUEVOS AGREGADOS PARA EL TEMPLATE
-
-  // Calcular edad a partir de la fecha de nacimiento
+  // Calcular edad
   calculateAge(birthDate?: string): string {
-    if (!birthDate) return 'Edad no disponible';
+    if (!birthDate) return 'No disponible';
     
     try {
       const birth = new Date(birthDate);
@@ -192,7 +207,7 @@ export class Pacientes implements OnInit, OnDestroy {
     }
   }
 
-  // Contactar paciente por email o teléfono
+  // Contactar paciente
   contactarPaciente(paciente: Patient, tipo: 'email' | 'telefono'): void {
     if (tipo === 'email' && paciente.email) {
       window.open(`mailto:${paciente.email}`, '_blank');
@@ -201,25 +216,6 @@ export class Pacientes implements OnInit, OnDestroy {
     } else {
       alert(`No hay ${tipo} disponible para este paciente`);
     }
-  }
-
-  // Ver detalles del paciente
-  viewPatientDetails(paciente: Patient): void {
-    // Aquí puedes navegar a una página de detalles del paciente si la tienes
-    // Por ahora mostraremos un alert con la información
-    const info = `
-      Nombre: ${paciente.name} ${paciente.lastName}
-      Email: ${paciente.email}
-      Teléfono: ${paciente.phone || 'No disponible'}
-      Fecha de nacimiento: ${paciente.birthDate ? this.formatDate(paciente.birthDate) : 'No disponible'}
-      Edad: ${this.calculateAge(paciente.birthDate)}
-      Registrado: ${this.formatDate(paciente.createdAt)}
-    `;
-    
-    alert(info);
-    
-    // O si tienes una ruta para detalles del paciente:
-    // this.router.navigate(['/profesional/pacientes', paciente._id]);
   }
 
   // Helper functions

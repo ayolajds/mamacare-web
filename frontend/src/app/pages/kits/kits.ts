@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
+import { Router } from '@angular/router'; // ✅ AGREGAR Router
+import { AuthService } from '../../shared/services/auth';
 
 interface Beneficio {
   titulo: string;
@@ -32,6 +34,10 @@ declare var lucide: any;
   styleUrls: ['./kits.scss'],
 })
 export class Kits implements OnInit, AfterViewInit {
+  // ✅ INYECTAR servicios
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   kits: Kit[] = [];
   filteredKits: Kit[] = [];
   selectedKit: Kit | null = null;
@@ -206,9 +212,20 @@ export class Kits implements OnInit, AfterViewInit {
     this.selectedKit = null;
   }
 
+  // ✅ MÉTODO CORREGIDO - Navegación al componente de pagos
   solicitarKit(kit: Kit): void {
-    console.log('Solicitando kit:', kit);
-    alert(`¡Perfecto! Has solicitado el "${kit.nombre}". Nos pondremos en contacto contigo pronto.`);
+    if (!this.authService.estaLogueado()) {
+      const confirmar = confirm('Para solicitar un kit necesitas estar logueado. ¿Deseas ir al login?');
+      if (confirmar) {
+        this.router.navigate(['/login'], { 
+          queryParams: { returnUrl: `/pagos/${kit.id}` } 
+        });
+      }
+      return;
+    }
+
+    // Navegar al componente de pagos
+    this.router.navigate(['/pagos', kit.id]);
   }
 
   // Métodos auxiliares

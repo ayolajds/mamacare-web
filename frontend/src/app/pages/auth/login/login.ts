@@ -34,17 +34,38 @@ export class Login {
     this.loading = true;
     this.errorMsg = '';
 
-    this.auth.login(payload).subscribe({
-      next: (res) => {
-        this.loading = false;
-        // ✅ token y user ya quedaron en localStorage por el servicio
-        this.router.navigate(['/profile']); // ← página de perfil
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMsg = err?.error?.message || 'Credenciales incorrectas';
-      }
-    });
+this.auth.login(payload).subscribe({
+  next: (res) => {
+    this.loading = false;
+    
+    // ✅ REDIRECCIÓN AUTOMÁTICA SEGÚN ROL
+    const user = this.auth.currentUser(); // O usar res.user si está disponible
+    const role = user?.role?.toLowerCase() || '';
+    
+    console.log('🔍 Rol detectado para redirección:', role);
+    
+    // Mapeo de redirecciones
+    const roleRedirects: { [key: string]: string } = {
+      'admin': '/Panel-admin',
+      'administrador': '/Panel-admin',
+      'profesional': '/Panel-profesional', 
+      'professional': '/Panel-profesional',
+      'paciente': '/Panel-paciente',
+      'patient': '/Panel-paciente',
+      'voluntario': '/Panel-voluntario',
+      'volunteer': '/Panel-voluntario'
+    };
+    
+    const redirectTo = roleRedirects[role] || '/profile';
+    console.log('🎯 Redirigiendo a:', redirectTo);
+    
+    this.router.navigate([redirectTo]);
+  },
+  error: (err) => {
+    this.loading = false;
+    this.errorMsg = err?.error?.message || 'Credenciales incorrectas';
+  }
+});
   }
 
   navigateToRegister() {

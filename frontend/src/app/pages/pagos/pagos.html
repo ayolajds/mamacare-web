@@ -1,0 +1,215 @@
+<div class="pago-container">
+  <div class="pago-header">
+    <h1>Pago Seguro en Línea - PSE</h1>
+    <p>Procesando tu compra de manera segura</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Cargando información del kit...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="pago-content" *ngIf="!isLoading && kit">
+    
+    <!-- Resumen del Kit -->
+    <div class="kit-summary">
+      <h2>Resumen de tu compra</h2>
+      <div class="kit-info">
+        <h3>{{ kit.nombre }}</h3>
+        <p class="kit-category">{{ kit.categoria | titlecase }} Kit</p>
+        <div class="kit-price">
+          <strong>${{ formatPrice(kit.precio) }} COP</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario de Pago PSE COMPLETO -->
+    <div class="pago-form">
+      <h2>Información de Pago PSE</h2>
+      
+      <!-- Tipo de Persona -->
+      <div class="form-group">
+        <label for="tipoPersona">Tipo de Persona *</label>
+        <select 
+          id="tipoPersona" 
+          [(ngModel)]="tipoPersona" 
+          class="form-select"
+          [disabled]="isProcessing">
+          <option value="natural">Persona Natural</option>
+          <option value="juridica">Persona Jurídica</option>
+        </select>
+      </div>
+
+      <!-- Información Personal -->
+      <div class="form-section">
+        <h3 class="section-title">Información Personal</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tipoDocumento">Tipo de Documento *</label>
+            <select 
+              id="tipoDocumento" 
+              [(ngModel)]="tipoDocumento" 
+              class="form-select"
+              [disabled]="isProcessing">
+              <option value="cc">Cédula de Ciudadanía</option>
+              <option value="ce">Cédula de Extranjería</option>
+              <option value="pasaporte">Pasaporte</option>
+              <option value="nit">NIT</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="numeroDocumento">Número de Documento *</label>
+            <input 
+              type="text" 
+              id="numeroDocumento" 
+              [(ngModel)]="numeroDocumento" 
+              class="form-input"
+              placeholder="Ingresa tu número de documento"
+              [disabled]="isProcessing">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombreTitular">Nombre del Titular *</label>
+            <input 
+              type="text" 
+              id="nombreTitular" 
+              [(ngModel)]="nombreTitular" 
+              class="form-input"
+              placeholder="Nombre completo"
+              [disabled]="isProcessing">
+          </div>
+
+          <div class="form-group">
+            <label for="email">Correo Electrónico *</label>
+            <input 
+              type="email" 
+              id="email" 
+              [(ngModel)]="email" 
+              class="form-input"
+              placeholder="tu@email.com"
+              [disabled]="isProcessing">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono de Contacto *</label>
+          <input 
+            type="tel" 
+            id="telefono" 
+            [(ngModel)]="telefono" 
+            class="form-input"
+            placeholder="+57 300 123 4567"
+            [disabled]="isProcessing">
+        </div>
+      </div>
+
+      <!-- Selección de Banco -->
+      <div class="form-section">
+        <h3 class="section-title">Selecciona tu Entidad Financiera</h3>
+        
+        <div class="form-group">
+          <label for="banco">Banco *</label>
+          <select 
+            id="banco" 
+            [(ngModel)]="bancoSeleccionado" 
+            class="form-select"
+            [disabled]="isProcessing">
+            <option value="">Selecciona tu banco</option>
+            <option *ngFor="let banco of bancos" [value]="banco.id">
+              {{ banco.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Información del Banco Seleccionado -->
+        <div class="bank-info" *ngIf="bancoSeleccionado">
+          <div class="bank-card">
+            <div class="bank-icon">
+              <i [attr.data-lucide]="getBankIcon(bancoSeleccionado)"></i>
+            </div>
+            <div class="bank-details">
+              <h4>{{ getBankName(bancoSeleccionado) }}</h4>
+              <p>Transacción segura mediante PSE</p>
+              <small>Tiempo estimado: 2-5 minutos</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Términos y Condiciones -->
+      <div class="form-section">
+        <div class="terms-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="aceptaTerminos"
+              [disabled]="isProcessing">
+            <span class="checkmark"></span>
+            Acepto los <a href="#" class="terms-link">Términos y Condiciones</a> 
+            y la <a href="#" class="terms-link">Política de Privacidad</a>
+          </label>
+        </div>
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="pago-actions">
+        <button 
+          class="btn-primary" 
+          (click)="procesarPago()"
+          [disabled]="!validarFormularioCompleto() || isProcessing">
+          <span *ngIf="!isProcessing">
+            <i data-lucide="lock"></i>
+            Pagar ${{ formatPrice(kit.precio) }} COP
+          </span>
+          <span *ngIf="isProcessing" class="processing">
+            <div class="spinner-small"></div>
+            Procesando Pago...
+          </span>
+        </button>
+        
+        <button 
+          class="btn-secondary" 
+          (click)="cancelar()"
+          [disabled]="isProcessing">
+          <i data-lucide="arrow-left"></i>
+          Cancelar
+        </button>
+      </div>
+
+      <!-- Información de Seguridad -->
+      <div class="security-info">
+        <div class="security-item">
+          <i data-lucide="shield-check"></i>
+          <span>Pago 100% seguro con encriptación SSL</span>
+        </div>
+        <div class="security-item">
+          <i data-lucide="clock"></i>
+          <span>Transacción en tiempo real</span>
+        </div>
+        <div class="security-item">
+          <i data-lucide="help-circle"></i>
+          <span>¿Problemas con el pago? <a href="#">Contáctanos</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div class="error-state" *ngIf="!isLoading && !kit">
+    <div class="error-icon">
+      <i data-lucide="alert-circle"></i>
+    </div>
+    <h3>Kit no encontrado</h3>
+    <p>El kit que buscas no está disponible</p>
+    <button class="btn-primary" (click)="cancelar()">
+      <i data-lucide="arrow-left"></i>
+      Volver a Kits
+    </button>
+  </div>
+</div>

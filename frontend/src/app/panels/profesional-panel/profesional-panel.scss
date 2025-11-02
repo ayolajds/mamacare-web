@@ -51,8 +51,15 @@
   }
 
   .error-icon {
-    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--warning-color);
     margin-bottom: 16px;
+    
+    svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   h3 {
@@ -149,6 +156,11 @@
     color: var(--primary-color);
     border-color: var(--primary-color);
   }
+
+  .refresh-icon {
+    width: 18px;
+    height: 18px;
+  }
 }
 
 .btn-action {
@@ -163,11 +175,15 @@
     color: var(--primary-color);
     border-color: var(--primary-color);
   }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 // Iconos
-.btn-icon,
-.refresh-icon {
+.btn-icon {
   width: 18px;
   height: 18px;
 }
@@ -526,6 +542,45 @@
       margin: 0;
     }
   }
+}
+
+// 🎗️ ESTILOS ESPECIALES PARA TRATAMIENTO
+.treatment-action {
+  border: 2px solid #8b5cf6 !important;
+  background: linear-gradient(135deg, #faf5ff, #f3e8ff) !important;
+  
+  &:hover {
+    border-color: #7c3aed !important;
+    background: linear-gradient(135deg, #f3e8ff, #e9d5ff) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15) !important;
+  }
+}
+
+.treatment-icon {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.action-content {
+  position: relative;
+  flex: 1;
+}
+
+.action-badge {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
 // Métricas adicionales
