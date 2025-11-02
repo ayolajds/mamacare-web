@@ -30,6 +30,19 @@ export const createOrden = async (req, res) => {
 
     console.log('📦 Recibiendo compra - Kit ID:', kitId, 'Usuario:', usuarioId);
 
+    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT
+    const usuario = await User.findById(usuarioId);
+    const kitYaComprado = usuario.kitsComprados.some(
+      kit => kit.kitId === parseInt(kitId) && kit.estado === 'activo'
+    );
+
+    if (kitYaComprado) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Ya tienes este kit comprado. No puedes comprarlo nuevamente.' 
+      });
+    }
+
     // ✅ MAPEO DE KITS (sin mongoId - solo number)
     const kitsInfo = {
       1: { 
@@ -57,7 +70,7 @@ export const createOrden = async (req, res) => {
     // ✅ CREAR ORDEN con NUMBER (no ObjectId)
     const orden = new Orden({
       usuarioId,
-      kitId: kitId, // ← NUMBER directamente
+      kitId: kitId,
       total: kit.precio,
       metodoPago: 'pse',
       bancoSeleccionado,
@@ -70,9 +83,11 @@ export const createOrden = async (req, res) => {
     await User.findByIdAndUpdate(usuarioId, {
       $push: {
         kitsComprados: {
-          kitId: kitId,
+          kitId: parseInt(kitId),
           kitNombre: kit.nombre,
-          fechaCompra: new Date()
+          fechaCompra: new Date(),
+          sesionesUsadas: 0,
+          estado: 'activo'
         }
       }
     });

@@ -17,7 +17,8 @@ function mapUser(u) {
     email: u.email,
     role: u.role ?? 'paciente',
     phone: u.phone ?? '',
-    birthDate: u.birthDate ? new Date(u.birthDate).toISOString().slice(0, 10) : ''
+    birthDate: u.birthDate ? new Date(u.birthDate).toISOString().slice(0, 10) : '',
+    kitsComprados: u.kitsComprados || [] // ✅ AGREGAR ESTA LÍNEA
   };
 }
 
@@ -113,7 +114,21 @@ export async function me(req, res) {
     if (!user) return res.status(404).json({ message: 'No encontrado' });
 
     res.set('Cache-Control', 'no-store');
-    return res.json({ user: mapUser(user) });
+    
+    // ✅ DEVOLVER CON kitsComprados
+    return res.json({ 
+      user: {
+        id: user._id,
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        birthDate: user.birthDate,
+        kitsComprados: user.kitsComprados || [], // ← AGREGAR ESTA LÍNEA
+        createdAt: user.createdAt
+      }
+    });
   } catch (e) {
     return res.status(500).json({ message: 'Error en /me', detail: e.message });
   }
