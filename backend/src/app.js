@@ -11,7 +11,8 @@ import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import appointmentRoutes from './routes/appointmentRoutes.js';
 import professionalRoutes from './routes/professionalRoutes.js';
-import patientRoutes from './routes/patientRoutes.js'; // ✅ IMPORT CORREGIDO
+import patientRoutes from './routes/patientRoutes.js';
+import kitRoutes from './routes/kits.js'; // ✅ NUEVA IMPORTACIÓN
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -27,7 +28,8 @@ app.use(`/api/${API_VERSION}/users`, userRoutes);
 app.use(`/api/${API_VERSION}/admin`, adminRoutes);
 app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
 app.use(`/api/${API_VERSION}/professional`, professionalRoutes);
-app.use(`/api/${API_VERSION}/patient`, patientRoutes); // ✅ RUTA CORREGIDA
+app.use(`/api/${API_VERSION}/patient`, patientRoutes);
+app.use(`/api/${API_VERSION}/kits`, kitRoutes); // ✅ NUEVA RUTA
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
@@ -59,7 +61,8 @@ app.use((error, req, res, next) => {
       console.log(`   👑 Admin: http://localhost:${PORT}/api/${API_VERSION}/admin`);
       console.log(`   📅 Appointments: http://localhost:${PORT}/api/${API_VERSION}/appointments`);
       console.log(`   👨‍⚕️ Professional: http://localhost:${PORT}/api/${API_VERSION}/professional`);
-      console.log(`   🎗️ Patient: http://localhost:${PORT}/api/${API_VERSION}/patient`); // ✅ AGREGADO
+      console.log(`   🎗️ Patient: http://localhost:${PORT}/api/${API_VERSION}/patient`);
+      console.log(`   📦 Kits: http://localhost:${PORT}/api/${API_VERSION}/kits`); // ✅ NUEVO ENDPOINT
     });
   } catch (err) {
     console.error('❌ No se pudo conectar a MongoDB:', err.message);

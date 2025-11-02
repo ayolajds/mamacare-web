@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import mongoosePaginate from 'mongoose-paginate-v2'; // ✅ IMPORTAR
+import mongoosePaginate from 'mongoose-paginate-v2';
 
 const ROLES = ['admin', 'paciente', 'profesional', 'voluntario'];
 
@@ -24,7 +24,35 @@ const userSchema = new mongoose.Schema(
       type: Date, 
       default: null,
       required: false
-    }
+    },
+
+    // ✅ NUEVO: KITS COMPRADOS POR EL USUARIO
+    kitsComprados: [
+      {
+        kitId: { 
+          type: Number,  // 1, 2, 3 (del frontend)
+          required: true 
+        },
+        kitNombre: { 
+          type: String, 
+          required: true 
+        },
+        fechaCompra: { 
+          type: Date, 
+          default: Date.now 
+        },
+        // ✅ PARA FUTURAS FUNCIONALIDADES
+        sesionesUsadas: { 
+          type: Number, 
+          default: 0 
+        },
+        estado: { 
+          type: String, 
+          enum: ['activo', 'usado', 'expirado'],
+          default: 'activo' 
+        }
+      }
+    ]
   },
   { timestamps: true }
 );

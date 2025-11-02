@@ -24,12 +24,12 @@ function mapUser(u) {
 export async function register(req, res) {
   try {
     const {
-      name,            // ← inglés (nuevo desde frontend)
-      lastName,        // ← inglés (nuevo desde frontend)  
+      name,            
+      lastName,         
       email,
       password,
-      phone,           // ← inglés (nuevo desde frontend)
-      birthDate        // ← inglés (nuevo desde frontend)
+      phone,           
+      birthDate        
     } = req.body;
 
     // Mantener compatibilidad con español por si acaso
@@ -50,6 +50,7 @@ export async function register(req, res) {
 
     const passwordHash = await hashPassword(password);
 
+    // ✅ CORREGIDO: Incluir kitsComprados desde el inicio
     const user = await User.create({
       name: displayName,
       lastName: lastNameNorm,
@@ -58,14 +59,15 @@ export async function register(req, res) {
       role: 'paciente',
       phone: phoneNorm,
       birthDate: new Date(birthDateNorm),
-      isActive: true
+      isActive: true,
+      kitsComprados: [] // ← ESTA LÍNEA FALTABA
     });
 
     const token = signToken({ sub: String(user._id), role: user.role });
 
     return res.status(201).json({
       token,
-      user: mapUser(user) // ← Esto devuelve TODOS los campos
+      user: mapUser(user)
     });
   } catch (err) {
     return res.status(500).json({ message: 'Error al registrar', detail: err.message });
