@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
-import { Router } from '@angular/router'; // ✅ AGREGAR Router
+import { Router } from '@angular/router';
 import { AuthService } from '../../shared/services/auth';
 
 interface Beneficio {
@@ -24,6 +24,27 @@ interface Kit {
   nuevo: boolean;
 }
 
+// ✅ INTERFACE ACTUALIZADA CON kitsComprados
+interface KitComprado {
+  kitId: number;
+  kitNombre: string;
+  fechaCompra: string;
+  sesionesUsadas: number;
+  estado: string;
+}
+
+interface User {
+  id: string;
+  name: string;
+  lastName: string;
+  email: string;
+  role?: string;
+  phone?: string;
+  birthDate?: string;
+  createdAt?: string;
+  kitsComprados?: KitComprado[]; // ✅ AGREGADO
+}
+
 declare var lucide: any;
 
 @Component({
@@ -43,6 +64,9 @@ export class Kits implements OnInit, AfterViewInit {
   selectedKit: Kit | null = null;
   activeFilter: string = 'all';
   isLoading: boolean = true;
+  
+  // ✅ NUEVA PROPIEDAD para trackear kits comprados
+  kitsComprados: number[] = [];
 
   // Solo 3 kits como solicitado
   private sampleKits: Kit[] = [
@@ -162,6 +186,7 @@ export class Kits implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadKits();
+    this.cargarKitsComprados(); // ✅ Cargar kits comprados al iniciar
   }
 
   ngAfterViewInit(): void {
@@ -188,6 +213,35 @@ export class Kits implements OnInit, AfterViewInit {
     }, 1500);
   }
 
+  // ✅ MÉTODO CORREGIDO: Cargar kits comprados del usuario
+  private cargarKitsComprados(): void {
+    if (this.authService.estaLogueado()) {
+      const usuario = this.authService.obtenerUsuarioActual();
+      console.log('👤 Usuario actual:', usuario);
+      
+      if (usuario && usuario.kitsComprados) {
+        // Obtener solo los IDs de los kits activos
+        this.kitsComprados = usuario.kitsComprados
+          .filter((kit: KitComprado) => kit.estado === 'activo')
+          .map((kit: KitComprado) => kit.kitId);
+        console.log('📦 Kits comprados cargados:', this.kitsComprados);
+      } else {
+        console.log('ℹ️ Usuario no tiene kits comprados');
+        this.kitsComprados = [];
+      }
+    } else {
+      console.log('🔒 Usuario no logueado');
+      this.kitsComprados = [];
+    }
+  }
+
+  // ✅ MÉTODO: Verificar si ya tiene un kit
+  yaTieneKit(kitId: number): boolean {
+    const tiene = this.kitsComprados.includes(kitId);
+    console.log(`🔍 Verificando kit ${kitId}: ${tiene ? 'YA COMPRADO' : 'DISPONIBLE'}`);
+    return tiene;
+  }
+
   filterKits(category: string): void {
     this.activeFilter = category;
     
@@ -212,8 +266,18 @@ export class Kits implements OnInit, AfterViewInit {
     this.selectedKit = null;
   }
 
-  // ✅ MÉTODO CORREGIDO - Navegación al componente de pagos
+  // ✅ MÉTODO CORREGIDO - Con validación de kit comprado
   solicitarKit(kit: Kit): void {
+    console.log('🔄 SOLICITANDO KIT:', kit.id);
+    console.log('📦 Kits comprados actuales:', this.kitsComprados);
+    console.log('❓ ¿Ya tiene kit?:', this.yaTieneKit(kit.id));
+
+    // ✅ VALIDAR SI YA TIENE EL KIT
+    if (this.yaTieneKit(kit.id)) {
+      alert('✅ Ya tienes este kit comprado. Puedes acceder a él desde tu panel de usuario.');
+      return;
+    }
+
     if (!this.authService.estaLogueado()) {
       const confirmar = confirm('Para solicitar un kit necesitas estar logueado. ¿Deseas ir al login?');
       if (confirmar) {

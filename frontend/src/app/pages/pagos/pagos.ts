@@ -1,9 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KitsService } from '../../shared/services/kits';
+import { AcompanamientoService, PlanNombre } from '../../shared/services/acompanamiento';
 import { AuthService } from '../../shared/services/auth';
+
+declare const lucide: any;
 
 @Component({
   selector: 'app-pago',
@@ -12,13 +15,16 @@ import { AuthService } from '../../shared/services/auth';
   templateUrl: './pagos.html',
   styleUrls: ['./pagos.scss']
 })
-export class Pagos implements OnInit {
+export class Pagos implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private kitsService = inject(KitsService);
+  private acompanamientoService = inject(AcompanamientoService);
   private authService = inject(AuthService);
 
-  kit: any = null;
+  // DATOS DEL PRODUCTO (puede ser kit o plan)
+  producto: any = null;
+  tipoProducto: 'kit' | 'plan' | null = null;
   isLoading: boolean = true;
   isProcessing: boolean = false;
 
@@ -41,7 +47,7 @@ export class Pagos implements OnInit {
     { id: 'nequi', nombre: 'Nequi' }
   ];
 
-  // MAPEO DE KITS
+  // MAPEO DE KITS (igual que antes)
   private kitsInfo: { [key: number]: any } = {
     1: { 
       nombre: 'Kit Esencial de Recuerdos',
@@ -65,14 +71,65 @@ export class Pagos implements OnInit {
     }
   };
 
+  // MAPEO DE PLANES
+  private planesInfo: { [key: string]: any } = {
+    'Esencial': { 
+      nombre: 'Plan Esencial',
+      precio: 280000,
+      descripcion: 'Ideal para comenzar con acompañamiento cercano y herramientas esenciales.',
+      caracteristicas: [
+        '4 sesiones psicológicas presenciales',
+        'Evaluación y plan terapéutico',
+        'Seguimiento básico entre sesiones',
+        'Materiales de apoyo digital',
+        'Kit Básico incluido'
+      ]
+    },
+    'Integral': { 
+      nombre: 'Plan Integral',
+      precio: 650000,
+      descripcion: 'Programa completo que combina modalidades para una experiencia profunda.',
+      caracteristicas: [
+        '8 sesiones (presenciales + virtuales)',
+        'Plan terapéutico integral',
+        'Seguimiento continuo y recursos QR',
+        'Acceso a comunidad de apoyo',
+        '2 sesiones familiares incluidas',
+        'Kit Intermedio incluido'
+      ]
+    },
+    'Premium': { 
+      nombre: 'Plan Premium', 
+      precio: 1200000,
+      descripcion: 'Máxima personalización, acompañamiento intensivo y recursos exclusivos.',
+      caracteristicas: [
+        '12 sesiones (presenciales + virtuales + a domicilio)',
+        'Seguimiento intensivo y recursos premium',
+        'Acompañamiento familiar completo',
+        'Sesiones de emergencia incluidas',
+        'Coaching emocional personalizado',
+        'Kit Premium incluido'
+      ]
+    }
+  };
+
   ngOnInit(): void {
     this.verificarAutenticacion();
-    this.cargarKit();
+    this.cargarProducto();
+  }
+
+  ngAfterViewInit(): void {
+    // Inicializar iconos Lucide
+    if (typeof lucide !== 'undefined') {
+      setTimeout(() => {
+        lucide.createIcons();
+      }, 100);
+    }
   }
 
   private verificarAutenticacion(): void {
     if (!this.authService.estaLogueado()) {
-      alert('Debes iniciar sesión para solicitar un kit');
+      alert('Debes iniciar sesión para realizar la compra');
       this.router.navigate(['/login'], {
         queryParams: { returnUrl: this.router.url }
       });
@@ -80,23 +137,45 @@ export class Pagos implements OnInit {
     }
   }
 
-  private cargarKit(): void {
+  private cargarProducto(): void {
     const kitId = this.route.snapshot.paramMap.get('kitId');
+    const planNombre = this.route.snapshot.paramMap.get('planNombre');
     
-    if (!kitId) {
+    if (kitId) {
+      // Es un kit
+      this.tipoProducto = 'kit';
+      this.cargarKit(Number(kitId));
+    } else if (planNombre && this.acompanamientoService.isValidPlanNombre(planNombre)) {
+      // Es un plan
+      this.tipoProducto = 'plan';
+      this.cargarPlan(planNombre as PlanNombre);
+    } else {
+      this.router.navigate(['/']);
+      return;
+    }
+  }
+
+  private cargarKit(kitId: number): void {
+    this.producto = this.kitsInfo[kitId];
+    
+    if (!this.producto) {
       this.router.navigate(['/kits']);
       return;
     }
 
-    const kitIdNumber = Number(kitId);
-    this.kit = this.kitsInfo[kitIdNumber];
+    this.producto.id = kitId;
+    this.isLoading = false;
+  }
+
+  private cargarPlan(planNombre: PlanNombre): void {
+    this.producto = this.planesInfo[planNombre];
     
-    if (!this.kit) {
-      this.router.navigate(['/kits']);
+    if (!this.producto) {
+      this.router.navigate(['/acompanamiento']);
       return;
     }
 
-    this.kit.id = kitIdNumber;
+    this.producto.nombrePlan = planNombre;
     this.isLoading = false;
   }
 
@@ -105,7 +184,15 @@ export class Pagos implements OnInit {
 
     this.isProcessing = true;
 
-    this.kitsService.crearOrden(this.kit.id, this.bancoSeleccionado).subscribe({
+    if (this.tipoProducto === 'kit') {
+      this.procesarPagoKit();
+    } else if (this.tipoProducto === 'plan') {
+      this.procesarPagoPlan();
+    }
+  }
+
+  private procesarPagoKit(): void {
+    this.kitsService.crearOrden(this.producto.id, this.bancoSeleccionado).subscribe({
       next: (response) => {
         this.isProcessing = false;
         if (response.success) {
@@ -120,22 +207,102 @@ export class Pagos implements OnInit {
       error: (error) => {
         this.isProcessing = false;
         alert('Error al procesar el pago: ' + error.message);
-        console.error('Error en pago:', error);
+        console.error('Error en pago kit:', error);
+      }
+    });
+  }
+
+  private procesarPagoPlan(): void {
+    this.acompanamientoService.crearOrdenPlan(this.producto.nombrePlan, this.bancoSeleccionado).subscribe({
+      next: (response) => {
+        this.isProcessing = false;
+        if (response.success) {
+          this.mostrarConfirmacionExito();
+          this.router.navigate(['/panel-paciente'], {
+            queryParams: { 
+              compraExitosa: true,
+              plan: this.producto.nombrePlan 
+            }
+          });
+        } else {
+          alert('Error: ' + response.message);
+        }
+      },
+      error: (error) => {
+        this.isProcessing = false;
+        alert('Error al procesar el pago: ' + error.message);
+        console.error('Error en pago plan:', error);
       }
     });
   }
 
   validarFormularioCompleto(): boolean {
-    return !!(
-      this.tipoPersona &&
-      this.tipoDocumento &&
-      this.numeroDocumento &&
-      this.nombreTitular &&
-      this.email &&
-      this.telefono &&
-      this.bancoSeleccionado &&
-      this.aceptaTerminos
-    );
+    if (!this.validarCamposRequeridos()) {
+      return false;
+    }
+
+    if (!this.aceptaTerminos) {
+      alert('Debes aceptar los términos y condiciones');
+      return false;
+    }
+
+    return true;
+  }
+
+  private validarCamposRequeridos(): boolean {
+    const camposRequeridos = [
+      { valor: this.tipoPersona, mensaje: 'Selecciona el tipo de persona' },
+      { valor: this.tipoDocumento, mensaje: 'Selecciona el tipo de documento' },
+      { valor: this.numeroDocumento, mensaje: 'Ingresa el número de documento' },
+      { valor: this.nombreTitular?.trim(), mensaje: 'Ingresa el nombre del titular' },
+      { valor: this.email?.trim(), mensaje: 'Ingresa un email válido' },
+      { valor: this.telefono?.trim(), mensaje: 'Ingresa un número de teléfono' },
+      { valor: this.bancoSeleccionado, mensaje: 'Selecciona un banco' }
+    ];
+
+    for (const campo of camposRequeridos) {
+      if (!campo.valor) {
+        alert(campo.mensaje);
+        return false;
+      }
+    }
+
+    if (!this.validarEmail(this.email)) {
+      alert('Ingresa un email válido');
+      return false;
+    }
+
+    return true;
+  }
+
+  private validarEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  private mostrarConfirmacionExito(): void {
+    const mensaje = this.tipoProducto === 'kit' 
+      ? `¡Pago exitoso! Has solicitado el "${this.producto.nombre}". Recibirás un email de confirmación.`
+      : `¡Pago exitoso! Has adquirido el "${this.producto.nombre}". Recibirás un email de confirmación.`;
+    
+    alert(mensaje);
+  }
+
+  cancelar(): void {
+    if (this.tipoProducto === 'kit') {
+      this.router.navigate(['/kits']);
+    } else {
+      this.router.navigate(['/acompanamiento']);
+    }
+  }
+
+  formatPrice(price: number): string {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  // Método para saber si es kit o plan (para el template)
+  getProductType(): string {
+    return this.tipoProducto === 'kit' ? 'Kit' : 'Plan de Acompañamiento';
   }
 
   getBankIcon(bancoId: string): string {
@@ -152,17 +319,5 @@ export class Pagos implements OnInit {
   getBankName(bancoId: string): string {
     const banco = this.bancos.find(b => b.id === bancoId);
     return banco ? banco.nombre : 'Banco';
-  }
-
-  private mostrarConfirmacionExito(): void {
-    alert(`¡Pago exitoso! Has solicitado el "${this.kit.nombre}". Recibirás un email de confirmación.`);
-  }
-
-  cancelar(): void {
-    this.router.navigate(['/kits']);
-  }
-
-  formatPrice(price: number): string {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 }

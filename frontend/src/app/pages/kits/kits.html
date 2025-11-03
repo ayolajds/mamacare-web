@@ -102,9 +102,13 @@
           <button 
             class="btn-primary" 
             (click)="solicitarKit(kit)"
-            [disabled]="!estaEnStock(kit)">
-            {{ estaEnStock(kit) ? 'Solicitar Kit' : 'Agotado' }}
+            [disabled]="!estaEnStock(kit) || yaTieneKit(kit.id)">
+            
+            <span *ngIf="yaTieneKit(kit.id)">✅ Ya Comprado</span>
+            <span *ngIf="!yaTieneKit(kit.id) && estaEnStock(kit)">Solicitar Kit</span>
+            <span *ngIf="!yaTieneKit(kit.id) && !estaEnStock(kit)">Agotado</span>
           </button>
+          
           <button class="btn-secondary" (click)="showKitDetails(kit)">
             Ver Detalles
           </button>
@@ -172,11 +176,15 @@
         {{ getStockText(selectedKit) }}
       </div>
 
+      <!-- ✅ BOTÓN DEL MODAL ACTUALIZADO -->
       <button 
         class="btn-primary modal-add-btn"
         (click)="solicitarKit(selectedKit)"
-        [disabled]="!estaEnStock(selectedKit)">
-        {{ estaEnStock(selectedKit) ? 'Solicitar este Kit' : 'Kit Agotado' }}
+        [disabled]="!estaEnStock(selectedKit) || yaTieneKit(selectedKit.id)">
+        
+        <span *ngIf="yaTieneKit(selectedKit.id)">✅ Ya Comprado</span>
+        <span *ngIf="!yaTieneKit(selectedKit.id) && estaEnStock(selectedKit)">Solicitar este Kit</span>
+        <span *ngIf="!yaTieneKit(selectedKit.id) && !estaEnStock(selectedKit)">Kit Agotado</span>
       </button>
     </div>
   </div>

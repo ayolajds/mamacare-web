@@ -283,6 +283,32 @@ $border-color: #E2E8F0;
     line-height: 1.6;
   }
 
+  .paquete-modalidades {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+
+    .chip {
+      background: rgba($primary-color, 0.1);
+      color: $primary-color;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: 1px solid rgba($primary-color, 0.2);
+
+      i {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+
   .paquete-includes {
     margin-bottom: 2rem;
 
@@ -343,6 +369,30 @@ $border-color: #E2E8F0;
     width: 100%;
     justify-content: center;
   }
+}
+
+// ✅ NUEVO: Indicador de procesamiento
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  
+  .spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+.btn-processing {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 // CTA Section
@@ -438,6 +488,28 @@ $border-color: #E2E8F0;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+// Loading Message
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: $text-light;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid $primary-color;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 // Responsive Design

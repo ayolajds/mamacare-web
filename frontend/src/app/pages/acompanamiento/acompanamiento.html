@@ -127,12 +127,25 @@
             </div>
           </div>
 
-          <a class="btn btn-primary paquete-cta" [routerLink]="paquete.cta.link" 
-             [attr.aria-label]="paquete.cta.label">
-            <i data-lucide="calendar" aria-hidden="true"></i>
-            {{ paquete.cta.label }}
-          </a>
+          <!-- ✅ BOTÓN SIMPLIFICADO: Redirección directa -->
+          <button class="btn btn-primary paquete-cta" 
+                  (click)="solicitarPaquete(paquete)"
+                  [attr.aria-label]="'Comprar plan ' + paquete.nombre">
+            <i data-lucide="credit-card" aria-hidden="true"></i>
+            {{ getTextoBoton(paquete) }}
+          </button>
+
+          <!-- ✅ INFO ADICIONAL: Indica que irá al formulario de pago -->
+          <div class="pago-info">
+            <small>💳 Pago seguro con PSE</small>
+          </div>
         </div>
+      </div>
+
+      <!-- ✅ MENSAJE DE CARGA -->
+      <div class="loading-message" *ngIf="isLoading">
+        <div class="spinner"></div>
+        <p>Cargando planes disponibles...</p>
       </div>
     </div>
   </section>

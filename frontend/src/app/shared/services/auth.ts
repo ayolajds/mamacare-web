@@ -18,6 +18,15 @@ export interface RegisterRequest {
   birthDate: string;
 }
 
+// ✅ INTERFACE ACTUALIZADA CON kitsComprados
+export interface KitComprado {
+  kitId: number;
+  kitNombre: string;
+  fechaCompra: string;
+  sesionesUsadas: number;
+  estado: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -27,6 +36,7 @@ export interface User {
   phone?: string;
   birthDate?: string;
   createdAt?: string;
+  kitsComprados?: KitComprado[]; // ✅ AGREGADO
 }
 
 export interface LoginResponse {
@@ -73,11 +83,11 @@ export interface VerifyTokenResponse {
 export class AuthService {
   private http = inject(HttpClient);
 
-private readonly MOCK = false;
-private readonly BASE = `${environment.apiUrl}/auth`;
-private readonly USERS_BASE = `${environment.apiUrl}/users`;
-private readonly ACCESS_KEY = 'MaCare_access';
-private readonly USER_KEY = 'MaCare_user';
+  private readonly MOCK = false;
+  private readonly BASE = `${environment.apiUrl}/auth`;
+  private readonly USERS_BASE = `${environment.apiUrl}/users`;
+  private readonly ACCESS_KEY = 'MaCare_access';
+  private readonly USER_KEY = 'MaCare_user';
 
   login(payload: LoginRequest): Observable<LoginResponse> {
     if (this.MOCK) {
@@ -90,7 +100,8 @@ private readonly USER_KEY = 'MaCare_user';
           email: payload.email,
           role: 'paciente',
           phone: '+57 300 123 4567',
-          birthDate: '1990-01-01'
+          birthDate: '1990-01-01',
+          kitsComprados: [] // ✅ AGREGADO
         }
       };
       return of(mock).pipe(
@@ -114,7 +125,8 @@ private readonly USER_KEY = 'MaCare_user';
         email: payload.email,
         role: 'paciente',
         phone: payload.phone,
-        birthDate: payload.birthDate
+        birthDate: payload.birthDate,
+        kitsComprados: [] // ✅ AGREGADO
       };
       return of(mockUser).pipe(delay(500));
     }
@@ -189,8 +201,14 @@ private readonly USER_KEY = 'MaCare_user';
 
     return this.http.get<{ user: User }>(`${this.BASE}/me`, { headers }).pipe(
       map(r => r.user),
-      tap(u => localStorage.setItem(this.USER_KEY, JSON.stringify(u))),
-      catchError(() => of(null))
+      tap(u => {
+        console.log('✅ Usuario actualizado desde backend:', u);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(u));
+      }),
+      catchError((error) => {
+        console.error('Error en /me endpoint:', error);
+        return of(null);
+      })
     );
   }
 
@@ -275,6 +293,20 @@ private readonly USER_KEY = 'MaCare_user';
     return raw ? (JSON.parse(raw) as User) : null;
   }
 
+  // ✅ MÉTODO CORREGIDO: Obtener usuario actual
+  obtenerUsuarioActual(): User | null {
+    return this.currentUser();
+  }
+
+  estaLogueado(): boolean {
+    return this.isLoggedIn();
+  }
+
+  // ✅ MÉTODO NUEVO: Forzar actualización del usuario
+  actualizarUsuarioDesdeBackend(): Observable<User | null> {
+    return this.me();
+  }
+
   private updateLocalUser(updatedUser: User): void {
     const currentUser = this.currentUser();
     if (currentUser) {
@@ -287,8 +319,4 @@ private readonly USER_KEY = 'MaCare_user';
     localStorage.setItem(this.ACCESS_KEY, res.token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
   }
-
-  estaLogueado(): boolean {
-  return this.isLoggedIn(); // O puedes usar directamente isLoggedIn()
-}
 }

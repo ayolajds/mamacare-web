@@ -27,28 +27,36 @@ export const routes: Routes = [
         m => m.QuienesSomos
       ),
   },
-  {
-    path: 'kits',
-    title: 'Ma´Care | Kits',
-    loadComponent: () =>
-      import('./pages/kits/kits').then(m => m.Kits),
-  },
-    // ✅ NUEVA RUTA DE PAGOS - AGREGAR ESTA
-  {
-    path: 'pagos/:kitId',
-    title: 'Ma´Care | Procesar Pago',
-    canActivate: [authGuard], // Solo usuarios logueados
-    loadComponent: () =>
-      import('./pages/pagos/pagos').then(m => m.Pagos), // Asegúrate que la ruta sea correcta
-  },
-  {
-    path: 'acompanamiento',
-    title: 'Ma´Care | Acompañamiento',
-    loadComponent: () =>
-      import('./pages/acompanamiento/acompanamiento').then(
-        m => m.Acompanamiento
-      ),
-  },
+{
+  path: 'kits',
+  title: 'Ma´Care | Kits',
+  loadComponent: () =>
+    import('./pages/kits/kits').then(m => m.Kits),
+},
+// ✅ RUTA DE PAGOS PARA KITS
+{
+  path: 'pagos/:kitId',
+  title: 'Ma´Care | Procesar Pago',
+  canActivate: [authGuard], // Solo usuarios logueados
+  loadComponent: () =>
+    import('./pages/pagos/pagos').then(m => m.Pagos),
+},
+// ✅ NUEVA RUTA DE PAGOS PARA PLANES - AGREGAR ESTA
+{
+  path: 'pagos/plan/:planNombre',
+  title: 'Ma´Care | Procesar Pago - Plan',
+  canActivate: [authGuard], // Solo usuarios logueados
+  loadComponent: () =>
+    import('./pages/pagos/pagos').then(m => m.Pagos), // Mismo componente que kits
+},
+{
+  path: 'acompanamiento',
+  title: 'Ma´Care | Acompañamiento',
+  loadComponent: () =>
+    import('./pages/acompanamiento/acompanamiento').then(
+      m => m.Acompanamiento
+    ),
+},
   {
     path: 'recursos',
     title: 'Ma´Care | Recursos',
