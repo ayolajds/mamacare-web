@@ -23,6 +23,7 @@ export const getKits = async (req, res) => {
 // @desc    Create order for kit
 // @route   POST /api/kits/orden
 // @access  Private
+// En: controllers/kitController.js - SOLO CAMBIAR la función createOrden
 export const createOrden = async (req, res) => {
   try {
     const { kitId, bancoSeleccionado } = req.body;
@@ -30,7 +31,7 @@ export const createOrden = async (req, res) => {
 
     console.log('📦 Recibiendo compra - Kit ID:', kitId, 'Usuario:', usuarioId);
 
-    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT
+    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT (igual que antes)
     const usuario = await User.findById(usuarioId);
     const kitYaComprado = usuario.kitsComprados.some(
       kit => kit.kitId === parseInt(kitId) && kit.estado === 'activo'
@@ -43,7 +44,7 @@ export const createOrden = async (req, res) => {
       });
     }
 
-    // ✅ MAPEO DE KITS (sin mongoId - solo number)
+    // ✅ MAPEO DE KITS (igual que antes)
     const kitsInfo = {
       1: { 
         nombre: "Kit Esencial de Recuerdos", 
@@ -67,10 +68,11 @@ export const createOrden = async (req, res) => {
       });
     }
 
-    // ✅ CREAR ORDEN con NUMBER (no ObjectId)
+    // ✅ CREAR ORDEN - SOLO ESTA PARTE CAMBIA:
     const orden = new Orden({
       usuarioId,
       kitId: kitId,
+      tipo: 'kit',  // ⬅️ NUEVO: agregar este campo
       total: kit.precio,
       metodoPago: 'pse',
       bancoSeleccionado,
@@ -79,7 +81,7 @@ export const createOrden = async (req, res) => {
 
     await orden.save();
 
-    // ✅ AGREGAR KIT AL USUARIO
+    // ✅ AGREGAR KIT AL USUARIO (igual que antes)
     await User.findByIdAndUpdate(usuarioId, {
       $push: {
         kitsComprados: {

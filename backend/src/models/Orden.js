@@ -6,8 +6,21 @@ const ordenSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  // ✅ CAMBIO: kitId ahora es opcional
   kitId: {
-    type: Number,  // ✅ NUMBER - no ObjectId
+    type: Number,  
+    required: false  // ⬅️ CAMBIAR de true a false
+  },
+  // ✅ NUEVO: campo para planes
+  planNombre: {
+    type: String,
+    enum: ['Esencial', 'Integral', 'Premium'],
+    required: false
+  },
+  // ✅ NUEVO: para saber si es kit o plan
+  tipo: {
+    type: String,
+    enum: ['kit', 'plan'],
     required: true
   },
   estado: {

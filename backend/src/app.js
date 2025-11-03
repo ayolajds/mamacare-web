@@ -13,6 +13,7 @@ import appointmentRoutes from './routes/appointmentRoutes.js';
 import professionalRoutes from './routes/professionalRoutes.js';
 import patientRoutes from './routes/patientRoutes.js';
 import kitRoutes from './routes/kits.js'; // ✅ NUEVA IMPORTACIÓN
+import planRoutes from './routes/planRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,7 @@ app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
 app.use(`/api/${API_VERSION}/professional`, professionalRoutes);
 app.use(`/api/${API_VERSION}/patient`, patientRoutes);
 app.use(`/api/${API_VERSION}/kits`, kitRoutes); // ✅ NUEVA RUTA
+app.use(`/api/${API_VERSION}/plans`, planRoutes); // ✅ PLURAL
 
 // Manejo de rutas no encontradas
 app.use((req, res) => {
@@ -62,7 +64,8 @@ app.use((error, req, res, next) => {
       console.log(`   📅 Appointments: http://localhost:${PORT}/api/${API_VERSION}/appointments`);
       console.log(`   👨‍⚕️ Professional: http://localhost:${PORT}/api/${API_VERSION}/professional`);
       console.log(`   🎗️ Patient: http://localhost:${PORT}/api/${API_VERSION}/patient`);
-      console.log(`   📦 Kits: http://localhost:${PORT}/api/${API_VERSION}/kits`); // ✅ NUEVO ENDPOINT
+      console.log(`   📦 Kits: http://localhost:${PORT}/api/${API_VERSION}/kits`);
+      console.log(`   📋 Plans: http://localhost:${PORT}/api/${API_VERSION}/plans`);
     });
   } catch (err) {
     console.error('❌ No se pudo conectar a MongoDB:', err.message);
