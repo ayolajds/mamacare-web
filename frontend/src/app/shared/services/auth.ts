@@ -27,6 +27,17 @@ export interface KitComprado {
   estado: string;
 }
 
+// ✅ NUEVA INTERFACE PARA PAQUETES DE ACOMPAÑAMIENTO
+export interface PaqueteAcompanamientoComprado {
+  paqueteId: number;
+  paqueteNombre: string;
+  fechaCompra: string;
+  sesionesUsadas: number;
+  sesionesTotales: number;
+  estado: string;
+  fechaExpiracion?: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -37,6 +48,7 @@ export interface User {
   birthDate?: string;
   createdAt?: string;
   kitsComprados?: KitComprado[]; // ✅ AGREGADO
+  paquetesAcompanamientoComprados?: PaqueteAcompanamientoComprado[]; // ✅ NUEVO
 }
 
 export interface LoginResponse {
@@ -86,6 +98,8 @@ export class AuthService {
   private readonly MOCK = false;
   private readonly BASE = `${environment.apiUrl}/auth`;
   private readonly USERS_BASE = `${environment.apiUrl}/users`;
+  private readonly KITS_BASE = `${environment.apiUrl}/kits`;
+  private readonly PAQUETES_BASE = `${environment.apiUrl}/paquetes-acompanamiento`; // ✅ NUEVO
   private readonly ACCESS_KEY = 'MaCare_access';
   private readonly USER_KEY = 'MaCare_user';
 
@@ -101,7 +115,8 @@ export class AuthService {
           role: 'paciente',
           phone: '+57 300 123 4567',
           birthDate: '1990-01-01',
-          kitsComprados: [] // ✅ AGREGADO
+          kitsComprados: [], // ✅ AGREGADO
+          paquetesAcompanamientoComprados: [] // ✅ NUEVO
         }
       };
       return of(mock).pipe(
@@ -126,7 +141,8 @@ export class AuthService {
         role: 'paciente',
         phone: payload.phone,
         birthDate: payload.birthDate,
-        kitsComprados: [] // ✅ AGREGADO
+        kitsComprados: [], // ✅ AGREGADO
+        paquetesAcompanamientoComprados: [] // ✅ NUEVO
       };
       return of(mockUser).pipe(delay(500));
     }
@@ -305,6 +321,119 @@ export class AuthService {
   // ✅ MÉTODO NUEVO: Forzar actualización del usuario
   actualizarUsuarioDesdeBackend(): Observable<User | null> {
     return this.me();
+  }
+
+  // ✅ MÉTODO NUEVO: Actualizar usuario localmente
+  actualizarUsuario(usuarioActualizado: User): void {
+    if (this.estaLogueado()) {
+      localStorage.setItem(this.USER_KEY, JSON.stringify(usuarioActualizado));
+      console.log('✅ Usuario actualizado localmente:', usuarioActualizado);
+    }
+  }
+
+  // ✅ MÉTODO NUEVO: Actualizar kits comprados desde el backend
+  async actualizarKitsComprados(): Promise<void> {
+    if (!this.estaLogueado()) {
+      console.log('🔒 Usuario no logueado, no se pueden actualizar kits');
+      return;
+    }
+
+    try {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${this.token()}`
+      });
+
+      const response = await this.http.get<any>(`${this.KITS_BASE}/mis-kits`, { headers }).toPromise();
+      
+      if (response && response.success) {
+        const usuario = this.obtenerUsuarioActual();
+        if (usuario) {
+          usuario.kitsComprados = response.data || [];
+          this.actualizarUsuario(usuario);
+          console.log('📦 Kits comprados actualizados:', usuario.kitsComprados);
+        }
+      }
+    } catch (error) {
+      console.error('💥 Error actualizando kits comprados:', error);
+    }
+  }
+
+  // ✅ MÉTODO NUEVO: Verificar si usuario tiene un kit comprado
+  tieneKitComprado(kitId: number): boolean {
+    const usuario = this.obtenerUsuarioActual();
+    if (!usuario || !usuario.kitsComprados) return false;
+
+    return usuario.kitsComprados.some(
+      (kit: KitComprado) => kit.kitId === kitId && kit.estado === 'activo'
+    );
+  }
+
+  // ✅ MÉTODO NUEVO: Obtener IDs de kits comprados
+  obtenerKitsCompradosIds(): number[] {
+    const usuario = this.obtenerUsuarioActual();
+    if (!usuario || !usuario.kitsComprados) return [];
+
+    return usuario.kitsComprados
+      .filter((kit: KitComprado) => kit.estado === 'activo')
+      .map((kit: KitComprado) => kit.kitId);
+  }
+
+  // ✅ MÉTODOS NUEVOS PARA PAQUETES DE ACOMPAÑAMIENTO
+  async actualizarPaquetesAcompanamientoComprados(): Promise<void> {
+    if (!this.estaLogueado()) {
+      console.log('🔒 Usuario no logueado, no se pueden actualizar paquetes de acompañamiento');
+      return;
+    }
+
+    try {
+      const headers = new HttpHeaders({
+        'Authorization': `Bearer ${this.token()}`
+      });
+
+      const response = await this.http.get<any>(`${this.PAQUETES_BASE}/mis-paquetes`, { headers }).toPromise();
+      
+      if (response && response.success) {
+        const usuario = this.obtenerUsuarioActual();
+        if (usuario) {
+          usuario.paquetesAcompanamientoComprados = response.data || [];
+          this.actualizarUsuario(usuario);
+          console.log('💝 Paquetes de acompañamiento actualizados:', usuario.paquetesAcompanamientoComprados);
+        }
+      } else {
+        console.error('❌ Error en respuesta de mis-paquetes:', response);
+      }
+    } catch (error) {
+      console.error('💥 Error actualizando paquetes de acompañamiento:', error);
+    }
+  }
+
+  // ✅ Verificar si usuario tiene un paquete de acompañamiento comprado
+  tienePaqueteAcompanamientoComprado(paqueteId: number): boolean {
+    const usuario = this.obtenerUsuarioActual();
+    if (!usuario || !usuario.paquetesAcompanamientoComprados) return false;
+
+    return usuario.paquetesAcompanamientoComprados.some(
+      (paquete: PaqueteAcompanamientoComprado) => 
+        paquete.paqueteId === paqueteId && paquete.estado === 'activo'
+    );
+  }
+
+  // ✅ Obtener IDs de paquetes de acompañamiento comprados
+  obtenerPaquetesAcompanamientoCompradosIds(): number[] {
+    const usuario = this.obtenerUsuarioActual();
+    if (!usuario || !usuario.paquetesAcompanamientoComprados) return [];
+
+    return usuario.paquetesAcompanamientoComprados
+      .filter((paquete: PaqueteAcompanamientoComprado) => paquete.estado === 'activo')
+      .map((paquete: PaqueteAcompanamientoComprado) => paquete.paqueteId);
+  }
+
+  // ✅ MÉTODO NUEVO: Actualizar ambos (kits y paquetes)
+  async actualizarTodo(): Promise<void> {
+    await Promise.all([
+      this.actualizarKitsComprados(),
+      this.actualizarPaquetesAcompanamientoComprados()
+    ]);
   }
 
   private updateLocalUser(updatedUser: User): void {

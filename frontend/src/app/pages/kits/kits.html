@@ -26,9 +26,9 @@
       </button>
       <button 
         class="filter-btn" 
-        [class.active]="activeFilter === 'premium'"
-        (click)="filterKits('premium')">
-        Kit Premium
+        [class.active]="activeFilter === 'integral'"
+        (click)="filterKits('integral')">
+        Kit Integral
       </button>
     </div>
   </div>
@@ -41,16 +41,8 @@
 
   <!-- Kits Grid -->
   <div class="kits-grid" *ngIf="!isLoading && filteredKits.length > 0">
-    <div 
-      class="kit-card" 
-      *ngFor="let kit of filteredKits"
-      [class]="getBadgeClass(kit) ? 'kit-card has-badge' : 'kit-card'">
+    <div class="kit-card" *ngFor="let kit of filteredKits">
       
-      <!-- Badge -->
-      <div class="kit-badge" *ngIf="getBadgeClass(kit)" [class]="getBadgeClass(kit)">
-        {{ getBadgeText(kit) }}
-      </div>
-
       <!-- Imagen -->
       <div class="kit-image">
         <div class="kit-icon" [innerHTML]="getKitIcon(kit.categoria)"></div>
@@ -70,31 +62,9 @@
           </ul>
         </div>
 
-        <!-- Beneficios psicológicos -->
-        <div class="kit-benefits">
-          <h4>Beneficios emocionales:</h4>
-          <ul class="benefits-list">
-            <li *ngFor="let benefit of kit.beneficios">
-              <span class="benefit-icon" [innerHTML]="getBenefitIcon()"></span>
-              {{ benefit.titulo }}
-            </li>
-          </ul>
-        </div>
-
         <!-- Precio -->
         <div class="kit-price">
           <span class="current-price">${{ formatPrice(kit.precio) }} COP</span>
-          <span class="original-price" *ngIf="kit.precioOriginal">
-            ${{ formatPrice(kit.precioOriginal) }} COP
-          </span>
-          <span class="discount" *ngIf="kit.descuento">
-            -{{ kit.descuento }}%
-          </span>
-        </div>
-
-        <!-- Stock -->
-        <div class="kit-stock" [class]="getStockClass(kit)">
-          {{ getStockText(kit) }}
         </div>
 
         <!-- Acciones -->
@@ -102,11 +72,10 @@
           <button 
             class="btn-primary" 
             (click)="solicitarKit(kit)"
-            [disabled]="!estaEnStock(kit) || yaTieneKit(kit.id)">
+            [disabled]="yaTieneKit(kit.id)">
             
             <span *ngIf="yaTieneKit(kit.id)">✅ Ya Comprado</span>
-            <span *ngIf="!yaTieneKit(kit.id) && estaEnStock(kit)">Solicitar Kit</span>
-            <span *ngIf="!yaTieneKit(kit.id) && !estaEnStock(kit)">Agotado</span>
+            <span *ngIf="!yaTieneKit(kit.id)">Solicitar Kit</span>
           </button>
           
           <button class="btn-secondary" (click)="showKitDetails(kit)">
@@ -153,38 +122,19 @@
         </ul>
       </div>
 
-      <div class="modal-section">
-        <h4>
-          <i data-lucide="heart" class="section-icon"></i>
-          Beneficios psicológicos:
-        </h4>
-        <ul class="modal-benefits">
-          <li *ngFor="let benefit of selectedKit.beneficios">
-            <strong>{{ benefit.titulo }}</strong>: {{ benefit.descripcion }}
-          </li>
-        </ul>
-      </div>
-
+      <!-- Precio Modal -->
       <div class="modal-price">
         <span class="current-price">${{ formatPrice(selectedKit.precio) }} COP</span>
-        <span class="original-price" *ngIf="selectedKit.precioOriginal">
-          ${{ formatPrice(selectedKit.precioOriginal) }} COP
-        </span>
       </div>
 
-      <div class="modal-stock" [class]="getStockClass(selectedKit)">
-        {{ getStockText(selectedKit) }}
-      </div>
-
-      <!-- ✅ BOTÓN DEL MODAL ACTUALIZADO -->
+      <!-- Botón del Modal -->
       <button 
         class="btn-primary modal-add-btn"
         (click)="solicitarKit(selectedKit)"
-        [disabled]="!estaEnStock(selectedKit) || yaTieneKit(selectedKit.id)">
+        [disabled]="yaTieneKit(selectedKit.id)">
         
         <span *ngIf="yaTieneKit(selectedKit.id)">✅ Ya Comprado</span>
-        <span *ngIf="!yaTieneKit(selectedKit.id) && estaEnStock(selectedKit)">Solicitar este Kit</span>
-        <span *ngIf="!yaTieneKit(selectedKit.id) && !estaEnStock(selectedKit)">Kit Agotado</span>
+        <span *ngIf="!yaTieneKit(selectedKit.id)">Solicitar este Kit</span>
       </button>
     </div>
   </div>

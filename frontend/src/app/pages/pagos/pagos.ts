@@ -3,10 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KitsService } from '../../shared/services/kits';
-import { AcompanamientoService, PlanNombre } from '../../shared/services/acompanamiento';
 import { AuthService } from '../../shared/services/auth';
 
-declare const lucide: any;
+declare var lucide: any;
 
 @Component({
   selector: 'app-pago',
@@ -19,18 +18,17 @@ export class Pagos implements OnInit, AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private kitsService = inject(KitsService);
-  private acompanamientoService = inject(AcompanamientoService);
   private authService = inject(AuthService);
 
-  // DATOS DEL PRODUCTO (puede ser kit o plan)
-  producto: any = null;
-  tipoProducto: 'kit' | 'plan' | null = null;
+  kitId: number = 0;
+  kit: any = null;
   isLoading: boolean = true;
   isProcessing: boolean = false;
+  errorMessage: string = '';
 
-  // DATOS DEL FORMULARIO COMPLETO
+  // Datos del formulario de pago
   bancoSeleccionado: string = '';
-  tipoDocumento: string = 'cc';
+  tipoDocumento: string = 'cedula';
   numeroDocumento: string = '';
   tipoPersona: string = 'natural';
   nombreTitular: string = '';
@@ -38,207 +36,269 @@ export class Pagos implements OnInit, AfterViewInit {
   telefono: string = '';
   aceptaTerminos: boolean = false;
 
-  // Bancos disponibles
+  // Nuevas propiedades para tarjeta
+  numeroTarjeta: string = '';
+  fechaExpiracion: string = '';
+  cvv: string = '';
+
+  // Bancos disponibles (igual que acompañamiento)
   bancos = [
-    { id: 'bancolombia', nombre: 'Bancolombia' },
-    { id: 'davivienda', nombre: 'Davivienda' },
-    { id: 'bbva', nombre: 'BBVA' },
-    { id: 'bogota', nombre: 'Banco de Bogotá' },
-    { id: 'nequi', nombre: 'Nequi' }
+    { value: 'bancolombia', label: 'Bancolombia', icon: '🏦' },
+    { value: 'nequi', label: 'Nequi', icon: '📱' },
+    { value: 'davivienda', label: 'Davivienda', icon: '🏦' },
+    { value: 'bbva', label: 'BBVA', icon: '🏦' },
+    { value: 'bogota', label: 'Banco de Bogotá', icon: '🏦' },
+    { value: 'pse', label: 'PSE - Pagos Seguros en Línea', icon: '💻' }
   ];
 
-  // MAPEO DE KITS (igual que antes)
-  private kitsInfo: { [key: number]: any } = {
-    1: { 
-      nombre: 'Kit Esencial de Recuerdos',
-      categoria: 'basico',
-      precio: 89900,
-      precioOriginal: 119900,
-      descuento: 25,
-      descripcion: 'Perfecto para comenzar a preservar tus momentos más especiales de forma organizada y emotiva.'
-    },
-    2: { 
-      nombre: 'Kit Memoria Avanzada',
-      categoria: 'intermedio', 
-      precio: 169900,
-      descripcion: 'Para quienes buscan profundizar en la preservación de sus historias con elementos especializados.'
-    },
-    3: { 
-      nombre: 'Kit Legado Eterno',
-      categoria: 'premium',
-      precio: 299900,
-      descripcion: 'La experiencia definitiva para crear un legado familiar que trascienda el tiempo.'
-    }
-  };
+  // Tipos de documento (igual que acompañamiento)
+  tiposDocumento = [
+    { value: 'cedula', label: 'Cédula de Ciudadanía' },
+    { value: 'cedula_extranjeria', label: 'Cédula de Extranjería' },
+    { value: 'pasaporte', label: 'Pasaporte' },
+    { value: 'nit', label: 'NIT' }
+  ];
 
-  // MAPEO DE PLANES
-  private planesInfo: { [key: string]: any } = {
-    'Esencial': { 
-      nombre: 'Plan Esencial',
-      precio: 280000,
-      descripcion: 'Ideal para comenzar con acompañamiento cercano y herramientas esenciales.',
-      caracteristicas: [
-        '4 sesiones psicológicas presenciales',
-        'Evaluación y plan terapéutico',
-        'Seguimiento básico entre sesiones',
-        'Materiales de apoyo digital',
-        'Kit Básico incluido'
-      ]
-    },
-    'Integral': { 
-      nombre: 'Plan Integral',
-      precio: 650000,
-      descripcion: 'Programa completo que combina modalidades para una experiencia profunda.',
-      caracteristicas: [
-        '8 sesiones (presenciales + virtuales)',
-        'Plan terapéutico integral',
-        'Seguimiento continuo y recursos QR',
-        'Acceso a comunidad de apoyo',
-        '2 sesiones familiares incluidas',
-        'Kit Intermedio incluido'
-      ]
-    },
-    'Premium': { 
-      nombre: 'Plan Premium', 
-      precio: 1200000,
-      descripcion: 'Máxima personalización, acompañamiento intensivo y recursos exclusivos.',
-      caracteristicas: [
-        '12 sesiones (presenciales + virtuales + a domicilio)',
-        'Seguimiento intensivo y recursos premium',
-        'Acompañamiento familiar completo',
-        'Sesiones de emergencia incluidas',
-        'Coaching emocional personalizado',
-        'Kit Premium incluido'
-      ]
-    }
-  };
+  // Tipos de persona (específico para kits)
+  tiposPersona = [
+    { value: 'natural', label: 'Persona Natural' },
+    { value: 'juridica', label: 'Persona Jurídica' }
+  ];
+
+  // ✅ DATOS ESTÁTICOS DE KITS (mejorados)
+private kitsInfo = [
+  {
+    id: 1,
+    nombre: 'Kit Básico',
+    categoria: 'basico',
+    precio: 63800,
+    imagen: 'assets/images/kit-basico.jpg',
+    descripcion: 'Perfecto para comenzar a preservar tus momentos más especiales de forma organizada y emotiva.',
+    elementos: ["Diario", "Mazo", "Accesorio"]
+  },
+  {
+    id: 2,
+    nombre: 'Kit Intermedio', 
+    categoria: 'intermedio',
+    precio: 79200,
+    imagen: 'assets/images/kit-intermedio.jpg',
+    descripcion: 'Para quienes buscan profundizar en la preservación de sus historias con elementos especializados.',
+    elementos: ["Acceso digital (QR)", "Espejo", "Accesorio"]
+  },
+  {
+    id: 3,
+    nombre: 'Kit Integral',
+    categoria: 'integral',
+    precio: 112200,
+    imagen: 'assets/images/kit-integral.jpg',
+    descripcion: 'La experiencia definitiva para crear un legado familiar que trascienda el tiempo.',
+    elementos: ["Vela", "Pañoleta", "Caja"]
+  }
+];
 
   ngOnInit(): void {
-    this.verificarAutenticacion();
-    this.cargarProducto();
+    this.route.params.subscribe(params => {
+      this.kitId = +params['kitId'];
+      this.cargarKit();
+    });
+
+    // Cargar datos del usuario si está logueado (igual que acompañamiento)
+    if (this.authService.estaLogueado()) {
+      const usuario = this.authService.obtenerUsuarioActual();
+      if (usuario) {
+        this.email = usuario.email || '';
+        // ✅ SOLUCIÓN: Usar 'as any' para evitar errores TypeScript
+        this.nombreTitular = (usuario as any).nombreCompleto || 
+                            ((usuario as any).name && (usuario as any).lastName ? 
+                              `${(usuario as any).name} ${(usuario as any).lastName}` : '') || 
+                            (usuario as any).displayName || 
+                            usuario.email || '';
+        
+        // Cargar teléfono si está disponible
+        if ((usuario as any).telefono) {
+          this.telefono = (usuario as any).telefono;
+        }
+      }
+    } else {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: `/pago/${this.kitId}` }
+      });
+    }
   }
 
   ngAfterViewInit(): void {
-    // Inicializar iconos Lucide
     if (typeof lucide !== 'undefined') {
-      setTimeout(() => {
-        lucide.createIcons();
-      }, 100);
+      lucide.createIcons();
     }
   }
 
-  private verificarAutenticacion(): void {
-    if (!this.authService.estaLogueado()) {
-      alert('Debes iniciar sesión para realizar la compra');
-      this.router.navigate(['/login'], {
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  }
-
-  private cargarProducto(): void {
-    const kitId = this.route.snapshot.paramMap.get('kitId');
-    const planNombre = this.route.snapshot.paramMap.get('planNombre');
-    
-    if (kitId) {
-      // Es un kit
-      this.tipoProducto = 'kit';
-      this.cargarKit(Number(kitId));
-    } else if (planNombre && this.acompanamientoService.isValidPlanNombre(planNombre)) {
-      // Es un plan
-      this.tipoProducto = 'plan';
-      this.cargarPlan(planNombre as PlanNombre);
-    } else {
-      this.router.navigate(['/']);
-      return;
-    }
-  }
-
-  private cargarKit(kitId: number): void {
-    this.producto = this.kitsInfo[kitId];
-    
-    if (!this.producto) {
+  private cargarKit(): void {
+    this.kit = this.kitsInfo.find(k => k.id === this.kitId);
+    if (!this.kit) {
       this.router.navigate(['/kits']);
       return;
     }
-
-    this.producto.id = kitId;
-    this.isLoading = false;
-  }
-
-  private cargarPlan(planNombre: PlanNombre): void {
-    this.producto = this.planesInfo[planNombre];
-    
-    if (!this.producto) {
-      this.router.navigate(['/acompanamiento']);
-      return;
-    }
-
-    this.producto.nombrePlan = planNombre;
     this.isLoading = false;
   }
 
   procesarPago(): void {
-    if (!this.validarFormularioCompleto()) return;
+    if (!this.validarFormulario()) {
+      return;
+    }
 
     this.isProcessing = true;
+    this.errorMessage = '';
 
-    if (this.tipoProducto === 'kit') {
-      this.procesarPagoKit();
-    } else if (this.tipoProducto === 'plan') {
-      this.procesarPagoPlan();
-    }
-  }
-
-  private procesarPagoKit(): void {
-    this.kitsService.crearOrden(this.producto.id, this.bancoSeleccionado).subscribe({
-      next: (response) => {
+    // ✅ CORREGIDO: Usar el servicio REAL en lugar de simulación
+    this.kitsService.crearOrden(this.kitId, this.bancoSeleccionado).subscribe({
+      next: async (response: any) => {
         this.isProcessing = false;
+        console.log('✅ Respuesta del servicio:', response);
+        
         if (response.success) {
-          this.mostrarConfirmacionExito();
-          this.router.navigate(['/panel-paciente'], {
-            queryParams: { compraExitosa: true }
-          });
-        } else {
-          alert('Error: ' + response.message);
-        }
-      },
-      error: (error) => {
-        this.isProcessing = false;
-        alert('Error al procesar el pago: ' + error.message);
-        console.error('Error en pago kit:', error);
-      }
-    });
-  }
-
-  private procesarPagoPlan(): void {
-    this.acompanamientoService.crearOrdenPlan(this.producto.nombrePlan, this.bancoSeleccionado).subscribe({
-      next: (response) => {
-        this.isProcessing = false;
-        if (response.success) {
+          // ✅ ACTUALIZAR KITS COMPRADOS DESPUÉS DE COMPRA EXITOSA
+          await this.actualizarKitsComprados();
+          
           this.mostrarConfirmacionExito();
           this.router.navigate(['/panel-paciente'], {
             queryParams: { 
               compraExitosa: true,
-              plan: this.producto.nombrePlan 
+              kit: this.kit.nombre,
+              kitId: this.kit.id
             }
           });
         } else {
-          alert('Error: ' + response.message);
+          this.errorMessage = response.message || 'Error al procesar el pago';
+          alert(this.errorMessage);
         }
       },
       error: (error) => {
         this.isProcessing = false;
-        alert('Error al procesar el pago: ' + error.message);
-        console.error('Error en pago plan:', error);
+        console.error('❌ Error en el pago:', error);
+        this.errorMessage = this.obtenerMensajeError(error);
+        alert(this.errorMessage);
       }
     });
   }
 
-  validarFormularioCompleto(): boolean {
-    if (!this.validarCamposRequeridos()) {
+  // ✅ NUEVO MÉTODO: Actualizar kits comprados después de la compra
+  private async actualizarKitsComprados(): Promise<void> {
+    try {
+      console.log('🔄 Actualizando kits comprados después de compra...');
+      
+      // Actualizar desde el backend
+      await this.authService.actualizarKitsComprados();
+      
+      // Verificar que se actualizó correctamente
+      const usuarioActualizado = this.authService.obtenerUsuarioActual();
+      const kitsComprados = usuarioActualizado?.kitsComprados || [];
+      
+      console.log('📦 Kits comprados después de actualización:', kitsComprados);
+      console.log('✅ Kit comprado actualmente:', this.kitId, '¿Está en la lista?', 
+                  kitsComprados.some((kit: any) => kit.kitId === this.kitId));
+      
+    } catch (error) {
+      console.error('❌ Error actualizando kits comprados:', error);
+      // Continuar aunque falle la actualización
+    }
+  }
+
+  private obtenerMensajeError(error: any): string {
+    if (error.status === 0) {
+      return 'Error de conexión. Verifica tu internet.';
+    } else if (error.status === 400) {
+      return 'Datos inválidos. Verifica la información.';
+    } else if (error.status === 401) {
+      return 'Sesión expirada. Inicia sesión nuevamente.';
+    } else if (error.status === 409) {
+      return 'Ya tienes este kit comprado.';
+    } else if (error.status >= 500) {
+      return 'Error del servidor. Intenta más tarde.';
+    }
+    return error.message || 'Error inesperado al procesar el pago';
+  }
+
+  // Métodos para formatear tarjeta (igual que acompañamiento)
+  formatearNumeroTarjeta(event: any): void {
+    let value = event.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    const matches = value.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || '';
+    const parts = [];
+    
+    for (let i = 0; i < match.length; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+    
+    if (parts.length) {
+      this.numeroTarjeta = parts.join(' ');
+    } else {
+      this.numeroTarjeta = value;
+    }
+  }
+
+  formatearFechaExpiracion(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+      value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    this.fechaExpiracion = value;
+  }
+
+  // Validación completa del formulario
+  private validarFormulario(): boolean {
+    if (!this.bancoSeleccionado) {
+      alert('Por favor selecciona un método de pago');
       return false;
+    }
+
+    if (!this.tipoDocumento || !this.numeroDocumento) {
+      alert('Por favor completa tu información de documento');
+      return false;
+    }
+
+    if (!this.nombreTitular) {
+      alert('Por favor ingresa el nombre del titular');
+      return false;
+    }
+
+    if (!this.email) {
+      alert('Por favor ingresa tu email');
+      return false;
+    }
+
+    if (!this.telefono) {
+      alert('Por favor ingresa tu número de teléfono');
+      return false;
+    }
+
+    // Validar tarjeta si no es PSE
+    if (this.bancoSeleccionado !== 'pse') {
+      if (!this.numeroTarjeta) {
+        alert('Por favor ingresa el número de tu tarjeta');
+        return false;
+      }
+
+      if (!this.fechaExpiracion) {
+        alert('Por favor ingresa la fecha de expiración de tu tarjeta');
+        return false;
+      }
+
+      if (!this.cvv) {
+        alert('Por favor ingresa el CVV de tu tarjeta');
+        return false;
+      }
+
+      // Validar formato de fecha
+      if (!this.fechaExpiracion.match(/^\d{2}\/\d{2}$/)) {
+        alert('Por favor ingresa una fecha de expiración válida (MM/AA)');
+        return false;
+      }
+
+      // Validar CVV
+      if (!this.cvv.match(/^\d{3,4}$/)) {
+        alert('Por favor ingresa un CVV válido (3 o 4 dígitos)');
+        return false;
+      }
     }
 
     if (!this.aceptaTerminos) {
@@ -249,75 +309,97 @@ export class Pagos implements OnInit, AfterViewInit {
     return true;
   }
 
-  private validarCamposRequeridos(): boolean {
-    const camposRequeridos = [
-      { valor: this.tipoPersona, mensaje: 'Selecciona el tipo de persona' },
-      { valor: this.tipoDocumento, mensaje: 'Selecciona el tipo de documento' },
-      { valor: this.numeroDocumento, mensaje: 'Ingresa el número de documento' },
-      { valor: this.nombreTitular?.trim(), mensaje: 'Ingresa el nombre del titular' },
-      { valor: this.email?.trim(), mensaje: 'Ingresa un email válido' },
-      { valor: this.telefono?.trim(), mensaje: 'Ingresa un número de teléfono' },
-      { valor: this.bancoSeleccionado, mensaje: 'Selecciona un banco' }
+  // Validación para el botón de pago (UI)
+  validarFormularioCompleto(): boolean {
+    if (!this.bancoSeleccionado || !this.aceptaTerminos) {
+      return false;
+    }
+
+    // Validar campos básicos
+    const camposBasicos = [
+      this.tipoDocumento,
+      this.numeroDocumento,
+      this.nombreTitular,
+      this.email,
+      this.telefono
     ];
 
-    for (const campo of camposRequeridos) {
-      if (!campo.valor) {
-        alert(campo.mensaje);
+    if (camposBasicos.some(campo => !campo)) {
+      return false;
+    }
+
+    // Validar campos de tarjeta si no es PSE
+    if (this.bancoSeleccionado !== 'pse') {
+      const camposTarjeta = [
+        this.numeroTarjeta,
+        this.fechaExpiracion,
+        this.cvv
+      ];
+
+      if (camposTarjeta.some(campo => !campo)) {
+        return false;
+      }
+
+      // Validar formato de fecha (MM/AA)
+      if (!this.fechaExpiracion.match(/^\d{2}\/\d{2}$/)) {
+        return false;
+      }
+
+      // Validar que el CVV tenga 3 o 4 dígitos
+      if (!this.cvv.match(/^\d{3,4}$/)) {
         return false;
       }
     }
 
-    if (!this.validarEmail(this.email)) {
-      alert('Ingresa un email válido');
-      return false;
-    }
-
     return true;
-  }
-
-  private validarEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  }
-
-  private mostrarConfirmacionExito(): void {
-    const mensaje = this.tipoProducto === 'kit' 
-      ? `¡Pago exitoso! Has solicitado el "${this.producto.nombre}". Recibirás un email de confirmación.`
-      : `¡Pago exitoso! Has adquirido el "${this.producto.nombre}". Recibirás un email de confirmación.`;
-    
-    alert(mensaje);
-  }
-
-  cancelar(): void {
-    if (this.tipoProducto === 'kit') {
-      this.router.navigate(['/kits']);
-    } else {
-      this.router.navigate(['/acompanamiento']);
-    }
   }
 
   formatPrice(price: number): string {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  // Método para saber si es kit o plan (para el template)
-  getProductType(): string {
-    return this.tipoProducto === 'kit' ? 'Kit' : 'Plan de Acompañamiento';
+  cancelar(): void {
+    this.router.navigate(['/kits']);
   }
 
+  // Métodos helpers para compatibilidad
   getBankIcon(bancoId: string): string {
     const icons: { [key: string]: string } = {
       'bancolombia': 'building',
-      'davivienda': 'landmark',
+      'davivienda': 'landmark', 
       'bbva': 'banknote',
       'bogota': 'building-2',
-      'nequi': 'smartphone'
+      'nequi': 'smartphone',
+      'pse': 'credit-card'
     };
     return icons[bancoId] || 'credit-card';
   }
 
   getBankName(bancoId: string): string {
-    const banco = this.bancos.find(b => b.id === bancoId);
-    return banco ? banco.nombre : 'Banco';
+    const banco = this.bancos.find(b => b.value === bancoId);
+    return banco ? banco.label : 'Banco';
+  }
+
+  private mostrarConfirmacionExito(): void {
+    console.log(`✅ Pago exitoso para: ${this.kit.nombre}`);
+  }
+
+  // Calcular ahorro si hay descuento
+  calcularAhorro(): number {
+    if (this.kit?.precioOriginal && this.kit.precio) {
+      return this.kit.precioOriginal - this.kit.precio;
+    }
+    return 0;
+  }
+
+  // Verificar si tiene descuento
+  get tieneDescuento(): boolean {
+    return !!this.kit?.descuento;
+  }
+
+  // Obtener el tipo de persona formateado
+  getTipoPersonaLabel(): string {
+    const tipo = this.tiposPersona.find(t => t.value === this.tipoPersona);
+    return tipo ? tipo.label : 'Persona Natural';
   }
 }

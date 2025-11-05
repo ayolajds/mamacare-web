@@ -1,25 +1,25 @@
 <div class="acompanamiento-container">
   <!-- Hero Section -->
   <section class="hero-section" aria-labelledby="hero-title">
-    <div class="hero-content">
-      <div class="hero-text">
-        <h1 id="hero-title" class="hero-title">Acompañamiento Psicológico</h1>
-        <p class="hero-subtitle">
-          Programas clínico-humanistas para mujeres con cáncer de mama y sus familias. 
-          Integramos sesiones profesionales con herramientas terapéuticas de los Kits "Memorias que permanecen".
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary" (click)="agendarCita()" aria-label="Agendar cita inicial">
-            <i data-lucide="calendar" aria-hidden="true"></i>
-            Agendar cita inicial
-          </button>
-          <button class="btn btn-secondary" (click)="scrollToPaquetes()" aria-label="Ver paquetes disponibles">
-            <i data-lucide="package" aria-hidden="true"></i>
-            Ver paquetes
-          </button>
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1 id="hero-title" class="hero-title">Acompañamiento Psicológico</h1>
+          <p class="hero-subtitle">
+            Programas clínico-humanistas para mujeres con cáncer de mama y sus familias. 
+            Integramos sesiones profesionales con herramientas terapéuticas personalizadas.
+          </p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" (click)="agendarCita()" aria-label="Agendar cita inicial">
+              <i data-lucide="calendar" aria-hidden="true"></i>
+              Agendar cita inicial
+            </button>
+            <button class="btn btn-secondary" (click)="scrollToPaquetes()" aria-label="Ver paquetes disponibles">
+              <i data-lucide="package" aria-hidden="true"></i>
+              Ver paquetes
+            </button>
+          </div>
         </div>
-      </div>
-      <div class="hero-visual">
         <div class="floating-elements">
           <div class="floating-card floating-card-1">
             <i data-lucide="heart" aria-hidden="true"></i>
@@ -47,36 +47,93 @@
       </div>
       
       <div class="modalidades-grid">
-        <div class="modalidad-card" *ngFor="let modalidad of modalidades">
+        <div class="modalidad-card">
           <div class="modalidad-icon">
-            <i [attr.data-lucide]="modalidad.icon" aria-hidden="true"></i>
+            <i data-lucide="video" aria-hidden="true"></i>
           </div>
-          <h3 class="modalidad-title">{{ modalidad.titulo }}</h3>
+          <h3 class="modalidad-title">Virtual</h3>
           <ul class="modalidad-features">
-            <li *ngFor="let bullet of modalidad.bullets">
+            <li>
               <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
-              {{ bullet }}
+              Sesiones por videollamada
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Flexibilidad horaria
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Acceso desde cualquier lugar
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Comunicación por chat
             </li>
           </ul>
-          <a class="btn btn-outline" [routerLink]="modalidad.cta?.link" 
-             [attr.aria-label]="modalidad.cta?.label">
+          <button class="btn btn-outline" (click)="scrollToPaquetes()">
             <i data-lucide="info" aria-hidden="true"></i>
-            {{ modalidad.cta?.label }}
-          </a>
+            Más Información
+          </button>
+        </div>
+
+        <div class="modalidad-card">
+          <div class="modalidad-icon">
+            <i data-lucide="home" aria-hidden="true"></i>
+          </div>
+          <h3 class="modalidad-title">Presencial Domicilio</h3>
+          <ul class="modalidad-features">
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Visitas en tu hogar
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Ambiente familiar
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Atención personalizada
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Soporte práctico
+            </li>
+          </ul>
+          <button class="btn btn-outline" (click)="scrollToPaquetes()">
+            <i data-lucide="info" aria-hidden="true"></i>
+            Más Información
+          </button>
+        </div>
+
+        <div class="modalidad-card">
+          <div class="modalidad-icon">
+            <i data-lucide="building" aria-hidden="true"></i>
+          </div>
+          <h3 class="modalidad-title">Presencial Clínica</h3>
+          <ul class="modalidad-features">
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Instalaciones equipadas
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Tecnología especializada
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Equipo multidisciplinario
+            </li>
+            <li>
+              <i data-lucide="check" class="feature-check" aria-hidden="true"></i>
+              Ambiente controlado
+            </li>
+          </ul>
+          <button class="btn btn-outline" (click)="scrollToPaquetes()">
+            <i data-lucide="info" aria-hidden="true"></i>
+            Más Información
+          </button>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Sesión Suelta Section -->
-  <section class="solo-sesion-section" aria-labelledby="solo-sesion-title">
-    <div class="container solo-sesion">
-      <h3 id="solo-sesion-title">¿Prefieres una sesión suelta?</h3>
-      <p>También atendemos sesiones individuales sin paquete (presencial o virtual).</p>
-      <a class="btn btn-secondary" routerLink="/contacto" aria-label="Agendar sesión suelta">
-        <i data-lucide="user-check" aria-hidden="true"></i>
-        Agendar sesión suelta
-      </a>
     </div>
   </section>
 
@@ -85,41 +142,48 @@
     <div class="container">
       <div class="section-header">
         <h2 id="paquetes-title" class="section-title">Paquetes de Acompañamiento</h2>
-        <p class="section-subtitle">Programas completos que integran sesiones psicológicas con kits terapéuticos</p>
+        <p class="section-subtitle">Programas completos que integran sesiones psicológicas con seguimiento personalizado</p>
       </div>
 
+      <!-- Paquetes Grid -->
       <div class="paquetes-grid">
         <div class="paquete-card" 
              *ngFor="let paquete of paquetes" 
-             [class.featured]="paquete.nombre === 'Integral'">
+             [class.featured]="paquete.popular">
+          
+          <!-- Badge -->
+          <div class="paquete-badge" *ngIf="paquete.popular">
+            <i data-lucide="star" aria-hidden="true"></i>
+            Más Popular
+          </div>
+
+          <!-- Header -->
           <div class="paquete-header">
-            <div class="paquete-badge" *ngIf="paquete.badge">
-              {{ paquete.badge }}
-            </div>
             <h3 class="paquete-name">{{ paquete.nombre }}</h3>
-            <div class="paquete-price">{{ paquete.precioDesde }}</div>
+            <div class="paquete-price">${{ formatPrice(paquete.precio) }} COP</div>
+            <p class="paquete-description">{{ paquete.descripcion }}</p>
           </div>
 
-          <p class="paquete-description">{{ paquete.resumen }}</p>
-
-          <!-- Modalidades incluidas (chips) -->
-          <div class="paquete-modalidades">
-            <span class="chip" *ngFor="let mod of paquete.modalidades">
-              <i [attr.data-lucide]="iconFor(mod)" aria-hidden="true"></i>
-              {{ mod === 'individual' ? 'Individual' : mod === 'grupal' ? 'Grupal' : 'Talleres' }}
-            </span>
+          <!-- Sesiones incluidas -->
+          <div class="paquete-sesiones">
+            <div class="sesiones-count">
+              <i data-lucide="clock" aria-hidden="true"></i>
+              <span>{{ paquete.sesionesIncluidas }} sesiones de {{ paquete.duracionSesion }} min</span>
+            </div>
           </div>
 
+          <!-- Elementos incluidos -->
           <div class="paquete-includes">
             <h4>Incluye:</h4>
             <ul>
-              <li *ngFor="let item of paquete.incluye">
+              <li *ngFor="let item of paquete.elementos">
                 <i data-lucide="check-circle" class="include-check" aria-hidden="true"></i>
                 {{ item }}
               </li>
             </ul>
           </div>
 
+          <!-- Kit incluido -->
           <div class="paquete-kit">
             <div class="kit-info">
               <i data-lucide="package" class="kit-icon" aria-hidden="true"></i>
@@ -127,25 +191,25 @@
             </div>
           </div>
 
-          <!-- ✅ BOTÓN SIMPLIFICADO: Redirección directa -->
-          <button class="btn btn-primary paquete-cta" 
-                  (click)="solicitarPaquete(paquete)"
-                  [attr.aria-label]="'Comprar plan ' + paquete.nombre">
-            <i data-lucide="credit-card" aria-hidden="true"></i>
-            {{ getTextoBoton(paquete) }}
-          </button>
-
-          <!-- ✅ INFO ADICIONAL: Indica que irá al formulario de pago -->
-          <div class="pago-info">
-            <small>💳 Pago seguro con PSE</small>
+          <!-- Acciones -->
+          <div class="paquete-actions">
+            <button 
+              class="btn btn-primary btn-full" 
+              (click)="solicitarPaquete(paquete)"
+              [disabled]="!estaEnStock(paquete) || yaTienePaquete(paquete.id)">
+              
+              <i data-lucide="shopping-cart" aria-hidden="true"></i>
+              <span *ngIf="yaTienePaquete(paquete.id)">✅ Ya Comprado</span>
+              <span *ngIf="!yaTienePaquete(paquete.id) && estaEnStock(paquete)">Comprar Paquete</span>
+              <span *ngIf="!yaTienePaquete(paquete.id) && !estaEnStock(paquete)">Agotado</span>
+            </button>
+            
+            <button class="btn btn-outline btn-full" (click)="showPaqueteDetails(paquete)">
+              <i data-lucide="eye" aria-hidden="true"></i>
+              Ver Detalles
+            </button>
           </div>
         </div>
-      </div>
-
-      <!-- ✅ MENSAJE DE CARGA -->
-      <div class="loading-message" *ngIf="isLoading">
-        <div class="spinner"></div>
-        <p>Cargando planes disponibles...</p>
       </div>
     </div>
   </section>
@@ -156,14 +220,14 @@
       <div class="cta-content">
         <div class="cta-text">
           <h3 id="cta-title">¿Lista para comenzar tu proceso de sanación?</h3>
-          <p>Agenda una cita inicial sin compromiso y recibe la orientación que necesitas</p>
+          <p class="cta-description">Agenda una cita inicial sin compromiso y recibe la orientación que necesitas</p>
         </div>
         <div class="cta-actions">
-          <button class="btn btn-light" (click)="agendarCita()" aria-label="Agendar consulta por teléfono">
+          <button class="btn btn-light" (click)="agendarCita()">
             <i data-lucide="phone" aria-hidden="true"></i>
             Agendar consulta
           </button>
-          <button class="btn btn-outline-light" (click)="contactar()" aria-label="Obtener más información">
+          <button class="btn btn-outline-light" (click)="contactar()">
             <i data-lucide="message-circle" aria-hidden="true"></i>
             Más información
           </button>
@@ -171,4 +235,80 @@
       </div>
     </div>
   </section>
+</div>
+
+<!-- Modal de Detalles del Paquete -->
+<div class="paquete-modal" [class.hidden]="!selectedPaquete">
+  <div class="modal-content" *ngIf="selectedPaquete">
+    <button class="modal-close" (click)="closeModal()">
+      <i data-lucide="x"></i>
+    </button>
+    
+    <div class="modal-body">
+      <h2>Paquete {{ selectedPaquete.nombre }}</h2>
+      <p class="modal-category">{{ getCategoryName(selectedPaquete.categoria) }}</p>
+
+      <p class="modal-description">{{ selectedPaquete.descripcion }}</p>
+
+      <!-- Sesiones info -->
+      <div class="modal-sesiones">
+        <div class="sesiones-info">
+          <i data-lucide="clock" class="sesiones-icon"></i>
+          <div>
+            <strong>{{ selectedPaquete.sesionesIncluidas }} sesiones</strong>
+            <span>de {{ selectedPaquete.duracionSesion }} minutos cada una</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h4>
+          <i data-lucide="package" class="section-icon"></i>
+          Contenido completo del paquete:
+        </h4>
+        <ul class="modal-features">
+          <li *ngFor="let element of selectedPaquete.elementos">
+            <i data-lucide="check"></i>
+            {{ element }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal-section">
+        <h4>
+          <i data-lucide="heart" class="section-icon"></i>
+          Beneficios psicológicos:
+        </h4>
+        <ul class="modal-benefits">
+          <li *ngFor="let benefit of selectedPaquete.beneficios">
+            <strong>{{ benefit.titulo }}</strong>: {{ benefit.descripcion }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Kit incluido -->
+      <div class="modal-kit">
+        <div class="kit-info">
+          <i data-lucide="gift" class="kit-icon"></i>
+          <span><strong>Incluye Kit {{ selectedPaquete.kit }}</strong> - Herramientas terapéuticas para tu proceso</span>
+        </div>
+      </div>
+
+      <div class="modal-price">
+        <span class="current-price">${{ formatPrice(selectedPaquete.precio) }} COP</span>
+      </div>
+
+      <!-- BOTÓN DEL MODAL -->
+      <button 
+        class="btn btn-primary btn-full modal-add-btn"
+        (click)="solicitarPaquete(selectedPaquete)"
+        [disabled]="!estaEnStock(selectedPaquete) || yaTienePaquete(selectedPaquete.id)">
+        
+        <i data-lucide="shopping-cart" aria-hidden="true"></i>
+        <span *ngIf="yaTienePaquete(selectedPaquete.id)">✅ Ya Comprado</span>
+        <span *ngIf="!yaTienePaquete(selectedPaquete.id) && estaEnStock(selectedPaquete)">Comprar Paquete {{ selectedPaquete.nombre }}</span>
+        <span *ngIf="!yaTienePaquete(selectedPaquete.id) && !estaEnStock(selectedPaquete)">Paquete Agotado</span>
+      </button>
+    </div>
+  </div>
 </div>

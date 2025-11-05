@@ -2,9 +2,9 @@
   <div class="container">
     <!-- Header -->
     <div class="pago-header">
-      <button class="btn-back" (click)="cancelar()">
+      <button class="btn-back" (click)="volverAcompanamiento()">
         <i data-lucide="arrow-left"></i>
-        Volver a Kits
+        Volver a Paquetes
       </button>
       <h1>Proceso de Pago</h1>
     </div>
@@ -12,53 +12,48 @@
     <!-- Loading State -->
     <div class="loading-state" *ngIf="isLoading">
       <div class="spinner"></div>
-      <p>Cargando información del kit...</p>
+      <p>Cargando información del paquete...</p>
     </div>
 
     <!-- Content -->
-    <div class="pago-content" *ngIf="!isLoading && kit">
+    <div class="pago-content" *ngIf="!isLoading && paquete">
       <div class="pago-grid">
-        <!-- Resumen del Kit -->
-        <div class="resumen-kit">
+        <!-- Resumen del Paquete -->
+        <div class="resumen-paquete">
           <h2>
             <i data-lucide="package"></i>
             Resumen de tu Compra
           </h2>
-          <div class="kit-card">
-            <div class="kit-header">
-              <h3 class="kit-nombre">{{ kit.nombre }}</h3>
-              <div class="kit-precio">
-                ${{ formatPrice(kit.precio) }} COP
-                <span *ngIf="tieneDescuento" class="precio-original">
-                  ${{ formatPrice(kit.precioOriginal!) }} COP
-                </span>
-              </div>
+          <div class="paquete-card">
+            <div class="paquete-header">
+              <h3 class="paquete-nombre">{{ paquete.nombre }}</h3>
+              <div class="paquete-precio">${{ formatPrice(paquete.precio) }} COP</div>
             </div>
             
-            <p class="kit-descripcion">{{ kit.descripcion }}</p>
+            <p class="paquete-descripcion">{{ paquete.descripcion }}</p>
 
-            <div class="kit-detalles">
+            <div class="paquete-detalles">
               <div class="detalle-item">
-                <i data-lucide="star"></i>
-                <span>Kit {{ kit.categoria | titlecase }}</span>
+                <i data-lucide="clock"></i>
+                <span>{{ paquete.sesionesIncluidas }} sesiones de {{ paquete.duracionSesion }} min</span>
+              </div>
+              <div class="detalle-item">
+                <i data-lucide="gift"></i>
+                <span>Incluye Kit {{ paquete.kit }}</span>
               </div>
               <div class="detalle-item">
                 <i data-lucide="check-circle"></i>
-                <span>Entrega inmediata después del pago</span>
-              </div>
-              <div class="detalle-item">
-                <i data-lucide="shield-check"></i>
-                <span>Garantía de calidad</span>
+                <span>Acceso inmediato después del pago</span>
               </div>
             </div>
 
             <div class="elementos-incluidos">
               <h4>
                 <i data-lucide="list-check"></i>
-                Este kit incluye:
+                Este paquete incluye:
               </h4>
               <ul>
-                <li *ngFor="let elemento of kit.elementos">
+                <li *ngFor="let elemento of paquete.elementos">
                   <i data-lucide="check"></i>
                   {{ elemento }}
                 </li>
@@ -108,7 +103,6 @@
                     [(ngModel)]="tipoDocumento"
                     class="form-select"
                     [disabled]="isProcessing">
-                    <option value="">Selecciona tipo de documento</option>
                     <option *ngFor="let tipo of tiposDocumento" [value]="tipo.value">
                       {{ tipo.label }}
                     </option>
@@ -136,7 +130,7 @@
                   type="text" 
                   id="nombreTitular"
                   [(ngModel)]="nombreTitular"
-                  placeholder="Nombre completo como aparece en el documento"
+                  placeholder="Como aparece en la tarjeta"
                   [disabled]="isProcessing"
                   class="form-input">
               </div>
@@ -224,22 +218,15 @@
             <div class="info-pago">
               <div class="info-item">
                 <span>Subtotal:</span>
-                <span>${{ formatPrice(kit.precio) }} COP</span>
+                <span>${{ formatPrice(paquete.precio) }} COP</span>
               </div>
-              
-              <div *ngIf="tieneDescuento" class="info-item descuento">
-                <span>Descuento ({{ kit.descuento }}%):</span>
-                <span>- ${{ formatPrice(calcularAhorro()) }} COP</span>
-              </div>
-              
               <div class="info-item">
                 <span>IVA (0%):</span>
                 <span>$0 COP</span>
               </div>
-              
               <div class="info-item total">
                 <span>Total a pagar:</span>
-                <span>${{ formatPrice(kit.precio) }} COP</span>
+                <span>${{ formatPrice(paquete.precio) }} COP</span>
               </div>
             </div>
 
@@ -263,12 +250,12 @@
             <button 
               class="btn-pagar" 
               (click)="procesarPago()"
-              [disabled]="!validarFormularioCompleto() || isProcessing"
+              [disabled]="!bancoSeleccionado || !aceptaTerminos || isProcessing"
               [class.loading]="isProcessing">
               
               <span *ngIf="!isProcessing">
                 <i data-lucide="shield-check"></i>
-                Pagar ${{ formatPrice(kit.precio) }} COP
+                Pagar ${{ formatPrice(paquete.precio) }} COP
               </span>
               <span *ngIf="isProcessing">
                 <div class="spinner-small"></div>
@@ -283,19 +270,6 @@
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Error state -->
-    <div class="error-state" *ngIf="!isLoading && !kit">
-      <div class="error-icon">
-        <i data-lucide="alert-circle"></i>
-      </div>
-      <h3>Kit no encontrado</h3>
-      <p>El kit que buscas no está disponible</p>
-      <button class="btn-primary" (click)="cancelar()">
-        <i data-lucide="arrow-left"></i>
-        Volver a Kits
-      </button>
     </div>
   </div>
 </div>

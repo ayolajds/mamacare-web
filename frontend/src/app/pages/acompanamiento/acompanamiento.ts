@@ -1,31 +1,45 @@
 import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { AcompanamientoService, Plan } from '../../shared/services/acompanamiento';
-import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../../shared/services/auth';
+import { AcompanamientoService } from '../../shared/services/acompanamiento';
 
-declare const lucide: any;
+declare var lucide: any;
 
-type ModalidadSlug = 'individual' | 'grupal' | 'talleres';
-
-interface Modalidad {
-  slug: ModalidadSlug;
+// Interfaces
+interface Beneficio {
   titulo: string;
-  bullets: string[];
-  icon: string;
-  cta?: { label: string; link: string };
+  descripcion: string;
 }
 
-interface Paquete {
-  nombre: 'Esencial' | 'Integral' | 'Premium';
-  incluye: string[];
-  resumen: string;
-  precioDesde: string;
-  cta: { label: string; link: string };
+interface PaqueteAcompanamiento {
+  id: number;
+  nombre: 'Paquete 1' | 'Paquete 2' | 'Paquete 3';
+  categoria: string;
+  precio: number;
+  precioOriginal?: number;
+  descuento?: number;
+  imagen: string;
+  descripcion: string;
+  elementos: string[];
+  beneficios: Beneficio[];
+  sesionesIncluidas: number;
+  duracionSesion: number;
+  tipoSesiones: string[];
+  stock: number;
+  popular: boolean;
+  nuevo: boolean;
   badge?: string;
-  modalidades: ModalidadSlug[];
-  kit: 'Básico' | 'Intermedio' | 'Premium';
-  precioReal?: number;
+  kit: string;
+}
+
+interface PaqueteComprado {
+  paqueteId: number;
+  paqueteNombre: string;
+  fechaCompra: string;
+  sesionesUsadas: number;
+  sesionesTotales: number;
+  estado: string;
 }
 
 @Component({
@@ -33,116 +47,196 @@ interface Paquete {
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './acompanamiento.html',
-  styleUrls: ['./acompanamiento.scss']
+  styleUrls: ['./acompanamiento.scss'],
 })
 export class Acompanamiento implements OnInit, AfterViewInit {
-
-  private router = inject(Router);
+  private authService = inject(AuthService);
   private acompanamientoService = inject(AcompanamientoService);
+  private router = inject(Router);
 
-  isLoading: boolean = false;
-  planesDisponibles: Plan[] = [];
-
-  modalidades: Modalidad[] = [
+  // ✅ DATOS ESTÁTICOS con nombres Esencial, Integral, Premium
+  paquetes: PaqueteAcompanamiento[] = [
     {
-      slug: 'individual',
-      titulo: 'Sesiones Individuales',
-      bullets: [
-        '50 minutos por sesión personalizada',
-        'Psicólogas especializadas en oncología',
-        'Modalidad presencial o virtual',
-        'Confidencialidad y espacio seguro garantizado',
-        'Enfoque clínico-humanista'
+      id: 1,
+      nombre: "Paquete 1",
+      categoria: "Paquete 1",
+      precio: 378180,
+      imagen: "assets/images/paquete-basico.jpg",
+      descripcion: "Ideal para comenzar con acompañamiento cercano y herramientas esenciales.",
+      elementos: [
+      "Kit Básico",
+      "Terapia Presencial",
+      "Talleres psicoeducativos",
+      "Acceso digital"
       ],
-      icon: 'user',
-      cta: { label: 'Solicitar información', link: '/contacto' }
+      beneficios: [
+        {
+          titulo: "Acompañamiento inicial",
+          descripcion: "Proceso guiado para comenzar tu sanación emocional"
+        },
+        {
+          titulo: "Herramientas prácticas",
+          descripcion: "Técnicas y estrategias para el manejo emocional diario"
+        },
+        {
+          titulo: "Espacio seguro",
+          descripcion: "Ambiente confidencial para expresar tus emociones libremente"
+        }
+      ],
+      sesionesIncluidas: 4,
+      duracionSesion: 50,
+      tipoSesiones: ["individual"],
+      stock: 10,
+      popular: true,
+      nuevo: true,
+      kit: "Básico"
     },
     {
-      slug: 'grupal',
-      titulo: 'Terapia Grupal',
-      bullets: [
-        'Grupos reducidos de 6-8 participantes',
-        'Sesiones semanales de 90 minutos',
-        'Temáticas: ansiedad, autoimagen, afrontamiento',
-        'Guía profesional especializada',
-        'Apoyo entre pares y comunidad'
+      id: 2,
+      nombre: "Paquete 2",
+      categoria: "Paquete 2",
+      precio: 505120,
+      imagen: "assets/images/paquete-intermedio.jpg",
+      descripcion: "Programa completo que combina modalidades para una experiencia profunda.",
+      elementos: [
+        "8 sesiones (presenciales + virtuales)",
+        "Plan terapéutico integral",
+        "Seguimiento continuo y recursos QR",
+        "Acceso a comunidad de apoyo",
+        "2 sesiones familiares incluidas",
+        "Kit Intermedio incluido"
       ],
-      icon: 'users',
-      cta: { label: 'Ver grupos disponibles', link: '/contacto' }
+      beneficios: [
+        {
+          titulo: "Atención integral",
+          descripcion: "Combinación de trabajo individual y apoyo grupal"
+        },
+        {
+          titulo: "Proceso profundo",
+          descripcion: "Acompañamiento sostenido para trabajo emocional más intenso"
+        },
+        {
+          titulo: "Red de apoyo",
+          descripcion: "Conecta con otras personas en procesos similares"
+        },
+        {
+          titulo: "Seguimiento continuo",
+          descripcion: "Monitoreo constante de tu evolución y ajuste de estrategias"
+        }
+      ],
+      sesionesIncluidas: 8,
+      duracionSesion: 60,
+      tipoSesiones: ["individual", "grupal"],
+      stock: 8,
+      popular: true,
+      nuevo: false,
+      badge: "RECOMENDADO",
+      kit: "Intermedio"
     },
     {
-      slug: 'talleres',
-      titulo: 'Talleres Educativos',
-      bullets: [
-        'Programas de 4-6 sesiones',
-        'Materiales y recursos incluidos',
-        'Ejercicios para casa',
-        'Bienestar emocional y familiar',
-        'Certificado de participación'
+      id: 3,
+      nombre: "Paquete 3",
+      categoria: "Paquete 3",
+      precio: 684420,
+      imagen: "assets/images/paquete-premium.jpg",
+      descripcion: "Máxima personalización, acompañamiento intensivo y recursos exclusivos.",
+      elementos: [
+        "12 sesiones (presenciales + virtuales + a domicilio)",
+        "Seguimiento intensivo y recursos premium",
+        "Acompañamiento familiar completo",
+        "Sesiones de emergencia incluidas",
+        "Coaching emocional personalizado",
+        "Kit Premium incluido"
       ],
-      icon: 'book-open',
-      cta: { label: 'Explorar talleres', link: '/contacto' }
+      beneficios: [
+        {
+          titulo: "Atención premium",
+          descripcion: "Acompañamiento completo e integral para transformación profunda"
+        },
+        {
+          titulo: "Enfoque familiar",
+          descripcion: "Incluye trabajo con tu sistema familiar para apoyo integral"
+        },
+        {
+          titulo: "Talleres especializados",
+          descripcion: "Acceso a workshops exclusivos sobre temas específicos"
+        },
+        {
+          titulo: "Soporte prioritario",
+          descripcion: "Atención y seguimiento continuo durante todo el proceso"
+        },
+        {
+          titulo: "Recursos ilimitados",
+          descripcion: "Acceso completo a toda nuestra biblioteca de recursos"
+        }
+      ],
+      sesionesIncluidas: 12,
+      duracionSesion: 60,
+      tipoSesiones: ["individual", "grupal", "taller"],
+      stock: 5,
+      popular: false,
+      nuevo: true,
+      kit: "Premium"
     }
   ];
 
-  paquetes: Paquete[] = [
+  filteredPaquetes: PaqueteAcompanamiento[] = [];
+  selectedPaquete: PaqueteAcompanamiento | null = null;
+  activeFilter: string = 'all';
+  isLoading: boolean = false;
+  
+  // Para trackear paquetes comprados
+  paquetesComprados: number[] = [];
+
+  // Modalidades de atención
+  modalidades = [
     {
-      nombre: 'Esencial',
-      incluye: [
-        '4 sesiones psicológicas presenciales',
-        'Evaluación y plan terapéutico',
-        'Seguimiento básico entre sesiones',
-        'Materiales de apoyo digital',
-        'Kit Básico incluido'
+      titulo: 'Sesiones Individuales',
+      icon: 'user',
+      bullets: [
+        'Atención personalizada one-on-one',
+        'Enfoque en tus necesidades específicas',
+        'Horarios flexibles',
+        'Seguimiento continuo'
       ],
-      resumen: 'Ideal para comenzar con acompañamiento cercano y herramientas esenciales.',
-      precioDesde: '$280.000 COP',
-      cta: { label: 'Comprar plan', link: '#' },
-      badge: undefined,
-      modalidades: ['individual'],
-      kit: 'Básico',
-      precioReal: 280000
+      cta: {
+        label: 'Ver paquetes individuales',
+        link: '/acompanamiento#paquetes'
+      }
     },
     {
-      nombre: 'Integral',
-      incluye: [
-        '8 sesiones (presenciales + virtuales)',
-        'Plan terapéutico integral',
-        'Seguimiento continuo y recursos QR',
-        'Acceso a comunidad de apoyo',
-        '2 sesiones familiares incluidas',
-        'Kit Intermedio incluido'
+      titulo: 'Sesiones Grupales',
+      icon: 'users',
+      bullets: [
+        'Grupos de apoyo reducidos',
+        'Intercambio de experiencias',
+        'Aprendizaje colectivo',
+        'Red de apoyo emocional'
       ],
-      resumen: 'Programa completo que combina modalidades para una experiencia profunda.',
-      precioDesde: '$650.000 COP',
-      cta: { label: 'Comprar plan', link: '#' },
-      badge: 'RECOMENDADO',
-      modalidades: ['individual', 'grupal'],
-      kit: 'Intermedio',
-      precioReal: 650000
+      cta: {
+        label: 'Ver grupos disponibles',
+        link: '/acompanamiento#paquetes'
+      }
     },
     {
-      nombre: 'Premium',
-      incluye: [
-        '12 sesiones (presenciales + virtuales + a domicilio)',
-        'Seguimiento intensivo y recursos premium',
-        'Acompañamiento familiar completo',
-        'Sesiones de emergencia incluidas',
-        'Coaching emocional personalizado',
-        'Kit Premium incluido'
+      titulo: 'Acompañamiento Familiar',
+      icon: 'heart',
+      bullets: [
+        'Sesiones con familiares',
+        'Fortalecimiento de vínculos',
+        'Comunicación efectiva',
+        'Apoyo integral familiar'
       ],
-      resumen: 'Máxima personalización, acompañamiento intensivo y recursos exclusivos.',
-      precioDesde: '$1.200.000 COP',
-      cta: { label: 'Comprar plan', link: '#' },
-      badge: undefined,
-      modalidades: ['individual', 'grupal', 'talleres'],
-      kit: 'Premium',
-      precioReal: 1200000
+      cta: {
+        label: 'Conocer más',
+        link: '/acompanamiento#paquetes'
+      }
     }
   ];
 
   ngOnInit(): void {
-    this.cargarPlanesDisponibles();
+    this.loadPaquetes();
+    this.cargarPaquetesComprados();
   }
 
   ngAfterViewInit(): void {
@@ -151,91 +245,173 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     }
   }
 
-  // ✅ VERIFICAR SI ESTÁ LOGUEADO
-  userIsLoggedIn(): boolean {
-    const token = 
-      localStorage.getItem('token') ||
-      localStorage.getItem('authToken') ||
-      localStorage.getItem('userToken') ||
-      localStorage.getItem('mamacare_access') ||
-      localStorage.getItem('MaCare_access') ||
-      sessionStorage.getItem('token') ||
-      sessionStorage.getItem('authToken');
-
-    return !!token;
+  private loadPaquetes(): void {
+    this.filteredPaquetes = this.paquetes;
+    this.initIcons();
   }
 
-  private cargarPlanesDisponibles(): void {
-    this.isLoading = true;
-    this.acompanamientoService.getPlanes().subscribe({
-      next: (response) => {
-        this.planesDisponibles = response.data;
-        console.log('📋 Planes cargados:', this.planesDisponibles);
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error cargando planes:', error);
-        this.isLoading = false;
-      }
-    });
-  }
-
-  // ✅ MÉTODO SIMPLIFICADO - Sin alertas intermedias
-  solicitarPaquete(paquete: Paquete): void {
-    console.log('🔄 Iniciando solicitarPaquete para:', paquete.nombre);
-    
-    // 1. Verificar si está logueado
-    if (!this.userIsLoggedIn()) {
-      console.warn('❌ Usuario NO logueado, redirigiendo a login...');
-      
-      Swal.fire({
-        icon: 'warning',
-        title: 'Inicio de sesión requerido',
-        text: 'Debes iniciar sesión para comprar un plan',
-        confirmButtonText: 'Iniciar Sesión',
-        confirmButtonColor: '#FF6B9D',
-        showCancelButton: true,
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.router.navigate(['/login'], {
-            queryParams: { returnUrl: `/pagos/plan/${paquete.nombre}` }
-          });
+  private cargarPaquetesComprados(): void {
+    if (this.authService.estaLogueado()) {
+      this.authService.actualizarPaquetesAcompanamientoComprados().then(() => {
+        const usuario = this.authService.obtenerUsuarioActual();
+        if (usuario && usuario.paquetesAcompanamientoComprados) {
+          this.paquetesComprados = usuario.paquetesAcompanamientoComprados
+            .filter((paquete: PaqueteComprado) => paquete.estado === 'activo')
+            .map((paquete: PaqueteComprado) => paquete.paqueteId);
+          console.log('💝 Paquetes comprados cargados:', this.paquetesComprados);
         }
       });
+    }
+  }
+
+  // ✅ MÉTODO PRINCIPAL: Solicitar paquete
+  solicitarPaquete(paquete: PaqueteAcompanamiento): void {
+    console.log('🔄 SOLICITANDO PAQUETE:', paquete.nombre, paquete.id);
+
+    // ✅ VALIDAR SI YA TIENE EL PAQUETE
+    if (this.yaTienePaquete(paquete.id)) {
+      alert('✅ Ya tienes este paquete comprado. Puedes acceder a él desde tu panel de usuario.');
       return;
     }
 
-    console.log('✅ Usuario logueado, redirigiendo directamente a pagos...');
+    if (!this.authService.estaLogueado()) {
+      const confirmar = confirm('Para solicitar un paquete necesitas estar logueado. ¿Deseas ir al login?');
+      if (confirmar) {
+        this.router.navigate(['/login'], { 
+          queryParams: { returnUrl: `/pago-acompanamiento/${paquete.id}` } 
+        });
+      }
+      return;
+    }
+
+    // Navegar al componente de pagos
+    this.router.navigate(['/pago-acompanamiento', paquete.id]);
+  }
+
+  // ✅ Verificar si ya tiene un paquete
+  yaTienePaquete(paqueteId: number): boolean {
+    return this.paquetesComprados.includes(paqueteId);
+  }
+
+  filterPaquetes(category: string): void {
+    this.activeFilter = category;
     
-    // ✅ REDIRECCIÓN DIRECTA sin alertas intermedias
-    this.router.navigate(['/pagos/plan', paquete.nombre]);
+    if (category === 'all') {
+      this.filteredPaquetes = this.paquetes;
+    } else {
+      this.filteredPaquetes = this.paquetes.filter(paquete => paquete.categoria === category);
+    }
   }
 
-  // Helpers
-  iconFor(slug: ModalidadSlug): string {
-    const m = this.modalidades.find(x => x.slug === slug);
-    return m?.icon ?? 'help-circle';
+  showPaqueteDetails(paquete: PaqueteAcompanamiento): void {
+    this.selectedPaquete = paquete;
+    this.initIcons();
   }
 
+  closeModal(): void {
+    this.selectedPaquete = null;
+  }
+
+  tieneDescuento(paquete: PaqueteAcompanamiento): boolean {
+    return !!paquete.descuento && paquete.descuento > 0;
+  }
+
+  estaEnStock(paquete: PaqueteAcompanamiento): boolean {
+    return paquete.stock > 0;
+  }
+
+  getBadgeClass(paquete: PaqueteAcompanamiento): string {
+    if (paquete.badge) return 'badge-recomendado';
+    if (paquete.nuevo) return 'badge-new';
+    if (paquete.popular) return 'badge-popular';
+    if (paquete.descuento) return 'badge-discount';
+    return '';
+  }
+
+  getBadgeText(paquete: PaqueteAcompanamiento): string {
+    if (paquete.badge) return paquete.badge;
+    if (paquete.nuevo) return 'Nuevo';
+    if (paquete.popular) return 'Popular';
+    if (paquete.descuento) return `-${paquete.descuento}%`;
+    return '';
+  }
+
+  getStockClass(paquete: PaqueteAcompanamiento): string {
+    if (paquete.stock === 0) return 'out-of-stock';
+    if (paquete.stock < 5) return 'low-stock';
+    return 'in-stock';
+  }
+
+  getStockText(paquete: PaqueteAcompanamiento): string {
+    if (paquete.stock === 0) return 'Agotado temporalmente';
+    if (paquete.stock < 5) return `Últimas ${paquete.stock} unidades`;
+    return `Disponible (${paquete.stock} en stock)`;
+  }
+
+  getPaqueteIcon(category: string): string {
+    switch(category) {
+      case 'basico':
+        return '<i data-lucide="user"></i>';
+      case 'intermedio':
+        return '<i data-lucide="users"></i>';
+      case 'premium':
+        return '<i data-lucide="crown"></i>';
+      default:
+        return '<i data-lucide="heart"></i>';
+    }
+  }
+
+  getBenefitIcon(): string {
+    return '<i data-lucide="check-circle"></i>';
+  }
+
+  getCategoryName(category: string): string {
+    switch(category) {
+      case 'basico': return 'Básico';
+      case 'intermedio': return 'Intermedio';
+      case 'premium': return 'Premium';
+      default: return category;
+    }
+  }
+
+  formatPrice(price: number): string {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  // Métodos de navegación
   agendarCita(): void {
-    this.router.navigateByUrl('/contacto');
+    this.router.navigate(['/contacto']);
   }
 
   scrollToPaquetes(): void {
-    const el = document.getElementById('paquetes');
-    el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  solicitarModalidad(modalidad: Modalidad): void {
-    this.router.navigateByUrl('/contacto');
+    document.getElementById('paquetes')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   contactar(): void {
-    this.router.navigateByUrl('/contacto');
+    this.router.navigate(['/contacto']);
   }
 
-  getTextoBoton(paquete: Paquete): string {
-    return paquete.cta.label;
+  iconFor(tipo: string): string {
+    switch(tipo) {
+      case 'individual': return 'user';
+      case 'grupal': return 'users';
+      case 'familiar': return 'heart';
+      case 'taller': return 'settings';
+      default: return 'circle';
+    }
+  }
+
+  getTextoBoton(paquete: PaqueteAcompanamiento): string {
+    if (this.yaTienePaquete(paquete.id)) return '✅ Ya Comprado';
+    if (!this.estaEnStock(paquete)) return 'Agotado';
+    return 'Comprar Paquete';
+  }
+
+  private initIcons(): void {
+    setTimeout(() => {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+    }, 100);
   }
 }
