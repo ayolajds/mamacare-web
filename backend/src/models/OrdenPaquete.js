@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 
-const ordenSchema = new mongoose.Schema({
+const ordenPaqueteSchema = new mongoose.Schema({
   usuarioId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  kitId: {
-    type: Number,  // ✅ NUMBER - no ObjectId
+  paqueteId: {
+    type: Number,  // ✅ NUMBER - igual que kits
     required: true
   },
   estado: {
@@ -33,4 +33,4 @@ const ordenSchema = new mongoose.Schema({
   timestamps: true
 });
 
-export const Orden = mongoose.model('Orden', ordenSchema);
+export const OrdenPaquete = mongoose.model('OrdenPaquete', ordenPaqueteSchema);

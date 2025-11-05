@@ -23,7 +23,6 @@ export const getKits = async (req, res) => {
 // @desc    Create order for kit
 // @route   POST /api/kits/orden
 // @access  Private
-// En: controllers/kitController.js - SOLO CAMBIAR la función createOrden
 export const createOrden = async (req, res) => {
   try {
     const { kitId, bancoSeleccionado } = req.body;
@@ -31,7 +30,7 @@ export const createOrden = async (req, res) => {
 
     console.log('📦 Recibiendo compra - Kit ID:', kitId, 'Usuario:', usuarioId);
 
-    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT (igual que antes)
+    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT
     const usuario = await User.findById(usuarioId);
     const kitYaComprado = usuario.kitsComprados.some(
       kit => kit.kitId === parseInt(kitId) && kit.estado === 'activo'
@@ -44,19 +43,19 @@ export const createOrden = async (req, res) => {
       });
     }
 
-    // ✅ MAPEO DE KITS (igual que antes)
+    // ✅ MAPEO DE KITS (sin mongoId - solo number)
     const kitsInfo = {
       1: { 
-        nombre: "Kit Esencial de Recuerdos", 
-        precio: 89900
+        nombre: "Kit Basico", 
+        precio: 63800
       },
       2: { 
-        nombre: "Kit Memoria Avanzada", 
-        precio: 169900
+        nombre: "Kit Intermedio", 
+        precio: 79200
       },
       3: { 
-        nombre: "Kit Legado Eterno", 
-        precio: 299900
+        nombre: "Kit Integral", 
+        precio: 112200
       }
     };
 
@@ -68,11 +67,10 @@ export const createOrden = async (req, res) => {
       });
     }
 
-    // ✅ CREAR ORDEN - SOLO ESTA PARTE CAMBIA:
+    // ✅ CREAR ORDEN con NUMBER (no ObjectId)
     const orden = new Orden({
       usuarioId,
       kitId: kitId,
-      tipo: 'kit',  // ⬅️ NUEVO: agregar este campo
       total: kit.precio,
       metodoPago: 'pse',
       bancoSeleccionado,
@@ -81,7 +79,7 @@ export const createOrden = async (req, res) => {
 
     await orden.save();
 
-    // ✅ AGREGAR KIT AL USUARIO (igual que antes)
+    // ✅ AGREGAR KIT AL USUARIO
     await User.findByIdAndUpdate(usuarioId, {
       $push: {
         kitsComprados: {

@@ -1,3 +1,4 @@
+// En models/User.js - AGREGAR ESTE CAMPO al schema
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 
@@ -41,7 +42,6 @@ const userSchema = new mongoose.Schema(
           type: Date, 
           default: Date.now 
         },
-        // ✅ PARA FUTURAS FUNCIONALIDADES
         sesionesUsadas: { 
           type: Number, 
           default: 0 
@@ -54,150 +54,43 @@ const userSchema = new mongoose.Schema(
       }
     ],
 
-    // ✅ NUEVO: PLANES DE ACOMPAÑAMIENTO ACTIVOS
-    planesActivos: [
+    // ✅ NUEVO: PAQUETES DE ACOMPAÑAMIENTO COMPRADOS (AGREGAR ESTO)
+    paquetesAcompanamientoComprados: [
       {
-        nombre: { 
-          type: String, 
-          enum: ['Esencial', 'Integral', 'Premium'], 
+        paqueteId: { 
+          type: Number,  // 1, 2, 3 (del frontend)
           required: true 
         },
-        sesionesTotales: { 
-          type: Number, 
-          required: true 
-        },
-        sesionesUsadas: { 
-          type: Number, 
-          default: 0 
-        },
-        estado: { 
+        paqueteNombre: { 
           type: String, 
-          enum: ['activo', 'vencido', 'pausado', 'completado'],
-          default: 'activo' 
+          required: true 
         },
         fechaCompra: { 
           type: Date, 
           default: Date.now 
         },
-        vencimiento: { 
-          type: Date 
+        sesionesUsadas: { 
+          type: Number, 
+          default: 0 
         },
-        modalidades: [{ 
+        sesionesTotales: { 
+          type: Number, 
+          required: true 
+        },
+        estado: { 
           type: String, 
-          enum: ['individual', 'grupal', 'talleres'] 
-        }],
-        // ✅ INFORMACIÓN ADICIONAL PARA SEGUIMIENTO
-        terapeutaAsignado: { 
-          type: mongoose.Schema.Types.ObjectId, 
-          ref: 'User' 
+          enum: ['activo', 'usado', 'expirado'],
+          default: 'activo' 
         },
-        progreso: {
-          tipo: String,
-          descripcion: String,
-          ultimaSesion: Date,
-          siguienteSesion: Date
+        fechaExpiracion: { 
+          type: Date, 
+          required: true 
         }
       }
-    ],
-
-    // ✅ NUEVO: HISTORIAL DE CITAS/TERAPIAS
-    historialCitas: [
-      {
-        citaId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Appointment'
-        },
-        fecha: Date,
-        tipo: {
-          type: String,
-          enum: ['individual', 'grupal', 'taller', 'evaluacion']
-        },
-        duracion: Number, // en minutos
-        profesional: {
-          id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-          nombre: String
-        },
-        estado: {
-          type: String,
-          enum: ['completada', 'cancelada', 'reprogramada']
-        },
-        notas: String
-      }
-    ],
-
-    // ✅ NUEVO: PREFERENCIAS DE TERAPIA
-    preferenciasTerapia: {
-      modalidadPreferida: {
-        type: String,
-        enum: ['presencial', 'virtual', 'mixta'],
-        default: 'presencial'
-      },
-      disponibilidad: {
-        dias: [{ type: String }], // ['lunes', 'martes', ...]
-        horarios: [{ type: String }] // ['mañana', 'tarde', 'noche']
-      },
-      temasInteres: [{ type: String }], // ['ansiedad', 'autoimagen', 'familia', ...]
-      restricciones: {
-        movilidad: { type: Boolean, default: false },
-        audicion: { type: Boolean, default: false },
-        vision: { type: Boolean, default: false }
-      }
-    }
+    ]
   },
   { timestamps: true }
 );
-
-// ✅ MÉTODOS DE INSTANCIA PARA PLANES
-userSchema.methods.tienePlanActivo = function() {
-  return this.planesActivos.some(plan => 
-    plan.estado === 'activo' && 
-    plan.sesionesUsadas < plan.sesionesTotales &&
-    (!plan.vencimiento || plan.vencimiento > new Date())
-  );
-};
-
-userSchema.methods.sesionesDisponibles = function() {
-  const planActivo = this.planesActivos.find(plan => 
-    plan.estado === 'activo' && 
-    plan.sesionesUsadas < plan.sesionesTotales &&
-    (!plan.vencimiento || plan.vencimiento > new Date())
-  );
-  
-  return planActivo ? planActivo.sesionesTotales - planActivo.sesionesUsadas : 0;
-};
-
-userSchema.methods.consumirSesion = function() {
-  const planActivo = this.planesActivos.find(plan => 
-    plan.estado === 'activo' && 
-    plan.sesionesUsadas < plan.sesionesTotales &&
-    (!plan.vencimiento || plan.vencimiento > new Date())
-  );
-  
-  if (planActivo) {
-    planActivo.sesionesUsadas += 1;
-    
-    // Si se acabaron las sesiones, marcar como completado
-    if (planActivo.sesionesUsadas >= planActivo.sesionesTotales) {
-      planActivo.estado = 'completado';
-    }
-    
-    return true;
-  }
-  return false;
-};
-
-// ✅ MIDDLEWARE PARA ACTUALIZAR ESTADOS AUTOMÁTICAMENTE
-userSchema.pre('save', function(next) {
-  // Actualizar estados de planes vencidos
-  const ahora = new Date();
-  this.planesActivos.forEach(plan => {
-    if (plan.estado === 'activo' && plan.vencimiento && plan.vencimiento < ahora) {
-      plan.estado = 'vencido';
-    }
-  });
-  
-  next();
-});
 
 // ✅ AGREGAR PLUGIN DE PAGINACIÓN
 userSchema.plugin(mongoosePaginate);

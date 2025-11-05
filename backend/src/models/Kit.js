@@ -12,7 +12,7 @@ const kitSchema = new mongoose.Schema({
   },
   categoria: {
     type: String,
-    enum: ['basico', 'intermedio', 'premium'],
+    enum: ['basico', 'intermedio', 'integral'],
     required: true
   },
   precio: {
