@@ -6,7 +6,7 @@ import { AcompanamientoService } from '../../shared/services/acompanamiento';
 
 declare var lucide: any;
 
-// Interfaces
+// Interfaces ACTUALIZADAS
 interface Beneficio {
   titulo: string;
   descripcion: string;
@@ -14,11 +14,9 @@ interface Beneficio {
 
 interface PaqueteAcompanamiento {
   id: number;
-  nombre: 'Paquete 1' | 'Paquete 2' | 'Paquete 3';
+  nombre: string; // ✅ CAMBIADO: string simple en lugar de tipos fijos
   categoria: string;
   precio: number;
-  precioOriginal?: number;
-  descuento?: number;
   imagen: string;
   descripcion: string;
   elementos: string[];
@@ -26,11 +24,7 @@ interface PaqueteAcompanamiento {
   sesionesIncluidas: number;
   duracionSesion: number;
   tipoSesiones: string[];
-  stock: number;
-  popular: boolean;
-  nuevo: boolean;
-  badge?: string;
-  kit: string;
+  // ❌ ELIMINADOS: precioOriginal, descuento, stock, popular, nuevo, badge, kit
 }
 
 interface PaqueteComprado {
@@ -54,20 +48,21 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   private acompanamientoService = inject(AcompanamientoService);
   private router = inject(Router);
 
-  // ✅ DATOS ESTÁTICOS con nombres Esencial, Integral, Premium
+  // ✅ DATOS ESTÁTICOS ACTUALIZADOS
   paquetes: PaqueteAcompanamiento[] = [
     {
       id: 1,
-      nombre: "Paquete 1",
-      categoria: "Paquete 1",
+      nombre: "Paquete Básico de Acompañamiento", // ✅ NOMBRE COMPLETO
+      categoria: "basico", // ✅ CATEGORÍA CORRECTA
       precio: 378180,
       imagen: "assets/images/paquete-basico.jpg",
       descripcion: "Ideal para comenzar con acompañamiento cercano y herramientas esenciales.",
       elementos: [
-      "Kit Básico",
-      "Terapia Presencial",
-      "Talleres psicoeducativos",
-      "Acceso digital"
+        "4 sesiones psicológicas presenciales",
+        "Evaluación y plan terapéutico",
+        "Seguimiento básico entre sesiones", 
+        "Materiales de apoyo digital",
+        "Kit Básico incluido"
       ],
       beneficios: [
         {
@@ -85,22 +80,19 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 4,
       duracionSesion: 50,
-      tipoSesiones: ["individual"],
-      stock: 10,
-      popular: true,
-      nuevo: true,
-      kit: "Básico"
+      tipoSesiones: ["individual"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     },
     {
       id: 2,
-      nombre: "Paquete 2",
-      categoria: "Paquete 2",
+      nombre: "Paquete Intermedio de Acompañamiento", // ✅ NOMBRE COMPLETO
+      categoria: "intermedio", // ✅ CATEGORÍA CORRECTA
       precio: 505120,
       imagen: "assets/images/paquete-intermedio.jpg",
       descripcion: "Programa completo que combina modalidades para una experiencia profunda.",
       elementos: [
         "8 sesiones (presenciales + virtuales)",
-        "Plan terapéutico integral",
+        "Plan terapéutico integral", 
         "Seguimiento continuo y recursos QR",
         "Acceso a comunidad de apoyo",
         "2 sesiones familiares incluidas",
@@ -116,7 +108,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
           descripcion: "Acompañamiento sostenido para trabajo emocional más intenso"
         },
         {
-          titulo: "Red de apoyo",
+          titulo: "Red de apoyo", 
           descripcion: "Conecta con otras personas en procesos similares"
         },
         {
@@ -126,31 +118,27 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 8,
       duracionSesion: 60,
-      tipoSesiones: ["individual", "grupal"],
-      stock: 8,
-      popular: true,
-      nuevo: false,
-      badge: "RECOMENDADO",
-      kit: "Intermedio"
+      tipoSesiones: ["individual", "grupal"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, badge, kit
     },
     {
       id: 3,
-      nombre: "Paquete 3",
-      categoria: "Paquete 3",
+      nombre: "Paquete Integral de Acompañamiento", // ✅ NOMBRE COMPLETO
+      categoria: "integral", // ✅ CATEGORÍA CORRECTA
       precio: 684420,
-      imagen: "assets/images/paquete-premium.jpg",
+      imagen: "assets/images/paquete-integral.jpg", // ✅ IMAGEN CORRECTA
       descripcion: "Máxima personalización, acompañamiento intensivo y recursos exclusivos.",
       elementos: [
         "12 sesiones (presenciales + virtuales + a domicilio)",
         "Seguimiento intensivo y recursos premium",
-        "Acompañamiento familiar completo",
+        "Acompañamiento familiar completo", 
         "Sesiones de emergencia incluidas",
         "Coaching emocional personalizado",
-        "Kit Premium incluido"
+        "Kit Integral incluido" // ✅ CAMBIADO: "Premium" por "Integral"
       ],
       beneficios: [
         {
-          titulo: "Atención premium",
+          titulo: "Atención integral",
           descripcion: "Acompañamiento completo e integral para transformación profunda"
         },
         {
@@ -172,11 +160,8 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 12,
       duracionSesion: 60,
-      tipoSesiones: ["individual", "grupal", "taller"],
-      stock: 5,
-      popular: false,
-      nuevo: true,
-      kit: "Premium"
+      tipoSesiones: ["individual", "grupal", "taller"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     }
   ];
 
@@ -312,49 +297,14 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     this.selectedPaquete = null;
   }
 
-  tieneDescuento(paquete: PaqueteAcompanamiento): boolean {
-    return !!paquete.descuento && paquete.descuento > 0;
-  }
-
-  estaEnStock(paquete: PaqueteAcompanamiento): boolean {
-    return paquete.stock > 0;
-  }
-
-  getBadgeClass(paquete: PaqueteAcompanamiento): string {
-    if (paquete.badge) return 'badge-recomendado';
-    if (paquete.nuevo) return 'badge-new';
-    if (paquete.popular) return 'badge-popular';
-    if (paquete.descuento) return 'badge-discount';
-    return '';
-  }
-
-  getBadgeText(paquete: PaqueteAcompanamiento): string {
-    if (paquete.badge) return paquete.badge;
-    if (paquete.nuevo) return 'Nuevo';
-    if (paquete.popular) return 'Popular';
-    if (paquete.descuento) return `-${paquete.descuento}%`;
-    return '';
-  }
-
-  getStockClass(paquete: PaqueteAcompanamiento): string {
-    if (paquete.stock === 0) return 'out-of-stock';
-    if (paquete.stock < 5) return 'low-stock';
-    return 'in-stock';
-  }
-
-  getStockText(paquete: PaqueteAcompanamiento): string {
-    if (paquete.stock === 0) return 'Agotado temporalmente';
-    if (paquete.stock < 5) return `Últimas ${paquete.stock} unidades`;
-    return `Disponible (${paquete.stock} en stock)`;
-  }
-
+  // ✅ MÉTODOS SIMPLIFICADOS (sin campos eliminados)
   getPaqueteIcon(category: string): string {
     switch(category) {
       case 'basico':
         return '<i data-lucide="user"></i>';
       case 'intermedio':
         return '<i data-lucide="users"></i>';
-      case 'premium':
+      case 'integral': // ✅ CAMBIADO: 'premium' por 'integral'
         return '<i data-lucide="crown"></i>';
       default:
         return '<i data-lucide="heart"></i>';
@@ -369,7 +319,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     switch(category) {
       case 'basico': return 'Básico';
       case 'intermedio': return 'Intermedio';
-      case 'premium': return 'Premium';
+      case 'integral': return 'Integral'; // ✅ CAMBIADO: 'Premium' por 'Integral'
       default: return category;
     }
   }
@@ -401,10 +351,10 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     }
   }
 
+  // ✅ MÉTODO ACTUALIZADO (sin verificación de stock)
   getTextoBoton(paquete: PaqueteAcompanamiento): string {
     if (this.yaTienePaquete(paquete.id)) return '✅ Ya Comprado';
-    if (!this.estaEnStock(paquete)) return 'Agotado';
-    return 'Comprar Paquete';
+    return 'Comprar Paquete'; // ✅ SIEMPRE DISPONIBLE
   }
 
   private initIcons(): void {

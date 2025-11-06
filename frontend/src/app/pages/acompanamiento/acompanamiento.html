@@ -148,15 +148,9 @@
       <!-- Paquetes Grid -->
       <div class="paquetes-grid">
         <div class="paquete-card" 
-             *ngFor="let paquete of paquetes" 
-             [class.featured]="paquete.popular">
+             *ngFor="let paquete of paquetes">
+          <!-- ❌ ELIMINADO: Badge (ya no existe) -->
           
-          <!-- Badge -->
-          <div class="paquete-badge" *ngIf="paquete.popular">
-            <i data-lucide="star" aria-hidden="true"></i>
-            Más Popular
-          </div>
-
           <!-- Header -->
           <div class="paquete-header">
             <h3 class="paquete-name">{{ paquete.nombre }}</h3>
@@ -183,11 +177,11 @@
             </ul>
           </div>
 
-          <!-- Kit incluido -->
+          <!-- ✅ KIT INCLUIDO - USANDO CATEGORÍA -->
           <div class="paquete-kit">
             <div class="kit-info">
               <i data-lucide="package" class="kit-icon" aria-hidden="true"></i>
-              <span>Incluye Kit {{ paquete.kit }}</span>
+              <span>Incluye Kit {{ getCategoryName(paquete.categoria) }}</span>
             </div>
           </div>
 
@@ -196,12 +190,12 @@
             <button 
               class="btn btn-primary btn-full" 
               (click)="solicitarPaquete(paquete)"
-              [disabled]="!estaEnStock(paquete) || yaTienePaquete(paquete.id)">
+              [disabled]="yaTienePaquete(paquete.id)">
               
               <i data-lucide="shopping-cart" aria-hidden="true"></i>
               <span *ngIf="yaTienePaquete(paquete.id)">✅ Ya Comprado</span>
-              <span *ngIf="!yaTienePaquete(paquete.id) && estaEnStock(paquete)">Comprar Paquete</span>
-              <span *ngIf="!yaTienePaquete(paquete.id) && !estaEnStock(paquete)">Agotado</span>
+              <span *ngIf="!yaTienePaquete(paquete.id)">Comprar Paquete</span>
+              <!-- ❌ ELIMINADO: Verificación de stock -->
             </button>
             
             <button class="btn btn-outline btn-full" (click)="showPaqueteDetails(paquete)">
@@ -245,7 +239,7 @@
     </button>
     
     <div class="modal-body">
-      <h2>Paquete {{ selectedPaquete.nombre }}</h2>
+      <h2>{{ selectedPaquete.nombre }}</h2>
       <p class="modal-category">{{ getCategoryName(selectedPaquete.categoria) }}</p>
 
       <p class="modal-description">{{ selectedPaquete.descripcion }}</p>
@@ -286,11 +280,11 @@
         </ul>
       </div>
 
-      <!-- Kit incluido -->
+      <!-- ✅ KIT INCLUIDO - USANDO CATEGORÍA -->
       <div class="modal-kit">
         <div class="kit-info">
           <i data-lucide="gift" class="kit-icon"></i>
-          <span><strong>Incluye Kit {{ selectedPaquete.kit }}</strong> - Herramientas terapéuticas para tu proceso</span>
+          <span><strong>Incluye Kit {{ getCategoryName(selectedPaquete.categoria) }}</strong> - Herramientas terapéuticas para tu proceso</span>
         </div>
       </div>
 
@@ -298,16 +292,16 @@
         <span class="current-price">${{ formatPrice(selectedPaquete.precio) }} COP</span>
       </div>
 
-      <!-- BOTÓN DEL MODAL -->
+      <!-- ✅ BOTÓN DEL MODAL ACTUALIZADO -->
       <button 
         class="btn btn-primary btn-full modal-add-btn"
         (click)="solicitarPaquete(selectedPaquete)"
-        [disabled]="!estaEnStock(selectedPaquete) || yaTienePaquete(selectedPaquete.id)">
+        [disabled]="yaTienePaquete(selectedPaquete.id)">
         
         <i data-lucide="shopping-cart" aria-hidden="true"></i>
         <span *ngIf="yaTienePaquete(selectedPaquete.id)">✅ Ya Comprado</span>
-        <span *ngIf="!yaTienePaquete(selectedPaquete.id) && estaEnStock(selectedPaquete)">Comprar Paquete {{ selectedPaquete.nombre }}</span>
-        <span *ngIf="!yaTienePaquete(selectedPaquete.id) && !estaEnStock(selectedPaquete)">Paquete Agotado</span>
+        <span *ngIf="!yaTienePaquete(selectedPaquete.id)">Comprar {{ selectedPaquete.nombre }}</span>
+        <!-- ❌ ELIMINADO: Verificación de stock -->
       </button>
     </div>
   </div>

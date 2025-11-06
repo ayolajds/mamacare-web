@@ -70,28 +70,28 @@ private kitsInfo = [
   {
     id: 1,
     nombre: 'Kit Básico',
-    categoria: 'basico',
+    categoria: 'basico', // ✅ MINÚSCULA
     precio: 63800,
     imagen: 'assets/images/kit-basico.jpg',
-    descripcion: 'Perfecto para comenzar a preservar tus momentos más especiales de forma organizada y emotiva.',
+    descripcion: 'Selección básica para iniciar tu ritual y documentar tus momentos.',
     elementos: ["Diario", "Mazo", "Accesorio"]
   },
   {
     id: 2,
     nombre: 'Kit Intermedio', 
-    categoria: 'intermedio',
+    categoria: 'intermedio', // ✅ MINÚSCULA
     precio: 79200,
     imagen: 'assets/images/kit-intermedio.jpg',
-    descripcion: 'Para quienes buscan profundizar en la preservación de sus historias con elementos especializados.',
+    descripcion: 'Incluye acceso digital y elementos extra para profundizar en tu cuidado.',
     elementos: ["Acceso digital (QR)", "Espejo", "Accesorio"]
   },
   {
     id: 3,
     nombre: 'Kit Integral',
-    categoria: 'integral',
+    categoria: 'integral', // ✅ CAMBIAR a 'integral'
     precio: 112200,
     imagen: 'assets/images/kit-integral.jpg',
-    descripcion: 'La experiencia definitiva para crear un legado familiar que trascienda el tiempo.',
+    descripcion: 'Experiencia completa con elementos para un ritual más profundo.',
     elementos: ["Vela", "Pañoleta", "Caja"]
   }
 ];

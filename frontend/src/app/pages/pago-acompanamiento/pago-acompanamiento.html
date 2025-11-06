@@ -39,7 +39,8 @@
               </div>
               <div class="detalle-item">
                 <i data-lucide="gift"></i>
-                <span>Incluye Kit {{ paquete.kit }}</span>
+                <!-- ✅ CORREGIDO: Usar getKitNombre() en lugar de paquete.kit -->
+                <span>Incluye Kit {{ getKitNombre() }}</span>
               </div>
               <div class="detalle-item">
                 <i data-lucide="check-circle"></i>

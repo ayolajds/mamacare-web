@@ -57,27 +57,27 @@ private sampleKits: Kit[] = [
   {
     id: 1,
     nombre: 'Kit Básico',
-    categoria: 'basico',
+    categoria: 'basico', // ✅ DEBE SER 'basico' (minúscula)
     precio: 63800,
-    imagen: 'assets/images/kit-basico.jpg',
+    imagen: 'assets/images/kit-basico.jpg', // ✅ Ruta completa
     descripcion: 'Selección básica para iniciar tu ritual y documentar tus momentos.',
     elementos: ["Diario", "Mazo", "Accesorio"]
   },
   {
     id: 2,
     nombre: 'Kit Intermedio', 
-    categoria: 'intermedio',
+    categoria: 'intermedio', // ✅ DEBE SER 'intermedio' (minúscula)
     precio: 79200,
-    imagen: 'assets/images/kit-intermedio.jpg',
+    imagen: 'assets/images/kit-intermedio.jpg', // ✅ Ruta completa
     descripcion: 'Incluye acceso digital y elementos extra para profundizar en tu cuidado.',
     elementos: ["Acceso digital (QR)", "Espejo", "Accesorio"]
   },
   {
     id: 3,
     nombre: 'Kit Integral',
-    categoria: 'Kit Integral',
+    categoria: 'integral', // ✅ CAMBIAR de 'Kit Integral' a 'integral'
     precio: 112200,
-    imagen: 'assets/images/kit-integral.jpg',
+    imagen: 'assets/images/kit-integral.jpg', // ✅ Ruta completa
     descripcion: 'Experiencia completa con elementos para un ritual más profundo.',
     elementos: ["Vela", "Pañoleta", "Caja"]
   }
@@ -195,14 +195,14 @@ private sampleKits: Kit[] = [
     }
   }
 
-  getCategoryName(category: string): string {
-    switch(category) {
-      case 'basico': return 'Kit Básico';
-      case 'intermedio': return 'Kit Intermedio';
-      case 'integral': return 'Kit integral';
-      default: return category;
-    }
+getCategoryName(category: string): string {
+  switch(category) {
+    case 'basico': return 'Kit Básico';
+    case 'intermedio': return 'Kit Intermedio';
+    case 'integral': return 'Kit Integral'; // ✅ CORREGIR "integral" no "integral"
+    default: return category;
   }
+}
 
   formatPrice(price: number): string {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

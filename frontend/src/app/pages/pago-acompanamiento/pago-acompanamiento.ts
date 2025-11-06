@@ -53,11 +53,11 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
     { value: 'nit', label: 'NIT' }
   ];
 
-  // ✅ DATOS ESTÁTICOS
+  // ✅ DATOS ESTÁTICOS ACTUALIZADOS
   private paquetes = [
     {
       id: 1,
-      nombre: "Esencial",
+      nombre: "Paquete Básico de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
       categoria: "basico",
       precio: 378180,
       imagen: "assets/images/paquete-basico.jpg",
@@ -85,15 +85,12 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 4,
       duracionSesion: 50,
-      tipoSesiones: ["individual"],
-      stock: 10,
-      popular: true,
-      nuevo: true,
-      kit: "Básico"
+      tipoSesiones: ["individual"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     },
     {
       id: 2,
-      nombre: "Integral",
+      nombre: "Paquete Intermedio de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
       categoria: "intermedio",
       precio: 505120,
       imagen: "assets/images/paquete-intermedio.jpg",
@@ -126,19 +123,15 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 8,
       duracionSesion: 60,
-      tipoSesiones: ["individual", "grupal"],
-      stock: 8,
-      popular: true,
-      nuevo: false,
-      badge: "RECOMENDADO",
-      kit: "Intermedio"
+      tipoSesiones: ["individual", "grupal"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, badge, kit
     },
     {
       id: 3,
-      nombre: "Premium",
-      categoria: "premium",
+      nombre: "Paquete Integral de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
+      categoria: "integral",
       precio: 684420,
-      imagen: "assets/images/paquete-premium.jpg",
+      imagen: "assets/images/paquete-integral.jpg", // ✅ IMAGEN CORRECTA
       descripcion: "Máxima personalización, acompañamiento intensivo y recursos exclusivos.",
       elementos: [
         "12 sesiones (presenciales + virtuales + a domicilio)",
@@ -146,11 +139,11 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
         "Acompañamiento familiar completo",
         "Sesiones de emergencia incluidas",
         "Coaching emocional personalizado",
-        "Kit Premium incluido"
+        "Kit Integral incluido" // ✅ CAMBIADO: "Premium" por "Integral"
       ],
       beneficios: [
         {
-          titulo: "Atención premium",
+          titulo: "Atención integral", // ✅ CAMBIADO: "premium" por "integral"
           descripcion: "Acompañamiento completo e integral para transformación profunda"
         },
         {
@@ -172,11 +165,8 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       ],
       sesionesIncluidas: 12,
       duracionSesion: 60,
-      tipoSesiones: ["individual", "grupal", "taller"],
-      stock: 5,
-      popular: false,
-      nuevo: true,
-      kit: "Premium"
+      tipoSesiones: ["individual", "grupal", "taller"]
+      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     }
   ];
 
@@ -219,32 +209,34 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
     this.isLoading = false;
   }
 
-  procesarPago(): void {
-    if (!this.validarFormulario()) {
-      return;
-    }
-
-    this.isProcessing = true;
-
-    // ✅ CORREGIDO: Enviar solo los parámetros que espera el servicio
-    this.acompanamientoService.crearOrden(this.paqueteId, this.bancoSeleccionado).subscribe({
-      next: (response: any) => {
-        this.isProcessing = false;
-        if (response.success) {
-          this.authService.actualizarPaquetesAcompanamientoComprados();
-          alert(response.message || '¡Paquete comprado exitosamente!');
-          this.router.navigate(['/acompanimiento']);
-        } else {
-          alert(response.message || 'Error al procesar el pago');
-        }
-      },
-      error: (error) => {
-        this.isProcessing = false;
-        console.error('Error en el pago:', error);
-        alert('Error al procesar el pago. Por favor intenta nuevamente.');
-      }
-    });
+procesarPago(): void {
+  if (!this.validarFormulario()) {
+    return;
   }
+
+  this.isProcessing = true;
+
+  this.acompanamientoService.crearOrden(this.paqueteId, this.bancoSeleccionado).subscribe({
+    next: async (response: any) => {
+      this.isProcessing = false;
+      if (response.success) {
+        // ✅ ACTUALIZAR AMBOS: paquetes Y kits
+        await this.authService.actualizarPaquetesAcompanamientoComprados();
+        await this.authService.actualizarKitsComprados(); // 👈 NUEVA LÍNEA
+        
+        alert(`¡${this.paquete.nombre} comprado exitosamente! 🎉\n\nSe te ha obsequiado el ${this.getKitNombre()} como parte de tu paquete.`);
+        this.router.navigate(['/acompanimiento']);
+      } else {
+        alert(response.message || 'Error al procesar el pago');
+      }
+    },
+    error: (error) => {
+      this.isProcessing = false;
+      console.error('Error en el pago:', error);
+      alert('Error al procesar el pago. Por favor intenta nuevamente.');
+    }
+  });
+}
 
   private validarFormulario(): boolean {
     if (!this.bancoSeleccionado) {
@@ -318,5 +310,17 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
     this.fechaExpiracion = value;
+  }
+
+  // ✅ MÉTODO PARA OBTENER NOMBRE DEL KIT (para usar en el HTML)
+  getKitNombre(): string {
+    if (!this.paquete) return '';
+    
+    switch(this.paquete.categoria) {
+      case 'basico': return 'Básico';
+      case 'intermedio': return 'Intermedio';
+      case 'integral': return 'Integral';
+      default: return '';
+    }
   }
 }
