@@ -6,16 +6,20 @@ import {
   updateAppointment,
   cancelAppointment,
   getAppointmentStats,
-  rescheduleAppointment
+  rescheduleAppointment,
+  checkSesionesDisponibles // ✅ NUEVO IMPORT
 } from '../controllers/appointmentController.js';
 import { auth } from '../middlewares/auth.js';
 import { requireRoles } from '../middlewares/authorize.js';
-
 
 const router = Router();
 
 // Todas las rutas requieren autenticación
 router.use(auth);
+
+// ✅ NUEVA RUTA: Verificar sesiones disponibles (para pacientes y admin)
+router.get('/check-sesiones', checkSesionesDisponibles);
+
 // Ruta de creación SOLO para admin
 router.post('/admin', requireRoles('admin'), createAppointment); // ✅ SOLO ADMIN
 

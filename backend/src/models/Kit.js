@@ -6,6 +6,11 @@ const beneficioSchema = new mongoose.Schema({
 });
 
 const kitSchema = new mongoose.Schema({
+  id: {
+    type: Number,
+    required: true,
+    unique: true
+  },
   nombre: {
     type: String,
     required: true
@@ -19,21 +24,11 @@ const kitSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
-  precioOriginal: Number,
-  descuento: Number,
   imagen: String,
   descripcion: String,
   elementos: [String],
   beneficios: [beneficioSchema],
-  stock: {
-    type: Number,
-    default: 0
-  },
-  popular: {
-    type: Boolean,
-    default: false
-  },
-  nuevo: {
+  incluyeQR: {
     type: Boolean,
     default: false
   }

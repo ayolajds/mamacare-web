@@ -1,3 +1,4 @@
+// 📁 models/Orden.js - ACTUALIZADO
 import mongoose from 'mongoose';
 
 const ordenSchema = new mongoose.Schema({
@@ -12,22 +13,27 @@ const ordenSchema = new mongoose.Schema({
   },
   estado: {
     type: String,
-    enum: ['pendiente', 'completada', 'cancelada'],
-    default: 'completada'
+    enum: ['pendiente', 'preparando', 'enviado', 'entregado', 'cancelada'], // ✅ ESTADOS MEJORADOS
+    default: 'pendiente' // ✅ CAMBIAR A PENDIENTE PARA GESTIÓN DE ENVÍOS
   },
   metodoPago: {
     type: String,
-    enum: ['pse'],
+    enum: ['pse', 'incluido_en_paquete'], // ✅ NUEVA OPCIÓN
     default: 'pse'
   },
   bancoSeleccionado: {
     type: String,
-    enum: ['bancolombia', 'nequi', 'davivienda', 'bbva', 'bogota'],
+    enum: ['bancolombia', 'nequi', 'davivienda', 'bbva', 'bogota', 'incluido_en_paquete'],
     required: true
   },
   total: {
     type: Number,
     required: true
+  },
+  // ✅ NUEVO: PARA SABER SI EL KIT VIENE DE UN PAQUETE
+  fromPackageId: {
+    type: Number,
+    default: null
   }
 }, {
   timestamps: true

@@ -1,21 +1,29 @@
+// 📁 src/models/PaqueteAcompanamiento.js - VERSIÓN CORREGIDA
 import mongoose from 'mongoose';
 
 const paqueteAcompanamientoSchema = new mongoose.Schema({
+  id: { // ✅ AGREGAR ESTE CAMPO
+    type: Number,
+    required: true,
+    unique: true
+  },
   nombre: {
     type: String,
     required: true
   },
   categoria: {
     type: String,
-    enum: ['basico', 'intermedio', 'premium'],
+    enum: ['basico', 'intermedio', 'integral'],
     required: true
   },
   precio: {
     type: Number,
     required: true
   },
-  precioOriginal: Number,
-  descuento: Number,
+  kitIncluidoId: { // ✅ NUEVO CAMPO - RELACIÓN DIRECTA CON KIT
+    type: Number,
+    required: true
+  },
   imagen: String,
   descripcion: String,
   elementos: [String],
@@ -28,25 +36,13 @@ const paqueteAcompanamientoSchema = new mongoose.Schema({
     required: true
   },
   duracionSesion: {
-    type: Number, // en minutos
+    type: Number,
     required: true
   },
   tipoSesiones: [{
     type: String,
     enum: ['individual', 'grupal', 'familiar', 'taller']
-  }],
-  stock: {
-    type: Number,
-    default: 0
-  },
-  popular: {
-    type: Boolean,
-    default: false
-  },
-  nuevo: {
-    type: Boolean,
-    default: false
-  }
+  }]
 }, {
   timestamps: true
 });

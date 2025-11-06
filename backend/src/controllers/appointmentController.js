@@ -36,6 +36,40 @@ export const createAppointment = async (req, res) => {
       });
     }
 
+    // ✅ NUEVA VALIDACIÓN: VERIFICAR SESIONES DISPONIBLES
+    console.log('🔍 Validando sesiones disponibles para paciente:', patientId);
+    
+    const paquetesActivos = patient.paquetesAcompanamientoComprados?.filter(paquete => 
+      paquete.estado === 'activo' && 
+      paquete.sesionesUsadas < paquete.sesionesTotales &&
+      new Date(paquete.fechaExpiracion) > new Date()
+    );
+
+    console.log('📦 Paquetes activos encontrados:', paquetesActivos?.length || 0);
+
+    if (!paquetesActivos || paquetesActivos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No tienes sesiones disponibles. Por favor compra un paquete de acompañamiento primero.',
+        code: 'NO_SESIONES_DISPONIBLES'
+      });
+    }
+
+    // Calcular sesiones disponibles totales
+    const sesionesDisponibles = paquetesActivos.reduce((total, paquete) => {
+      return total + (paquete.sesionesTotales - paquete.sesionesUsadas);
+    }, 0);
+
+    console.log('🎫 Sesiones disponibles:', sesionesDisponibles);
+
+    if (sesionesDisponibles <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No tienes sesiones disponibles. Todas tus sesiones han sido utilizadas.',
+        code: 'SESIONES_AGOTADAS'
+      });
+    }
+
     // ✅ CALCULAR endDate MANUALMENTE para evitar error de validación
     const appointmentDate = new Date(date);
     const endDate = new Date(appointmentDate.getTime() + duration * 60000);
@@ -71,6 +105,41 @@ export const createAppointment = async (req, res) => {
     // ✅ GUARDAR con save() para que ejecute el middleware pre-save
     await appointment.save();
 
+    // ✅ INCREMENTAR SESIONES USADAS después de crear la cita exitosamente
+    // Encontrar el primer paquete activo con sesiones disponibles
+    const paqueteParaUsar = paquetesActivos.find(p => 
+      p.sesionesUsadas < p.sesionesTotales
+    );
+
+    if (paqueteParaUsar) {
+      await User.updateOne(
+        { 
+          _id: patientId, 
+          'paquetesAcompanamientoComprados.paqueteId': paqueteParaUsar.paqueteId 
+        },
+        { 
+          $inc: { 'paquetesAcompanamientoComprados.$.sesionesUsadas': 1 } 
+        }
+      );
+
+      console.log('✅ Sesión incrementada para paquete:', paqueteParaUsar.paqueteId);
+      console.log('📊 Nueva cantidad:', paqueteParaUsar.sesionesUsadas + 1, '/', paqueteParaUsar.sesionesTotales);
+
+      // Verificar si el paquete se agotó después de esta sesión
+      if (paqueteParaUsar.sesionesUsadas + 1 >= paqueteParaUsar.sesionesTotales) {
+        await User.updateOne(
+          { 
+            _id: patientId, 
+            'paquetesAcompanamientoComprados.paqueteId': paqueteParaUsar.paqueteId 
+          },
+          { 
+            $set: { 'paquetesAcompanamientoComprados.$.estado': 'usado' } 
+          }
+        );
+        console.log('🎯 Paquete marcado como USADO:', paqueteParaUsar.paqueteId);
+      }
+    }
+
     // Popular los datos para la respuesta
     await appointment.populate('professionalId', 'name lastName email phone');
     await appointment.populate('patientId', 'name lastName email phone');
@@ -78,7 +147,11 @@ export const createAppointment = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Cita creada exitosamente',
-      data: appointment
+      data: appointment,
+      sesionesInfo: {
+        sesionesDisponibles: sesionesDisponibles - 1,
+        paqueteUtilizado: paqueteParaUsar?.paqueteNombre
+      }
     });
 
   } catch (error) {
@@ -86,6 +159,61 @@ export const createAppointment = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error al crear la cita',
+      error: error.message
+    });
+  }
+};
+
+// ✅ NUEVO ENDPOINT: Verificar sesiones disponibles
+export const checkSesionesDisponibles = async (req, res) => {
+  try {
+    const pacienteId = req.user.role === 'paciente' ? req.user.id : req.query.pacienteId;
+    
+    if (!pacienteId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Se requiere ID del paciente'
+      });
+    }
+
+    const paciente = await User.findById(pacienteId);
+    if (!paciente) {
+      return res.status(404).json({
+        success: false,
+        message: 'Paciente no encontrado'
+      });
+    }
+
+    const paquetesActivos = paciente.paquetesAcompanamientoComprados?.filter(paquete => 
+      paquete.estado === 'activo' && 
+      paquete.sesionesUsadas < paquete.sesionesTotales &&
+      new Date(paquete.fechaExpiracion) > new Date()
+    );
+
+    const sesionesDisponibles = paquetesActivos?.reduce((total, paquete) => {
+      return total + (paquete.sesionesTotales - paquete.sesionesUsadas);
+    }, 0) || 0;
+
+    res.json({
+      success: true,
+      data: {
+        sesionesDisponibles,
+        paquetesActivos: paquetesActivos?.map(p => ({
+          paqueteId: p.paqueteId,
+          paqueteNombre: p.paqueteNombre,
+          sesionesUsadas: p.sesionesUsadas,
+          sesionesTotales: p.sesionesTotales,
+          fechaExpiracion: p.fechaExpiracion,
+          estado: p.estado
+        })) || []
+      }
+    });
+
+  } catch (error) {
+    console.error('Error checking sesiones:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al verificar sesiones disponibles',
       error: error.message
     });
   }

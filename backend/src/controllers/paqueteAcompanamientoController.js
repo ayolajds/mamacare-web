@@ -1,5 +1,6 @@
 import { PaqueteAcompanamiento } from '../models/PaqueteAcompanamiento.js';
 import { OrdenPaquete } from '../models/OrdenPaquete.js';
+import { Orden } from '../models/Orden.js'; // ✅ AGREGAR
 import { User } from '../models/User.js';
 
 // @desc    Get all packages
@@ -31,10 +32,19 @@ export const createOrdenPaquete = async (req, res) => {
 
     console.log('📦 Recibiendo compra - Paquete ID:', paqueteId, 'Usuario:', usuarioId);
 
+    const paquete = await PaqueteAcompanamiento.findOne({ id: paqueteId });
+    
+    if (!paquete) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Paquete no encontrado' 
+      });
+    }
+
     // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE PAQUETE
     const usuario = await User.findById(usuarioId);
     const paqueteYaComprado = usuario.paquetesAcompanamientoComprados.some(
-      paquete => paquete.paqueteId === parseInt(paqueteId) && paquete.estado === 'activo'
+      p => p.paqueteId === paqueteId && p.estado === 'activo'
     );
 
     if (paqueteYaComprado) {
@@ -44,49 +54,19 @@ export const createOrdenPaquete = async (req, res) => {
       });
     }
 
-    // ✅ MAPEO DE PAQUETES (igual que kits - con number IDs)
-    const paquetesInfo = {
-      1: { 
-        nombre: "Paquete Básico de Acompañamiento", 
-        precio: 350000,
-        sesionesTotales: 4,
-        duracionSesion: 60
-      },
-      2: { 
-        nombre: "Paquete Intermedio de Acompañamiento", 
-        precio: 650000,
-        sesionesTotales: 8,
-        duracionSesion: 60
-      },
-      3: { 
-        nombre: "Paquete Premium de Acompañamiento", 
-        precio: 950000,
-        sesionesTotales: 12,
-        duracionSesion: 60
-      }
-    };
-
-    const paquete = paquetesInfo[paqueteId];
-    if (!paquete) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Paquete no encontrado' 
-      });
-    }
-
-    // ✅ CREAR ORDEN con NUMBER (igual que kits)
-    const orden = new OrdenPaquete({
+    // ✅ CREAR ORDEN DEL PAQUETE
+    const ordenPaquete = new OrdenPaquete({
       usuarioId,
-      paqueteId: paqueteId,
+      paqueteId: parseInt(paqueteId),
       total: paquete.precio,
       metodoPago: 'pse',
       bancoSeleccionado,
       estado: 'completada'
     });
 
-    await orden.save();
+    await ordenPaquete.save();
 
-    // ✅ AGREGAR PAQUETE AL USUARIO (igual que kits)
+    // ✅ AGREGAR PAQUETE AL USUARIO
     await User.findByIdAndUpdate(usuarioId, {
       $push: {
         paquetesAcompanamientoComprados: {
@@ -94,19 +74,69 @@ export const createOrdenPaquete = async (req, res) => {
           paqueteNombre: paquete.nombre,
           fechaCompra: new Date(),
           sesionesUsadas: 0,
-          sesionesTotales: paquete.sesionesTotales,
+          sesionesTotales: paquete.sesionesIncluidas,
           estado: 'activo',
-          fechaExpiracion: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 días
+          fechaExpiracion: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
         }
       }
     });
 
     console.log('✅ Orden de paquete creada y usuario actualizado');
 
+    // 🎁 ✅ ENTREGAR KIT INCLUIDO AUTOMÁTICAMENTE - VERSIÓN CORREGIDA
+    const categoriaToKitId = {
+      'basico': 1,
+      'intermedio': 2, 
+      'integral': 3
+    };
+
+    const kitIdIncluido = categoriaToKitId[paquete.categoria];
+    
+    if (kitIdIncluido) {
+      // Info del kit
+      const kitsInfo = {
+        1: { nombre: "Kit Básico", precio: 63800 },
+        2: { nombre: "Kit Intermedio", precio: 79200 },
+        3: { nombre: "Kit Integral", precio: 112200 }
+      };
+
+      const kitIncluido = kitsInfo[kitIdIncluido];
+
+      if (kitIncluido) {
+        // ✅ CREAR ORDEN DEL KIT - SIEMPRE CREAR (sin verificar duplicados)
+        const ordenKit = new Orden({
+          usuarioId,
+          kitId: kitIdIncluido,
+          total: 0,
+          metodoPago: 'incluido_en_paquete', // ✅ Cambiar a enum correcto
+          bancoSeleccionado: 'incluido_en_paquete',
+          estado: 'pendiente'
+        });
+
+        await ordenKit.save();
+
+        // ✅ AGREGAR KIT AL USUARIO - SIEMPRE AGREGAR (sin verificar duplicados)
+        await User.findByIdAndUpdate(usuarioId, {
+          $push: {
+            kitsComprados: {
+              kitId: kitIdIncluido,
+              kitNombre: kitIncluido.nombre,
+              fechaCompra: new Date(),
+              paqueteOrigen: parseInt(paqueteId), // ✅ Asociar al paquete
+              sesionesUsadas: 0,
+              estado: 'activo'
+            }
+          }
+        });
+
+        console.log(`🎁 Kit ${kitIdIncluido} incluido automáticamente con el paquete ${paqueteId}`);
+      }
+    }
+
     res.status(201).json({ 
       success: true, 
       message: `¡${paquete.nombre} comprado exitosamente!`, 
-      data: orden 
+      data: ordenPaquete 
     });
 
   } catch (error) {

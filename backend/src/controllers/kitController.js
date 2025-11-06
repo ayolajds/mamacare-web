@@ -1,3 +1,4 @@
+import { Kit } from '../models/Kit.js';
 import { Orden } from '../models/Orden.js';
 import { User } from '../models/User.js';
 
@@ -30,23 +31,22 @@ export const createOrden = async (req, res) => {
 
     console.log('📦 Recibiendo compra - Kit ID:', kitId, 'Usuario:', usuarioId);
 
-    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE KIT
-    const usuario = await User.findById(usuarioId);
-    const kitYaComprado = usuario.kitsComprados.some(
-      kit => kit.kitId === parseInt(kitId) && kit.estado === 'activo'
-    );
+    // ✅ ELIMINAR VALIDACIÓN DE DUPLICADOS (permite múltiples kits)
+    // const usuario = await User.findById(usuarioId);
+    // const kitYaComprado = usuario.kitsComprados.some(
+    //   kit => kit.kitId === parseInt(kitId) && kit.estado === 'activo'
+    // );
+    // if (kitYaComprado) {
+    //   return res.status(400).json({ 
+    //     success: false, 
+    //     message: 'Ya tienes este kit comprado. No puedes comprarlo nuevamente.' 
+    //   });
+    // }
 
-    if (kitYaComprado) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Ya tienes este kit comprado. No puedes comprarlo nuevamente.' 
-      });
-    }
-
-    // ✅ MAPEO DE KITS (sin mongoId - solo number)
+    // ✅ MAPEO DE KITS
     const kitsInfo = {
       1: { 
-        nombre: "Kit Basico", 
+        nombre: "Kit Básico", 
         precio: 63800
       },
       2: { 
@@ -67,19 +67,19 @@ export const createOrden = async (req, res) => {
       });
     }
 
-    // ✅ CREAR ORDEN con NUMBER (no ObjectId)
+    // ✅ CREAR ORDEN - USAR 'pendiente' (según modelo Orden)
     const orden = new Orden({
       usuarioId,
-      kitId: kitId,
+      kitId: parseInt(kitId),
       total: kit.precio,
       metodoPago: 'pse',
       bancoSeleccionado,
-      estado: 'completada'
+      estado: 'pendiente' // ✅ CAMBIADO: 'completada' → 'pendiente'
     });
 
     await orden.save();
 
-    // ✅ AGREGAR KIT AL USUARIO
+    // ✅ AGREGAR KIT AL USUARIO - SIEMPRE PERMITIR
     await User.findByIdAndUpdate(usuarioId, {
       $push: {
         kitsComprados: {
@@ -92,7 +92,7 @@ export const createOrden = async (req, res) => {
       }
     });
 
-    console.log('✅ Orden creada y usuario actualizado');
+    console.log('✅ Orden de kit creada y usuario actualizado');
 
     res.status(201).json({ 
       success: true, 
@@ -101,7 +101,7 @@ export const createOrden = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('💥 Error creando orden:', error);
+    console.error('💥 Error creando orden de kit:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Error al procesar la compra' 
