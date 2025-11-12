@@ -264,3 +264,52 @@ export async function getProfessionals(req, res) {
     });
   }
 }
+
+// 🔐 Obtener información del usuario autenticado
+export async function getCurrentUser(req, res) {
+  try {
+    const userId = req.user.id;
+
+    Logger.info('Obteniendo información del usuario actual', { userId });
+
+    const user = await User.findById(userId)
+      .select('-passwordHash')
+      .populate('paquetesAcompanamientoComprados.paqueteId'); // Si tienes esta relación
+
+    if (!user) {
+      Logger.warn('Usuario no encontrado', { userId });
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Usuario no encontrado' 
+      });
+    }
+
+    Logger.success('Información del usuario obtenida exitosamente', {
+      userId: user._id,
+      email: user.email,
+      role: user.role
+    });
+
+    res.json({
+      success: true,
+      user: {
+        _id: user._id,
+        name: user.name,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        phone: user.phone,
+        isActive: user.isActive,
+        paquetesAcompanamientoComprados: user.paquetesAcompanamientoComprados || [],
+        createdAt: user.createdAt
+      }
+    });
+
+  } catch (err) {
+    Logger.error('Error al obtener información del usuario', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al obtener información del usuario' 
+    });
+  }
+}

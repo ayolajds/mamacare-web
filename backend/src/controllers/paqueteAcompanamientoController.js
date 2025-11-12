@@ -41,16 +41,18 @@ export const createOrdenPaquete = async (req, res) => {
       });
     }
 
-    // ✅ VALIDAR SI EL USUARIO YA TIENE ESTE PAQUETE
+    // ✅ VALIDACIÓN MEJORADA - SOLO bloquear si tiene sesiones disponibles
     const usuario = await User.findById(usuarioId);
-    const paqueteYaComprado = usuario.paquetesAcompanamientoComprados.some(
-      p => p.paqueteId === paqueteId && p.estado === 'activo'
+    const paqueteConSesiones = usuario.paquetesAcompanamientoComprados.some(
+      p => p.paqueteId === paqueteId && 
+           p.estado === 'activo' && 
+           p.sesionesUsadas < p.sesionesTotales  // ← NUEVA LÓGICA
     );
 
-    if (paqueteYaComprado) {
+    if (paqueteConSesiones) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Ya tienes este paquete comprado. No puedes comprarlo nuevamente.' 
+        message: 'Ya tienes este paquete con sesiones disponibles. No puedes comprarlo nuevamente.' 
       });
     }
 
@@ -83,7 +85,7 @@ export const createOrdenPaquete = async (req, res) => {
 
     console.log('✅ Orden de paquete creada y usuario actualizado');
 
-    // 🎁 ✅ ENTREGAR KIT INCLUIDO AUTOMÁTICAMENTE - VERSIÓN CORREGIDA
+    // 🎁 ✅ ENTREGAR KIT INCLUIDO AUTOMÁTICAMENTE
     const categoriaToKitId = {
       'basico': 1,
       'intermedio': 2, 
@@ -108,7 +110,7 @@ export const createOrdenPaquete = async (req, res) => {
           usuarioId,
           kitId: kitIdIncluido,
           total: 0,
-          metodoPago: 'incluido_en_paquete', // ✅ Cambiar a enum correcto
+          metodoPago: 'incluido_en_paquete',
           bancoSeleccionado: 'incluido_en_paquete',
           estado: 'pendiente'
         });
@@ -122,7 +124,7 @@ export const createOrdenPaquete = async (req, res) => {
               kitId: kitIdIncluido,
               kitNombre: kitIncluido.nombre,
               fechaCompra: new Date(),
-              paqueteOrigen: parseInt(paqueteId), // ✅ Asociar al paquete
+              paqueteOrigen: parseInt(paqueteId),
               sesionesUsadas: 0,
               estado: 'activo'
             }

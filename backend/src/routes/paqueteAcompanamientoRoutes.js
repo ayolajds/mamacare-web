@@ -2,7 +2,7 @@ import express from 'express';
 import { 
   getPaquetesAcompanamiento, 
   createOrdenPaquete, 
-  getMisPaquetes 
+  getMisPaquetes,
 } from '../controllers/paqueteAcompanamientoController.js';
 import { auth } from '../middlewares/auth.js';
 

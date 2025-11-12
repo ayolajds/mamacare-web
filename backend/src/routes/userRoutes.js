@@ -4,7 +4,8 @@ import {
   changePassword,
   getUsersByRole,  // 👈 NECESITAS CREAR ESTA FUNCIÓN
   getPatients,     // 👈 NECESITAS CREAR ESTA FUNCIÓN  
-  getProfessionals // 👈 NECESITAS CREAR ESTA FUNCIÓN
+  getProfessionals,
+  getCurrentUser
 } from '../controllers/userController.js';
 import { auth } from '../middlewares/auth.js';
 
@@ -12,6 +13,8 @@ const router = Router();
 
 // 🔐 Todas estas rutas requieren autenticación
 router.use(auth);
+
+router.get('/me', getCurrentUser);  // 👈 AGREGAR ESTA RUTA
 
 // RUTAS EXISTENTES
 router.put('/profile', updateProfile);
