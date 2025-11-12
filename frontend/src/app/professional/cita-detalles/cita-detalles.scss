@@ -162,6 +162,11 @@
         color: #065f46;
       }
       
+      &.status-in-progress {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      
       &.status-completed {
         background: #dbeafe;
         color: #1e40af;
@@ -170,6 +175,11 @@
       &.status-cancelled {
         background: #fee2e2;
         color: #991b1b;
+      }
+      
+      &.status-no-show {
+        background: #f3f4f6;
+        color: #6b7280;
       }
       
       &.status-pending {
@@ -343,6 +353,11 @@
           color: #065f46;
         }
         
+        &.status-in-progress {
+          background: #fef3c7;
+          color: #92400e;
+        }
+        
         &.status-completed {
           background: #dbeafe;
           color: #1e40af;
@@ -351,6 +366,11 @@
         &.status-cancelled {
           background: #fee2e2;
           color: #991b1b;
+        }
+        
+        &.status-no-show {
+          background: #f3f4f6;
+          color: #6b7280;
         }
       }
     }
@@ -391,17 +411,19 @@
         transform: none;
       }
       
-      &.confirm {
-        background: #d1fae5;
-        color: #065f46;
-        border: 1px solid #a7f3d0;
+      // ✅ COLOR PARA INICIAR CONSULTA - NARANJA
+      &.in-progress {
+        background: #ffedd5;
+        color: #c2410c;
+        border: 1px solid #fdba74;
         
         &:hover:not(:disabled) {
-          background: #10b981;
+          background: #ea580c;
           color: white;
         }
       }
       
+      // ✅ COLOR PARA COMPLETAR - AZUL
       &.complete {
         background: #dbeafe;
         color: #1e40af;
@@ -413,13 +435,14 @@
         }
       }
       
-      &.cancel {
-        background: #fee2e2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
+      // ✅ COLOR PARA NO SE PRESENTÓ - GRIS
+      &.no-show {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
         
         &:hover:not(:disabled) {
-          background: #ef4444;
+          background: #6b7280;
           color: white;
         }
       }
@@ -437,16 +460,28 @@
       margin: 0;
       font-weight: 500;
       
-      &.status-completed {
+      &.status-confirmed {
         background: #f0fdf4;
         border: 1px solid #bbf7d0;
         color: #16a34a;
       }
       
-      &.status-cancelled {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        color: #dc2626;
+      &.status-in-progress {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        color: #d97706;
+      }
+      
+      &.status-completed {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        color: #1d4ed8;
+      }
+      
+      &.status-no-show {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        color: #6b7280;
       }
     }
   }

@@ -14,7 +14,7 @@ interface Beneficio {
 
 interface PaqueteAcompanamiento {
   id: number;
-  nombre: string; // ✅ CAMBIADO: string simple en lugar de tipos fijos
+  nombre: string;
   categoria: string;
   precio: number;
   imagen: string;
@@ -24,7 +24,6 @@ interface PaqueteAcompanamiento {
   sesionesIncluidas: number;
   duracionSesion: number;
   tipoSesiones: string[];
-  // ❌ ELIMINADOS: precioOriginal, descuento, stock, popular, nuevo, badge, kit
 }
 
 interface PaqueteComprado {
@@ -52,8 +51,8 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   paquetes: PaqueteAcompanamiento[] = [
     {
       id: 1,
-      nombre: "Paquete Básico de Acompañamiento", // ✅ NOMBRE COMPLETO
-      categoria: "basico", // ✅ CATEGORÍA CORRECTA
+      nombre: "Paquete Básico de Acompañamiento",
+      categoria: "basico",
       precio: 378180,
       imagen: "assets/images/paquete-basico.jpg",
       descripcion: "Ideal para comenzar con acompañamiento cercano y herramientas esenciales.",
@@ -81,12 +80,11 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       sesionesIncluidas: 4,
       duracionSesion: 50,
       tipoSesiones: ["individual"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     },
     {
       id: 2,
-      nombre: "Paquete Intermedio de Acompañamiento", // ✅ NOMBRE COMPLETO
-      categoria: "intermedio", // ✅ CATEGORÍA CORRECTA
+      nombre: "Paquete Intermedio de Acompañamiento",
+      categoria: "intermedio",
       precio: 505120,
       imagen: "assets/images/paquete-intermedio.jpg",
       descripcion: "Programa completo que combina modalidades para una experiencia profunda.",
@@ -119,14 +117,13 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       sesionesIncluidas: 8,
       duracionSesion: 60,
       tipoSesiones: ["individual", "grupal"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, badge, kit
     },
     {
       id: 3,
-      nombre: "Paquete Integral de Acompañamiento", // ✅ NOMBRE COMPLETO
-      categoria: "integral", // ✅ CATEGORÍA CORRECTA
+      nombre: "Paquete Integral de Acompañamiento",
+      categoria: "integral",
       precio: 684420,
-      imagen: "assets/images/paquete-integral.jpg", // ✅ IMAGEN CORRECTA
+      imagen: "assets/images/paquete-integral.jpg",
       descripcion: "Máxima personalización, acompañamiento intensivo y recursos exclusivos.",
       elementos: [
         "12 sesiones (presenciales + virtuales + a domicilio)",
@@ -134,7 +131,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
         "Acompañamiento familiar completo", 
         "Sesiones de emergencia incluidas",
         "Coaching emocional personalizado",
-        "Kit Integral incluido" // ✅ CAMBIADO: "Premium" por "Integral"
+        "Kit Integral incluido"
       ],
       beneficios: [
         {
@@ -161,7 +158,6 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       sesionesIncluidas: 12,
       duracionSesion: 60,
       tipoSesiones: ["individual", "grupal", "taller"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     }
   ];
 
@@ -170,8 +166,8 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   activeFilter: string = 'all';
   isLoading: boolean = false;
   
-  // Para trackear paquetes comprados
-  paquetesComprados: number[] = [];
+  // Para trackear paquetes comprados con sesiones disponibles
+  paquetesConSesiones: number[] = [];
 
   // Modalidades de atención
   modalidades = [
@@ -240,10 +236,15 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       this.authService.actualizarPaquetesAcompanamientoComprados().then(() => {
         const usuario = this.authService.obtenerUsuarioActual();
         if (usuario && usuario.paquetesAcompanamientoComprados) {
-          this.paquetesComprados = usuario.paquetesAcompanamientoComprados
-            .filter((paquete: PaqueteComprado) => paquete.estado === 'activo')
+          // ✅ SOLO considerar paquetes con sesiones disponibles
+          this.paquetesConSesiones = usuario.paquetesAcompanamientoComprados
+            .filter((paquete: PaqueteComprado) => 
+              paquete.estado === 'activo' && 
+              paquete.sesionesUsadas < paquete.sesionesTotales
+            )
             .map((paquete: PaqueteComprado) => paquete.paqueteId);
-          console.log('💝 Paquetes comprados cargados:', this.paquetesComprados);
+          
+          console.log('💝 Paquetes con sesiones disponibles:', this.paquetesConSesiones);
         }
       });
     }
@@ -253,9 +254,9 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   solicitarPaquete(paquete: PaqueteAcompanamiento): void {
     console.log('🔄 SOLICITANDO PAQUETE:', paquete.nombre, paquete.id);
 
-    // ✅ VALIDAR SI YA TIENE EL PAQUETE
-    if (this.yaTienePaquete(paquete.id)) {
-      alert('✅ Ya tienes este paquete comprado. Puedes acceder a él desde tu panel de usuario.');
+    // ✅ VALIDAR SI YA TIENE EL PAQUETE CON SESIONES DISPONIBLES
+    if (this.yaTienePaqueteConSesiones(paquete.id)) {
+      alert('✅ Ya tienes este paquete con sesiones disponibles. Puedes acceder a él desde tu panel de usuario.');
       return;
     }
 
@@ -273,9 +274,19 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     this.router.navigate(['/pago-acompanamiento', paquete.id]);
   }
 
-  // ✅ Verificar si ya tiene un paquete
-  yaTienePaquete(paqueteId: number): boolean {
-    return this.paquetesComprados.includes(paqueteId);
+  // ✅ Verificar si ya tiene un paquete CON SESIONES DISPONIBLES
+  yaTienePaqueteConSesiones(paqueteId: number): boolean {
+    return this.paquetesConSesiones.includes(paqueteId);
+  }
+
+  // ✅ Verificar si ya tuvo el paquete pero se le acabaron las sesiones
+  tuvoPaqueteAnteriormente(paqueteId: number): boolean {
+    const usuario = this.authService.obtenerUsuarioActual();
+    if (!usuario?.paquetesAcompanamientoComprados) return false;
+    
+    return usuario.paquetesAcompanamientoComprados.some(
+      (p: PaqueteComprado) => p.paqueteId === paqueteId
+    );
   }
 
   filterPaquetes(category: string): void {
@@ -297,14 +308,13 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     this.selectedPaquete = null;
   }
 
-  // ✅ MÉTODOS SIMPLIFICADOS (sin campos eliminados)
   getPaqueteIcon(category: string): string {
     switch(category) {
       case 'basico':
         return '<i data-lucide="user"></i>';
       case 'intermedio':
         return '<i data-lucide="users"></i>';
-      case 'integral': // ✅ CAMBIADO: 'premium' por 'integral'
+      case 'integral':
         return '<i data-lucide="crown"></i>';
       default:
         return '<i data-lucide="heart"></i>';
@@ -319,7 +329,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     switch(category) {
       case 'basico': return 'Básico';
       case 'intermedio': return 'Intermedio';
-      case 'integral': return 'Integral'; // ✅ CAMBIADO: 'Premium' por 'Integral'
+      case 'integral': return 'Integral';
       default: return category;
     }
   }
@@ -351,10 +361,17 @@ export class Acompanamiento implements OnInit, AfterViewInit {
     }
   }
 
-  // ✅ MÉTODO ACTUALIZADO (sin verificación de stock)
+  // ✅ MÉTODO MEJORADO - Texto del botón según estado
   getTextoBoton(paquete: PaqueteAcompanamiento): string {
-    if (this.yaTienePaquete(paquete.id)) return '✅ Ya Comprado';
-    return 'Comprar Paquete'; // ✅ SIEMPRE DISPONIBLE
+    if (this.yaTienePaqueteConSesiones(paquete.id)) {
+      return '✅ Sesiones Activas';
+    }
+    
+    if (this.tuvoPaqueteAnteriormente(paquete.id)) {
+      return '🔄 Comprar Nuevamente';
+    }
+    
+    return 'Comprar Paquete';
   }
 
   private initIcons(): void {

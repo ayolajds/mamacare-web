@@ -1,0 +1,524 @@
+<div class="mis-solicitudes-container">
+  <div class="header">
+    <h1>Mis Solicitudes de Cita</h1>
+    <p>Gestiona y revisa el estado de tus citas médicas</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando tus solicitudes y citas...</p>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div *ngIf="!isLoading">
+    
+    <!-- Pestañas -->
+    <div class="tabs-container">
+      <div class="tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="tabActiva === 'pendientes'"
+          (click)="cambiarTab('pendientes')">
+          <span class="tab-label">Solicitudes Pendientes</span>
+          <span class="badge" *ngIf="solicitudesPendientes.length > 0">
+            {{solicitudesPendientes.length}}
+          </span>
+        </button>
+        
+        <button 
+          class="tab-button" 
+          [class.active]="tabActiva === 'confirmadas'"
+          (click)="cambiarTab('confirmadas')">
+          <span class="tab-label">Citas Confirmadas</span>
+          <span class="badge" *ngIf="citasConfirmadas.length > 0">
+            {{citasConfirmadas.length}}
+          </span>
+        </button>
+        
+        <button 
+          class="tab-button" 
+          [class.active]="tabActiva === 'historial'"
+          (click)="cambiarTab('historial')">
+          <span class="tab-label">Historial</span>
+          <span class="badge" *ngIf="citasHistorial.length > 0">
+            {{citasHistorial.length}}
+          </span>
+        </button>
+        
+        <button 
+          class="tab-button" 
+          [class.active]="tabActiva === 'rechazadas'"
+          (click)="cambiarTab('rechazadas')">
+          <span class="tab-label">Rechazadas/Canceladas</span>
+          <span class="badge" *ngIf="citasRechazadas.length > 0">
+            {{citasRechazadas.length}}
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido de las pestañas -->
+    <div class="tab-content">
+      
+      <!-- Pestaña SOLICITUDES Pendientes -->
+      <div *ngIf="tabActiva === 'pendientes'" class="tab-pane">
+        <div *ngIf="solicitudesPendientes.length === 0" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No tienes solicitudes pendientes</h3>
+          <p>Cuando solicites una cita, aparecerá aquí en revisión</p>
+          <button class="btn-primary" (click)="solicitarNuevaCita()">
+            Solicitar Nueva Cita
+          </button>
+        </div>
+
+        <div *ngIf="solicitudesPendientes.length > 0" class="citas-list">
+          <div *ngFor="let solicitud of solicitudesPendientes" class="cita-card pending">
+            <div class="cita-header">
+              <div class="header-left">
+                <span class="estado-badge pendiente">
+                  {{getEstadoSolicitud(solicitud)}}
+                </span>
+                <span class="fecha">
+                  <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{formatearFecha(solicitud.createdAt)}}
+                </span>
+              </div>
+              <div class="header-right">
+                <span class="cita-id">#{{solicitud._id?.slice(-6)}}</span>
+              </div>
+            </div>
+            
+            <div class="cita-content">
+              <div class="cita-main-info">
+                <h3 class="cita-title">{{solicitud.title || 'Solicitud de cita'}}</h3>
+                <p class="cita-type">{{solicitud.type || 'Acompañamiento'}}</p>
+              </div>
+
+              <div class="cita-details">
+                <div class="detail-grid">
+                  <div class="detail-item" *ngIf="getTipoPreferido(solicitud) !== 'No especificado'">
+                    <span class="detail-icon">💻</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Tipo Preferido</span>
+                      <span class="detail-value">{{getTipoPreferido(solicitud)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="getMotivoSolicitud(solicitud) !== 'No especificado'">
+                    <span class="detail-icon">📝</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Motivo</span>
+                      <span class="detail-value">{{getMotivoSolicitud(solicitud)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="getSintomasSolicitud(solicitud) !== 'No especificados'">
+                    <span class="detail-icon">🤒</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Síntomas</span>
+                      <span class="detail-value">{{getSintomasSolicitud(solicitud)}}</span>
+                    </div>
+                  </div>
+
+                  <!-- 🔥 CORREGIDO: Mostrar sesiones disponibles -->
+                  <div class="detail-item" *ngIf="solicitud.paqueteId">
+                    <span class="detail-icon">📦</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Paquete</span>
+                      <span class="detail-value">{{getInfoPaquete(solicitud)}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cita-actions">
+              <button class="btn-outline" (click)="verDetallesSolicitud(solicitud)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Ver Detalles
+              </button>
+              <button class="btn-danger" (click)="cancelarSolicitud(solicitud)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña CITAS Confirmadas -->
+      <div *ngIf="tabActiva === 'confirmadas'" class="tab-pane">
+        <div *ngIf="citasConfirmadas.length === 0" class="empty-state">
+          <div class="empty-icon">📅</div>
+          <h3>No tienes citas confirmadas</h3>
+          <p>Las citas agendadas aparecerán aquí</p>
+          <button class="btn-primary" (click)="solicitarNuevaCita()">
+            Solicitar Nueva Cita
+          </button>
+        </div>
+
+        <div *ngIf="citasConfirmadas.length > 0" class="citas-list">
+          <div *ngFor="let cita of citasConfirmadas" class="cita-card confirmed">
+            <div class="cita-header">
+              <div class="header-left">
+                <span class="estado-badge confirmada">Confirmada</span>
+                <span class="fecha" *ngIf="cita.fecha || cita.date">
+                  <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{formatearFecha(cita.fecha || cita.date)}}
+                </span>
+              </div>
+            </div>
+            
+            <div class="cita-content">
+              <div class="cita-main-info">
+                <h3 class="cita-title">{{cita.title || 'Cita médica'}}</h3>
+                <p class="cita-professional">{{getNombreMedico(cita)}}</p>
+              </div>
+
+              <div class="cita-details">
+                <div class="detail-grid">
+                  <div class="detail-item" *ngIf="cita.hora">
+                    <span class="detail-icon">⏰</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Hora</span>
+                      <span class="detail-value">{{cita.hora}}</span>
+                    </div>
+                  </div>
+
+                  <!-- 🔥 SOLO mostrar especialidad para CITAS CONFIRMADAS -->
+                  <div class="detail-item" *ngIf="getEspecialidad(cita) !== 'Especialidad no especificada'">
+                    <span class="detail-icon">🎓</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Especialidad</span>
+                      <span class="detail-value">{{getEspecialidad(cita)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="cita.tipo">
+                    <span class="detail-icon">💻</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Tipo</span>
+                      <span class="detail-value">{{cita.tipo}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="cita.ubicacion">
+                    <span class="detail-icon">📍</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Ubicación</span>
+                      <span class="detail-value">{{cita.ubicacion}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cita-actions">
+              <button class="btn-outline" (click)="verDetalles(cita)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Ver Detalles
+              </button>
+              <button class="btn-danger" (click)="cancelarCita(cita)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña Historial -->
+      <div *ngIf="tabActiva === 'historial'" class="tab-pane">
+        <div *ngIf="citasHistorial.length === 0" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <h3>No hay historial de citas</h3>
+          <p>Las citas completadas aparecerán aquí</p>
+        </div>
+
+        <div *ngIf="citasHistorial.length > 0" class="citas-list">
+          <div *ngFor="let cita of citasHistorial" class="cita-card completed">
+            <div class="cita-header">
+              <div class="header-left">
+                <span class="estado-badge completada">Completada</span>
+                <span class="fecha" *ngIf="cita.fecha || cita.date">
+                  <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{formatearFecha(cita.fecha || cita.date)}}
+                </span>
+              </div>
+            </div>
+            
+            <div class="cita-content">
+              <div class="cita-main-info">
+                <h3 class="cita-title">{{cita.title || 'Cita completada'}}</h3>
+                <p class="cita-professional">{{getNombreMedico(cita)}}</p>
+              </div>
+
+              <div class="cita-details">
+                <div class="detail-grid">
+                  <!-- 🔥 SOLO mostrar especialidad para CITAS del HISTORIAL -->
+                  <div class="detail-item" *ngIf="getEspecialidad(cita) !== 'Especialidad no especificada'">
+                    <span class="detail-icon">🎓</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Especialidad</span>
+                      <span class="detail-value">{{getEspecialidad(cita)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="cita.diagnostico">
+                    <span class="detail-icon">📊</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Diagnóstico</span>
+                      <span class="detail-value">{{cita.diagnostico}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cita-actions">
+              <button class="btn-outline" (click)="verDetalles(cita)">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Ver Detalles
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña Rechazadas -->
+      <div *ngIf="tabActiva === 'rechazadas'" class="tab-pane">
+        <div *ngIf="citasRechazadas.length === 0" class="empty-state">
+          <div class="empty-icon">❌</div>
+          <h3>No hay citas rechazadas</h3>
+          <p>Las citas canceladas o rechazadas aparecerán aquí</p>
+        </div>
+
+        <div *ngIf="citasRechazadas.length > 0" class="citas-list">
+          <div *ngFor="let cita of citasRechazadas" class="cita-card rejected">
+            <div class="cita-header">
+              <div class="header-left">
+                <span class="estado-badge rechazada">
+                  {{getEstadoSolicitud(cita)}}
+                </span>
+                <span class="fecha" *ngIf="cita.fecha || cita.date">
+                  <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  {{formatearFecha(cita.fecha || cita.date)}}
+                </span>
+              </div>
+            </div>
+            
+            <div class="cita-content">
+              <div class="cita-main-info">
+                <h3 class="cita-title">{{cita.title || 'Cita cancelada'}}</h3>
+                <p class="cita-professional">{{getNombreMedico(cita)}}</p>
+              </div>
+
+              <div class="cita-details">
+                <div class="detail-grid">
+                  <!-- 🔥 SOLO mostrar especialidad para CITAS RECHAZADAS si existe -->
+                  <div class="detail-item" *ngIf="getEspecialidad(cita) !== 'Especialidad no especificada'">
+                    <span class="detail-icon">🎓</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Especialidad</span>
+                      <span class="detail-value">{{getEspecialidad(cita)}}</span>
+                    </div>
+                  </div>
+
+                  <div class="detail-item" *ngIf="cita.motivoCancelacion || cita.motivo">
+                    <span class="detail-icon">📝</span>
+                    <div class="detail-content">
+                      <span class="detail-label">Motivo</span>
+                      <span class="detail-value">{{cita.motivoCancelacion || cita.motivo}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="cita-actions">
+              <button class="btn-primary" (click)="solicitarNuevaCita()">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Nueva Cita
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Ver Detalles de Solicitud -->
+  <div *ngIf="solicitudSeleccionada" class="modal-overlay" (click)="cerrarModalDetalles()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="title-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <h3>Detalles de la Solicitud</h3>
+        </div>
+        <button class="btn-close" (click)="cerrarModalDetalles()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detalles-solicitud">
+          <div class="detalle-item">
+            <span class="detalle-label">Estado:</span>
+            <span class="detalle-value estado-badge pendiente">
+              {{getEstadoSolicitud(solicitudSeleccionada)}}
+            </span>
+          </div>
+          
+          <div class="detalle-item">
+            <span class="detalle-label">Fecha de Solicitud:</span>
+            <span class="detalle-value">{{formatearFechaHora(solicitudSeleccionada.createdAt)}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="getTipoPreferido(solicitudSeleccionada) !== 'No especificado'">
+            <span class="detalle-label">Tipo Preferido:</span>
+            <span class="detalle-value">{{getTipoPreferido(solicitudSeleccionada)}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="getMotivoSolicitud(solicitudSeleccionada) !== 'No especificado'">
+            <span class="detalle-label">Motivo:</span>
+            <span class="detalle-value">{{getMotivoSolicitud(solicitudSeleccionada)}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="getSintomasSolicitud(solicitudSeleccionada) !== 'No especificados'">
+            <span class="detalle-label">Síntomas:</span>
+            <span class="detalle-value">{{getSintomasSolicitud(solicitudSeleccionada)}}</span>
+          </div>
+          
+          <!-- 🔥 CORREGIDO: Mostrar sesiones disponibles en el modal -->
+          <div class="detalle-item" *ngIf="solicitudSeleccionada.paqueteId">
+            <span class="detalle-label">Paquete:</span>
+            <span class="detalle-value">{{getInfoPaquete(solicitudSeleccionada)}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarModalDetalles()">
+          Cerrar
+        </button>
+        <button class="btn-danger" (click)="cancelarSolicitud(solicitudSeleccionada)">
+          Cancelar Solicitud
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔥 NUEVO MODAL PARA VER DETALLES DE CITA CONFIRMADA -->
+  <div *ngIf="citaSeleccionada" class="modal-overlay" (click)="cerrarModalCita()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="title-icon">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <h3>Detalles de la Cita Confirmada</h3>
+        </div>
+        <button class="btn-close" (click)="cerrarModalCita()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="detalles-cita">
+          <div class="detalle-item">
+            <span class="detalle-label">Estado:</span>
+            <span class="detalle-value estado-badge confirmada">Confirmada</span>
+          </div>
+          
+          <div class="detalle-item">
+            <span class="detalle-label">Profesional:</span>
+            <span class="detalle-value">{{getNombreMedico(citaSeleccionada)}}</span>
+          </div>
+          
+          <div class="detalle-item">
+            <span class="detalle-label">Especialidad:</span>
+            <span class="detalle-value">{{getEspecialidad(citaSeleccionada)}}</span>
+          </div>
+          
+          <div class="detalle-item">
+            <span class="detalle-label">Fecha:</span>
+            <span class="detalle-value">{{formatearFecha(citaSeleccionada.fecha || citaSeleccionada.date)}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.hora">
+            <span class="detalle-label">Hora:</span>
+            <span class="detalle-value">{{citaSeleccionada.hora}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.tipo">
+            <span class="detalle-label">Tipo de Consulta:</span>
+            <span class="detalle-value">{{citaSeleccionada.tipo}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.ubicacion">
+            <span class="detalle-label">Ubicación:</span>
+            <span class="detalle-value">{{citaSeleccionada.ubicacion}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.duracion">
+            <span class="detalle-label">Duración Estimada:</span>
+            <span class="detalle-value">{{citaSeleccionada.duracion}} minutos</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.notas">
+            <span class="detalle-label">Instrucciones:</span>
+            <span class="detalle-value">{{citaSeleccionada.notas}}</span>
+          </div>
+          
+          <div class="detalle-item" *ngIf="citaSeleccionada.link">
+            <span class="detalle-label">Enlace de la Consulta:</span>
+            <span class="detalle-value">
+              <a [href]="citaSeleccionada.link" target="_blank" class="link-consulta">
+                <i class="fas fa-external-link-alt"></i>
+                Acceder a la consulta
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarModalCita()">
+          <i class="fas fa-times"></i>
+          Cerrar
+        </button>
+        <button class="btn-danger" (click)="cancelarCita(citaSeleccionada)">
+          <i class="fas fa-calendar-times"></i>
+          Cancelar Cita
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -27,9 +27,7 @@ export class CitaDetalles implements OnInit, OnDestroy {
   
   // Notas y observaciones
   notas = {
-    notasPaciente: '',
-    notasProfesional: '',
-    notasInternas: ''
+    notasPaciente: ''
   };
 
   // Estados
@@ -102,26 +100,74 @@ export class CitaDetalles implements OnInit, OnDestroy {
     this.router.navigate(['/profesional/citas']);
   }
 
-  // Acciones de la cita - CON LLAMADAS REALES AL BACKEND
-  async cambiarEstado(nuevoEstado: string): Promise<void> {
+  // ✅ ACCIONES DEL PROFESIONAL
+  async iniciarConsulta(): Promise<void> {
     if (!this.cita) return;
 
     this.guardando = true;
     try {
       const response = await this.professionalService.updateAppointmentStatus(
         this.cita._id, 
-        nuevoEstado
+        'in_progress'
       ).toPromise();
 
       if (response?.success && response.data) {
         this.cita = response.data;
-        this.mostrarMensaje('Estado actualizado correctamente');
+        this.mostrarMensaje('Consulta iniciada correctamente');
       } else {
-        this.error = 'Error al actualizar el estado';
+        this.error = 'Error al iniciar la consulta';
       }
     } catch (error) {
-      console.error('Error changing status:', error);
-      this.error = 'Error al cambiar el estado de la cita';
+      console.error('Error starting consultation:', error);
+      this.error = 'Error al iniciar la consulta';
+    } finally {
+      this.guardando = false;
+    }
+  }
+
+  async completarCita(): Promise<void> {
+    if (!this.cita) return;
+
+    this.guardando = true;
+    try {
+      const response = await this.professionalService.updateAppointmentStatus(
+        this.cita._id, 
+        'completed'
+      ).toPromise();
+
+      if (response?.success && response.data) {
+        this.cita = response.data;
+        this.mostrarMensaje('Cita completada correctamente');
+      } else {
+        this.error = 'Error al completar la cita';
+      }
+    } catch (error) {
+      console.error('Error completing appointment:', error);
+      this.error = 'Error al completar la cita';
+    } finally {
+      this.guardando = false;
+    }
+  }
+
+  async marcarNoPresentado(): Promise<void> {
+    if (!this.cita) return;
+
+    this.guardando = true;
+    try {
+      const response = await this.professionalService.updateAppointmentStatus(
+        this.cita._id, 
+        'no_show'
+      ).toPromise();
+
+      if (response?.success && response.data) {
+        this.cita = response.data;
+        this.mostrarMensaje('Cita marcada como "No se presentó"');
+      } else {
+        this.error = 'Error al marcar como no presentado';
+      }
+    } catch (error) {
+      console.error('Error marking as no show:', error);
+      this.error = 'Error al marcar como no presentado';
     } finally {
       this.guardando = false;
     }
@@ -153,18 +199,11 @@ export class CitaDetalles implements OnInit, OnDestroy {
   }
 
   private mostrarMensaje(mensaje: string): void {
-    // Podrías implementar un sistema de notificaciones aquí
     console.log(mensaje);
-    // Opcional: Mostrar un toast o alerta al usuario
-    alert(mensaje); // Temporal - puedes reemplazar con un sistema de notificaciones
+    alert(mensaje);
   }
 
-  // ✅ GETTERS CORREGIDOS según tus estados del backend
-  get puedeConfirmar(): boolean {
-    // Solo se puede confirmar cuando está en estado 'scheduled'
-    return this.cita?.status === 'scheduled';
-  }
-
+  // ✅ GETTERS PARA LOS BOTONES
   get estaConfirmada(): boolean {
     return this.cita?.status === 'confirmed';
   }
@@ -177,37 +216,22 @@ export class CitaDetalles implements OnInit, OnDestroy {
     return this.cita?.status === 'completed';
   }
 
-  get estaCancelada(): boolean {
-    return this.cita?.status === 'cancelled';
-  }
-
-  get estaReprogramada(): boolean {
-    return this.cita?.status === 'rescheduled';
-  }
-
   get noSePresento(): boolean {
     return this.cita?.status === 'no_show';
   }
 
-  // ✅ El profesional puede completar cuando está confirmada o en progreso
+  // ✅ El profesional puede iniciar consulta cuando está confirmada
+  get puedeIniciarConsulta(): boolean {
+    return this.estaConfirmada;
+  }
+
+  // ✅ CORREGIDO: El profesional puede completar cuando está confirmada O en progreso
   get puedeCompletar(): boolean {
     return this.estaConfirmada || this.estaEnProgreso;
   }
 
-  // ✅ El profesional puede cancelar en varios estados
-  get puedeCancelar(): boolean {
-    return this.cita?.status === 'scheduled' || 
-           this.cita?.status === 'confirmed' ||
-           this.cita?.status === 'rescheduled';
-  }
-
   // ✅ Puede marcar "no se presentó" cuando está confirmada
   get puedeMarcarNoShow(): boolean {
-    return this.estaConfirmada;
-  }
-
-  // ✅ Puede iniciar consulta cuando está confirmada
-  get puedeIniciarConsulta(): boolean {
     return this.estaConfirmada;
   }
 
@@ -300,10 +324,5 @@ export class CitaDetalles implements OnInit, OnDestroy {
     } else if (tipo === 'telefono' && this.cita.patientId.phone) {
       window.open(`tel:${this.cita.patientId.phone}`, '_blank');
     }
-  }
-
-  // Verificar si se puede editar notas
-  get puedeEditarNotas(): boolean {
-    return !this.estaCancelada;
   }
 }

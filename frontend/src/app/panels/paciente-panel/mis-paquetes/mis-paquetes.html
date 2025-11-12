@@ -1,0 +1,189 @@
+<div class="mis-paquetes">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Mis Paquetes de Acompañamiento</h1>
+      <p>Gestiona tus paquetes contratados y sus beneficios</p>
+    </div>
+    <button class="btn-refresh" (click)="refrescar()" [disabled]="isLoading">
+      <svg class="refresh-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M4 4V9H4.58152M19.9381 11C19.446 7.05369 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M19.4185 15C18.2317 17.9318 15.3574 20 12 20C7.92038 20 4.55399 16.9463 4.06189 13M19.4185 15H15" 
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Estados de error -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+              stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Error al cargar los paquetes</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="refrescar()">Reintentar</button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Cargando tus paquetes...</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error" class="paquetes-content">
+    <!-- Estadísticas rápidas -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon activo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ paquetesActivos }}</span>
+          <span class="stat-label">Activos</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon expirado">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M12 8V12L15 15M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ paquetesExpirados }}</span>
+          <span class="stat-label">Expirados/Completados</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C13.3132 2 14.6136 2.25866 15.8268 2.7612C17.0401 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12C22 14.6522 20.9464 17.1957 19.0711 19.0711C17.1957 20.9464 14.6522 22 12 22C9.34784 22 6.8043 20.9464 4.92893 19.0711C3.05357 17.1957 2 14.6522 2 12C2 9.34784 3.05357 6.8043 4.92893 4.92893C6.8043 3.05357 9.34784 2 12 2Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">${{ totalGastado | number }}</span>
+          <span class="stat-label">Total Gastado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de paquetes -->
+    <div class="paquetes-grid">
+      <div *ngFor="let paquete of paquetes; let i = index" 
+           class="paquete-card" 
+           [class]="getEstadoClass(paquete.estado)"
+           [style.animation-delay]="i * 0.1 + 's'">
+        
+        <!-- Header con estado -->
+        <div class="paquete-header">
+          <h3>{{ getNombrePaquete(paquete.paqueteId) }}</h3>
+          <span class="estado-badge" [class]="getEstadoDisplayClass(paquete)">
+            {{ getEstadoText(paquete) }}
+          </span>
+        </div>
+        
+        <!-- Información principal -->
+        <div class="paquete-info">
+          <div class="info-item">
+            <span class="label">Sesiones:</span>
+            <span class="value">
+              {{ paquete.sesionesUsadas }}/{{ paquete.sesionesTotales }} utilizadas
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">Fecha compra:</span>
+            <span class="value">{{ paquete.fechaCompra | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item" *ngIf="paquete.fechaExpiracion">
+            <span class="label">Expiración:</span>
+            <span class="value">{{ paquete.fechaExpiracion | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Inversión:</span>
+            <span class="value precio">${{ getPrecioPaquete(paquete.paqueteId) | number }}</span>
+          </div>
+        </div>
+
+        <!-- Barra de progreso de sesiones -->
+        <div class="progreso-section" *ngIf="paquete.estado === 'activo'">
+          <div class="progreso-info">
+            <span class="progreso-label">Progreso de sesiones</span>
+            <span class="progreso-porcentaje">{{ calcularProgresoSesiones(paquete) | number:'1.0-0' }}%</span>
+          </div>
+          <div class="progreso-bar">
+            <div class="progreso-fill" [style.width.%]="calcularProgresoSesiones(paquete)"></div>
+          </div>
+        </div>
+
+        <!-- Información de sesiones disponibles -->
+        <div class="sesiones-info" *ngIf="paquete.estado === 'activo' && tieneSesionesDisponibles(paquete)">
+          <div class="sesiones-disponibles">
+            <span class="sesiones-count">
+              🎯 {{ paquete.sesionesTotales - paquete.sesionesUsadas }} sesiones disponibles
+            </span>
+            <small class="sesiones-instruction">
+              Usa el botón "Solicitar Cita" en el dashboard para agendar tu sesión
+            </small>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="paquete-actions">
+          <!-- Botón para comprar/renovar (solo visible para paquetes expirados o completados) -->
+          <button class="btn-renew" 
+                  [routerLink]="['/pago-acompanamiento', paquete.paqueteId]"
+                  *ngIf="puedeComprarNuevo(paquete)">
+            {{ getTextoBotonComprar(paquete) }}
+          </button>
+
+          <!-- Mensaje para paquetes activos sin sesiones disponibles -->
+          <div class="no-sesiones-message" *ngIf="paquete.estado === 'activo' && !tieneSesionesDisponibles(paquete)">
+            <span class="no-sesiones-text">✅ Todas las sesiones utilizadas</span>
+          </div>
+        </div>
+
+        <!-- Mensaje para paquetes completados -->
+        <div class="completado-message" *ngIf="estaCompletado(paquete)">
+          <span class="completado-text">🎉 ¡Has completado todas las sesiones de este paquete!</span>
+          <small>Puedes renovar tu paquete para continuar con el acompañamiento</small>
+        </div>
+
+        <!-- Mensaje para paquetes activos con sesiones disponibles -->
+        <div class="activo-message" *ngIf="paquete.estado === 'activo' && tieneSesionesDisponibles(paquete)">
+          <span class="activo-text">⏳ Aún tienes sesiones disponibles. Completa este paquete para poder comprar uno nuevo.</span>
+        </div>
+
+        <!-- Mensaje para paquetes expirados -->
+        <div class="expirado-message" *ngIf="paquete.estado === 'expirado'">
+          <span class="expirado-text">⏰ Este paquete ha expirado</span>
+          <small>Renueva tu paquete para continuar con el acompañamiento</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <div *ngIf="paquetes.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+          <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>No tienes paquetes contratados</h3>
+      <p>Descubre nuestros paquetes de acompañamiento y comienza tu journey de cuidado.</p>
+      <button class="btn-primary" routerLink="/acompanamiento">Explorar Paquetes</button>
+    </div>
+  </div>
+</div>

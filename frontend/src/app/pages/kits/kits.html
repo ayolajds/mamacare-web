@@ -69,14 +69,14 @@
 
         <!-- Acciones -->
         <div class="kit-actions">
-          <button 
-            class="btn-primary" 
-            (click)="solicitarKit(kit)"
-            [disabled]="yaTieneKit(kit.id)">
-            
-            <span *ngIf="yaTieneKit(kit.id)">✅ Ya Comprado</span>
-            <span *ngIf="!yaTieneKit(kit.id)">Solicitar Kit</span>
-          </button>
+<!-- En la lista de kits -->
+<button 
+  class="btn-primary"
+  (click)="solicitarKit(kit)">
+  
+  <span *ngIf="yaTieneKit(kit.id)">✅ En tu colección (comprar otro)</span>
+  <span *ngIf="!yaTieneKit(kit.id)">Comprar Kit</span>
+</button>
           
           <button class="btn-secondary" (click)="showKitDetails(kit)">
             Ver Detalles
@@ -128,14 +128,13 @@
       </div>
 
       <!-- Botón del Modal -->
-      <button 
-        class="btn-primary modal-add-btn"
-        (click)="solicitarKit(selectedKit)"
-        [disabled]="yaTieneKit(selectedKit.id)">
-        
-        <span *ngIf="yaTieneKit(selectedKit.id)">✅ Ya Comprado</span>
-        <span *ngIf="!yaTieneKit(selectedKit.id)">Solicitar este Kit</span>
-      </button>
+<button 
+  class="btn-primary modal-add-btn"
+  (click)="solicitarKit(selectedKit)">
+  
+  <span *ngIf="yaTieneKit(selectedKit.id)">✅ En tu colección (comprar otro)</span>
+  <span *ngIf="!yaTieneKit(selectedKit.id)">Solicitar este Kit</span>
+</button>
     </div>
   </div>
 </div>

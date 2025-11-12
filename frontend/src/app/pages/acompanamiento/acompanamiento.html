@@ -190,11 +190,11 @@
             <button 
               class="btn btn-primary btn-full" 
               (click)="solicitarPaquete(paquete)"
-              [disabled]="yaTienePaquete(paquete.id)">
+              [disabled]="yaTienePaqueteConSesiones(paquete.id)">
               
               <i data-lucide="shopping-cart" aria-hidden="true"></i>
-              <span *ngIf="yaTienePaquete(paquete.id)">✅ Ya Comprado</span>
-              <span *ngIf="!yaTienePaquete(paquete.id)">Comprar Paquete</span>
+              <span *ngIf="yaTienePaqueteConSesiones(paquete.id)">✅ Ya Comprado</span>
+              <span *ngIf="!yaTienePaqueteConSesiones(paquete.id)">Comprar Paquete</span>
               <!-- ❌ ELIMINADO: Verificación de stock -->
             </button>
             
@@ -296,11 +296,11 @@
       <button 
         class="btn btn-primary btn-full modal-add-btn"
         (click)="solicitarPaquete(selectedPaquete)"
-        [disabled]="yaTienePaquete(selectedPaquete.id)">
+        [disabled]="yaTienePaqueteConSesiones(selectedPaquete.id)">
         
         <i data-lucide="shopping-cart" aria-hidden="true"></i>
-        <span *ngIf="yaTienePaquete(selectedPaquete.id)">✅ Ya Comprado</span>
-        <span *ngIf="!yaTienePaquete(selectedPaquete.id)">Comprar {{ selectedPaquete.nombre }}</span>
+        <span *ngIf="yaTienePaqueteConSesiones(selectedPaquete.id)">✅ Ya Comprado</span>
+        <span *ngIf="!yaTienePaqueteConSesiones(selectedPaquete.id)">Comprar {{ selectedPaquete.nombre }}</span>
         <!-- ❌ ELIMINADO: Verificación de stock -->
       </button>
     </div>

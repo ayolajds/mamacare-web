@@ -159,28 +159,35 @@ private sampleKits: Kit[] = [
     this.selectedKit = null;
   }
 
-  solicitarKit(kit: Kit): void {
-    console.log('🔄 SOLICITANDO KIT:', kit.id);
-    console.log('📦 Kits comprados actuales:', this.kitsComprados);
-    console.log('❓ ¿Ya tiene kit?:', this.yaTieneKit(kit.id));
+solicitarKit(kit: Kit): void {
+  console.log('🔄 SOLICITANDO KIT:', kit.id);
 
-    if (this.yaTieneKit(kit.id)) {
-      alert('✅ Ya tienes este kit comprado. Puedes acceder a él desde tu panel de usuario.');
+  // ✅ PERMITIR COMPRAS MÚLTIPLES CON CONFIRMACIÓN
+  if (this.yaTieneKit(kit.id)) {
+    const confirmar = confirm(
+      `⚠️  Ya tienes el ${kit.nombre} en tu colección.\n\n` +
+      `¿Estás seguro de que quieres comprar otro kit?\n\n` +
+      `(Solo si lo necesitas por pérdida, daño o para regalar)`
+    );
+    
+    if (!confirmar) {
       return;
     }
-
-    if (!this.authService.estaLogueado()) {
-      const confirmar = confirm('Para solicitar un kit necesitas estar logueado. ¿Deseas ir al login?');
-      if (confirmar) {
-        this.router.navigate(['/login'], { 
-          queryParams: { returnUrl: `/pagos/${kit.id}` } 
-        });
-      }
-      return;
-    }
-
-    this.router.navigate(['/pagos', kit.id]);
+    // Si confirma, continúa con la compra
   }
+
+  if (!this.authService.estaLogueado()) {
+    const confirmar = confirm('Para comprar un kit necesitas estar logueado. ¿Deseas ir al login?');
+    if (confirmar) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: `/pagos/${kit.id}` } 
+      });
+    }
+    return;
+  }
+
+  this.router.navigate(['/pagos', kit.id]);
+}
 
   getKitIcon(category: string): string {
     switch(category) {

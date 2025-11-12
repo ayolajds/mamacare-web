@@ -1,0 +1,172 @@
+<div class="solicitar-cita-container">
+  <div class="cita-header">
+    <h1>Solicitar Nueva Cita</h1>
+    <p>Completa el formulario para solicitar una cita con nuestros profesionales</p>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="cargandoPaquetes" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando tus paquetes...</p>
+  </div>
+
+  <!-- Selección de paquete si tiene múltiples -->
+  <div *ngIf="!cargandoPaquetes && tieneMultiplesPaquetes" class="paquete-seleccion">
+    <h3>Selecciona un paquete</h3>
+    <div class="paquetes-grid">
+      <div *ngFor="let paquete of paquetesUsuario" 
+           class="paquete-option"
+           [class.selected]="paqueteSeleccionado?.paqueteId === paquete.paqueteId"
+           (click)="seleccionarPaquete(paquete.paqueteId)">
+        <span class="paquete-nombre">{{ paquete.paqueteNombre }}</span>
+        <span class="sesiones-disponibles">
+          {{ paquete.sesionesTotales - paquete.sesionesUsadas }} sesiones disponibles
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información del paquete seleccionado -->
+  <div *ngIf="!cargandoPaquetes && paqueteSeleccionado" class="paquete-info">
+    <h3>Paquete Seleccionado</h3>
+    <div class="paquete-card">
+      <span class="paquete-nombre">{{ paqueteSeleccionado.nombre }}</span>
+      <span class="sesiones-disponibles">{{ paqueteSeleccionado.sesionesDisponibles }} sesiones disponibles</span>
+    </div>
+  </div>
+
+  <!-- Mensaje cuando no tiene paquetes -->
+  <div *ngIf="!cargandoPaquetes && paquetesUsuario.length === 0" class="info-message warning">
+    <div class="info-icon">⚠️</div>
+    <div class="info-content">
+      <h4>No tienes paquetes activos</h4>
+      <p>Para solicitar una cita, primero necesitas adquirir un paquete de acompañamiento.</p>
+      <button class="btn-primary" (click)="router.navigate(['/acompanamiento'])">
+        Ver Paquetes Disponibles
+      </button>
+    </div>
+  </div>
+
+  <!-- Mensaje informativo -->
+  <div *ngIf="!cargandoPaquetes && paqueteSeleccionado" class="info-message">
+    <div class="info-icon">ℹ️</div>
+    <div class="info-content">
+      <h4>¿Cómo funciona?</h4>
+      <p>Envía tus preferencias y nuestro equipo te asignará el profesional y horario más adecuado.</p>
+      <div *ngIf="!puedeElegirModalidad" class="modalidad-info">
+        <strong>Modalidad:</strong> {{ getModalidadTexto() }}
+      </div>
+      <div *ngIf="puedeElegirModalidad" class="modalidad-info">
+        <strong>Puedes elegir:</strong> 
+        <span *ngFor="let modalidad of modalidadesDisponibles; let last = last">
+          {{ modalidad.label }}{{ !last ? ' o ' : '' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <form *ngIf="!cargandoPaquetes && paqueteSeleccionado" 
+        [formGroup]="citaForm" 
+        (ngSubmit)="solicitarCita()" 
+        class="cita-form">
+    
+    <!-- Horario Preferido -->
+    <div class="form-group">
+      <label for="horarioPreferido">¿Prefieres algún horario específico? *</label>
+      <select 
+        id="horarioPreferido" 
+        formControlName="horarioPreferido" 
+        class="form-select"
+        [class.error]="citaForm.get('horarioPreferido')?.invalid && citaForm.get('horarioPreferido')?.touched">
+        <option value="">Selecciona un horario</option>
+        <option *ngFor="let horario of horariosPreferidos" [value]="horario.value">
+          {{ horario.label }}
+        </option>
+      </select>
+      <div *ngIf="citaForm.get('horarioPreferido')?.invalid && citaForm.get('horarioPreferido')?.touched" 
+           class="error-message">
+        Por favor selecciona un horario preferido
+      </div>
+    </div>
+
+    <!-- Modalidad de la Sesión (solo para paquetes 2 y 3) -->
+    <div *ngIf="puedeElegirModalidad" class="form-group">
+      <label for="tipoPreferido">Modalidad de la sesión *</label>
+      <select 
+        id="tipoPreferido" 
+        formControlName="tipoPreferido" 
+        class="form-select"
+        [class.error]="citaForm.get('tipoPreferido')?.invalid && citaForm.get('tipoPreferido')?.touched">
+        <option value="">Selecciona una modalidad</option>
+        <option *ngFor="let modalidad of modalidadesDisponibles" [value]="modalidad.value">
+          {{ modalidad.label }}
+        </option>
+      </select>
+      <div *ngIf="citaForm.get('tipoPreferido')?.invalid && citaForm.get('tipoPreferido')?.touched" 
+           class="error-message">
+        Por favor selecciona una modalidad
+      </div>
+    </div>
+
+    <!-- Modalidad Fija (para paquete 1) -->
+    <div *ngIf="!puedeElegirModalidad && paqueteSeleccionado" class="form-group">
+      <label>Modalidad de la sesión</label>
+      <div class="modalidad-fija">
+        <div class="modalidad-badge">
+          {{ getModalidadTexto() }}
+        </div>
+        <p class="modalidad-descripcion">
+          La modalidad está determinada por tu paquete contratado.
+        </p>
+      </div>
+    </div>
+
+    <!-- Motivo de la Consulta -->
+    <div class="form-group">
+      <label for="motivo">Motivo de la consulta *</label>
+      <textarea 
+        id="motivo" 
+        formControlName="motivo" 
+        class="form-textarea"
+        placeholder="Describe brevemente el motivo de tu consulta..."
+        rows="4"
+        [class.error]="citaForm.get('motivo')?.invalid && citaForm.get('motivo')?.touched"></textarea>
+      <div *ngIf="citaForm.get('motivo')?.invalid && citaForm.get('motivo')?.touched" 
+           class="error-message">
+        El motivo es requerido (mínimo 10 caracteres)
+      </div>
+      <div class="char-count" 
+           [class.char-warning]="citaForm.get('motivo')?.value?.length < 10">
+        {{ citaForm.get('motivo')?.value?.length || 0 }}/10 caracteres
+      </div>
+    </div>
+
+    <!-- Síntomas o Información Adicional -->
+    <div class="form-group">
+      <label for="sintomas">Síntomas o información adicional *</label>
+      <textarea 
+        id="sintomas" 
+        formControlName="sintomas" 
+        class="form-textarea"
+        placeholder="Describe cualquier síntoma o información adicional que consideres importante..."
+        rows="3"
+        [class.error]="citaForm.get('sintomas')?.invalid && citaForm.get('sintomas')?.touched"></textarea>
+      <div *ngIf="citaForm.get('sintomas')?.invalid && citaForm.get('sintomas')?.touched" 
+           class="error-message">
+        Por favor proporciona información sobre síntomas o detalles adicionales
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancelar()">Cancelar</button>
+      <button 
+        type="submit" 
+        class="btn-primary" 
+        [disabled]="citaForm.invalid || isLoading">
+        {{ isLoading ? 'Enviando Solicitud...' : 'Enviar Solicitud' }}
+      </button>
+    </div>
+  </form>
+</div>

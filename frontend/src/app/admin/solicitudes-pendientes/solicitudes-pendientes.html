@@ -1,0 +1,383 @@
+<!-- solicitudes-pendientes.component.html -->
+<div class="solicitudes-container">
+  <!-- Header con botón de volver -->
+  <div class="header">
+    <div class="header-top">
+      <button class="btn-back" (click)="volverAtras()">
+        <i class="fas fa-arrow-left"></i>
+        Volver Atrás
+      </button>
+    </div>
+    <h1><i class="fas fa-clock"></i> Solicitudes de Cita Pendientes</h1>
+    <p class="subtitle"><i class="fas fa-tasks"></i> Gestiona las solicitudes de citas enviadas por pacientes</p>
+  </div>
+
+  <!-- Filtros Mejorados -->
+  <div class="filtros-section">
+    <div class="filtros-header">
+      <i class="fas fa-filter"></i>
+      <h2>Filtros y Búsqueda</h2>
+    </div>
+
+    <div class="filtros-grid">
+      <!-- Búsqueda -->
+      <div class="search-box">
+        <i class="fas fa-search search-icon"></i>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Buscar paciente por nombre..." 
+          (input)="onSearch()"
+          class="search-input"
+        >
+        <span class="search-hint">Enter para buscar</span>
+      </div>
+
+      <!-- 🔥 QUITADO: Filtro por tipo de cita -->
+
+      <!-- Estadísticas -->
+      <div class="stats-card">
+        <i class="fas fa-file-alt stats-icon"></i>
+        <div class="stats-number">{{ solicitudesFiltradas.length }}</div>
+        <div class="stats-label">Solicitudes</div>
+      </div>
+    </div>
+
+    <!-- Filtros activos -->
+    @if (searchTerm) {
+      <div class="filtros-activos">
+        @if (searchTerm) {
+          <div class="filtro-activo">
+            <i class="fas fa-search"></i>
+            Búsqueda: "{{ searchTerm }}"
+            <button class="remove-filtro" (click)="searchTerm = ''; onSearch()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Estados de carga -->
+  @if (cargandoSolicitudes) {
+    <div class="loading-state">
+      <i class="fas fa-spinner fa-spin"></i>
+      <h3>Cargando solicitudes...</h3>
+      <p>Por favor espere mientras se cargan las solicitudes pendientes</p>
+    </div>
+  }
+
+  <!-- Lista de solicitudes -->
+  @if (!cargandoSolicitudes) {
+    <div class="solicitudes-grid">
+      <!-- Tarjeta de solicitud -->
+      @for (solicitud of solicitudesFiltradas; track solicitud._id) {
+        <div class="solicitud-card">
+          <div class="card-header">
+            <div class="paciente-info">
+              <h3 class="paciente-nombre">
+                <i class="fas fa-user-injured"></i>
+                {{ getPacienteNombre(solicitud) }}
+              </h3>
+              <div class="paciente-meta">
+                <div class="meta-item">
+                  <i class="fas fa-calendar"></i>
+                  <strong>Solicitado:</strong> {{ formatFecha(solicitud.createdAt) }}
+                </div>
+                <div class="meta-item">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <strong>Modalidad:</strong> {{ getModalidadDisplay(solicitud.solicitud?.tipoPreferido) }}
+                </div>
+                <!-- 🔥 CORREGIDO: Mostrar nombre del paquete -->
+                <div class="meta-item" *ngIf="solicitud.paqueteId">
+                  <i class="fas fa-box"></i>
+                  <strong>Paquete:</strong> {{ getNombrePaquete(solicitud.paqueteId) }}
+                </div>
+                <div class="meta-item" *ngIf="!solicitud.paqueteId">
+                  <i class="fas fa-box"></i>
+                  <strong>Paquete:</strong> Sin paquete
+                </div>
+              </div>
+            </div>
+            <!-- 🔥 QUITADO: Badge de tipo de cita -->
+          </div>
+
+          <div class="card-content">
+            <div class="descripcion">
+              <strong><i class="fas fa-comment-medical"></i> Motivo:</strong><br>
+              {{ solicitud.solicitud?.motivo || 'No especificado' }}
+            </div>
+
+            @if (solicitud.solicitud?.sintomas && solicitud.solicitud.sintomas.length > 0) {
+              <div class="sintomas-section">
+                <div class="sintomas-title">
+                  <i class="fas fa-notes-medical"></i>
+                  <strong>Síntomas reportados:</strong>
+                </div>
+                <div class="sintomas-tags">
+                  @for (sintoma of solicitud.solicitud.sintomas; track sintoma) {
+                    <span class="sintoma-tag">
+                      {{ sintoma }}
+                    </span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="card-footer">
+            <button class="btn btn-success" (click)="abrirModalAprobar(solicitud)">
+              <i class="fas fa-check-circle"></i>
+              Aprobar y Asignar
+            </button>
+            <button class="btn btn-danger" (click)="abrirModalRechazar(solicitud)">
+              <i class="fas fa-times-circle"></i>
+              Rechazar
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- Estado vacío -->
+      @if (solicitudesFiltradas.length === 0 && !cargandoSolicitudes) {
+        <div class="empty-state">
+          <i class="fas fa-inbox"></i>
+          <h3>No hay solicitudes pendientes</h3>
+          <p>Todas las solicitudes han sido procesadas o no hay nuevas solicitudes.</p>
+          <button class="btn btn-primary" (click)="cargarSolicitudes()">
+            <i class="fas fa-refresh"></i>
+            Recargar
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal para aprobar solicitud -->
+@if (showAprobarModal) {
+  <div class="modal-overlay">
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <h2><i class="fas fa-check-circle"></i> Aprobar Solicitud de Cita</h2>
+        <button class="close-btn" (click)="cerrarModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="solicitud-preview">
+        <h4><i class="fas fa-info-circle"></i> Información de la Solicitud</h4>
+        <div class="preview-grid">
+          <div class="preview-item">
+            <i class="fas fa-user"></i>
+            <strong>Paciente:</strong> {{ getPacienteNombre(solicitudSeleccionada) }}
+          </div>
+          <!-- 🔥 QUITADO: Tipo de cita del preview -->
+          <div class="preview-item">
+            <i class="fas fa-comment-medical"></i>
+            <strong>Motivo:</strong> {{ solicitudSeleccionada?.solicitud?.motivo }}
+          </div>
+          <div class="preview-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <strong>Modalidad Preferida:</strong> {{ getModalidadDisplay(solicitudSeleccionada?.solicitud?.tipoPreferido) }}
+          </div>
+          <!-- 🔥 AGREGADO: Información del paquete -->
+          <div class="preview-item" *ngIf="solicitudSeleccionada?.paqueteId">
+            <i class="fas fa-box"></i>
+            <strong>Paquete:</strong> {{ getNombrePaquete(solicitudSeleccionada?.paqueteId) }}
+          </div>
+        </div>
+      </div>
+
+      <form [formGroup]="asignacionForm" class="asignacion-form">
+        <h4><i class="fas fa-calendar-plus"></i> Asignar Cita</h4>
+        
+        <!-- Profesional -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-user-md"></i>
+            Profesional *
+          </label>
+          <select formControlName="professionalId" class="form-select">
+            <option value="">Seleccionar profesional</option>
+            @if (cargandoProfesionales) {
+              <option value="" disabled>Cargando profesionales...</option>
+            } @else {
+              @for (prof of profesionales; track prof._id) {
+                <option [value]="prof._id">
+                  {{ getNombreProfesional(prof) }} - {{ getEspecialidadProfesional(prof) }}
+                </option>
+              }
+            }
+          </select>
+          @if (asignacionForm.get('professionalId')?.invalid && asignacionForm.get('professionalId')?.touched) {
+            <div class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              Selecciona un profesional
+            </div>
+          }
+          @if (profesionales.length === 0 && !cargandoProfesionales) {
+            <div class="warning-message">
+              <i class="fas fa-exclamation-triangle"></i>
+              No hay profesionales disponibles. Contacte al administrador.
+            </div>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>
+              <i class="fas fa-calendar-day"></i>
+              Fecha *
+            </label>
+            <input 
+              type="date" 
+              formControlName="fecha" 
+              [min]="fechaMinima" 
+              class="form-input"
+            >
+            @if (asignacionForm.get('fecha')?.invalid && asignacionForm.get('fecha')?.touched) {
+              <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                Fecha requerida
+              </div>
+            }
+          </div>
+          <div class="form-group">
+            <label>
+              <i class="fas fa-clock"></i>
+              Hora *
+            </label>
+            <input 
+              type="time" 
+              formControlName="hora" 
+              class="form-input"
+            >
+            @if (asignacionForm.get('hora')?.invalid && asignacionForm.get('hora')?.touched) {
+              <div class="error-message">
+                <i class="fas fa-exclamation-circle"></i>
+                Hora requerida
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Duración -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-hourglass-half"></i>
+            Duración de la Sesión *
+          </label>
+          <select formControlName="duracion" class="form-select">
+            <!-- 🔥 CORREGIDO: Solo 50 y 60 minutos -->
+            <option value="50">50 minutos</option>
+            <option value="60">60 minutos</option>
+          </select>
+          <div class="form-hint">
+            Duración estándar de la sesión terapéutica
+          </div>
+        </div>
+
+        <!-- Notas adicionales -->
+        <div class="form-group">
+          <label>
+            <i class="fas fa-sticky-note"></i>
+            Notas adicionales (opcional)
+          </label>
+          <textarea 
+            formControlName="notas" 
+            placeholder="Agregue notas específicas para esta cita, instrucciones especiales, o consideraciones importantes..."
+            rows="3"
+            class="form-textarea"
+          ></textarea>
+          <div class="form-hint">
+            Estas notas serán visibles para el profesional asignado
+          </div>
+        </div>
+
+        <div class="modal-info">
+          <i class="fas fa-info-circle"></i>
+          <p>Al confirmar, se creará una cita formal y se notificará al paciente por correo electrónico.</p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
+            <i class="fas fa-times"></i>
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            class="btn btn-success" 
+            (click)="aprobarSolicitud()" 
+            [disabled]="asignacionForm.invalid || profesionales.length === 0"
+          >
+            <i class="fas fa-check-circle"></i>
+            Confirmar Cita
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal para rechazar -->
+@if (showRechazarModal) {
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2><i class="fas fa-times-circle"></i> Rechazar Solicitud</h2>
+        <button class="close-btn" (click)="cerrarModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="solicitud-preview">
+        <div class="preview-item">
+          <i class="fas fa-user"></i>
+          <strong>Paciente:</strong> {{ getPacienteNombre(solicitudSeleccionada) }}
+        </div>
+        <!-- 🔥 QUITADO: Tipo de cita del modal de rechazo -->
+        <div class="warning-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Esta acción no se puede deshacer.</strong> El paciente recibirá una notificación del rechazo.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>
+          <i class="fas fa-comment-exclamation"></i>
+          Motivo del rechazo *
+        </label>
+        <textarea 
+          [(ngModel)]="motivoRechazo" 
+          placeholder="Explica el motivo del rechazo para que el paciente pueda entender la decisión. Sea claro y profesional en su explicación..."
+          rows="4"
+          class="form-textarea"
+        ></textarea>
+        <div class="char-count" [class.warning]="motivoRechazo.length > 190">
+          {{ motivoRechazo.length }}/200 caracteres
+        </div>
+        <div class="form-hint">
+          Mínimo 10 caracteres. Este mensaje será enviado al paciente.
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
+          <i class="fas fa-arrow-left"></i>
+          Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger" 
+          (click)="rechazarSolicitud()"
+          [disabled]="!motivoRechazo.trim() || motivoRechazo.trim().length < 10"
+        >
+          <i class="fas fa-ban"></i>
+          Rechazar Solicitud
+        </button>
+      </div>
+    </div>
+  </div>
+}

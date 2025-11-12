@@ -6,6 +6,7 @@ import { environment } from '../../environments/environment';
 export interface Professional {
   _id: string;
   name: string;
+  lastName?: string;
   email: string;
   specialty: string;
   phone?: string;
@@ -100,6 +101,26 @@ export interface TreatmentData {
   medications?: any[];
 }
 
+// ✅ NUEVAS INTERFACES PARA HORARIOS
+export interface HorarioDisponible {
+  fecha: string;
+  hora: string;
+  disponible: boolean;
+}
+
+export interface ProfessionalsListResponse {
+  success: boolean;
+  data: Professional[];
+}
+
+export interface AvailableSlotsResponse {
+  success: boolean;
+  data: {
+    horarios: HorarioDisponible[];
+    professionalId: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -117,6 +138,27 @@ export class ProfessionalService {
   getStats(): Observable<StatsResponse> {
     console.log('📊 Obteniendo estadísticas del profesional...');
     return this.http.get<StatsResponse>(`${this.baseUrl}/stats`);
+  }
+
+  // ✅ NUEVO MÉTODO: Obtener lista de profesionales disponibles
+  getProfessionalsList(): Observable<ProfessionalsListResponse> {
+    console.log('👥 Obteniendo lista de profesionales...');
+    return this.http.get<ProfessionalsListResponse>(`${this.baseUrl}/list`);
+  }
+
+  // ✅ NUEVO MÉTODO: Obtener horarios disponibles de un profesional
+  getAvailableSlots(professionalId: string, fecha?: string): Observable<AvailableSlotsResponse> {
+    console.log('📅 Obteniendo horarios disponibles para profesional:', professionalId);
+    
+    let params = new HttpParams();
+    if (fecha) {
+      params = params.set('fecha', fecha);
+    }
+
+    return this.http.get<AvailableSlotsResponse>(
+      `${this.baseUrl}/${professionalId}/available-slots`,
+      { params }
+    );
   }
 
   // 📅 Obtener citas del profesional (con filtros)

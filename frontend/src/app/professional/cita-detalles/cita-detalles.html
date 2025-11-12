@@ -98,10 +98,6 @@
           <h3>Detalles de la Cita</h3>
           <div class="details-list">
             <div class="detail-item">
-              <span class="detail-label">Tipo de cita:</span>
-              <span class="detail-value">{{ cita.type }}</span>
-            </div>
-            <div class="detail-item">
               <span class="detail-label">Fecha y hora:</span>
               <span class="detail-value">{{ formatDateTime(cita.date) }}</span>
             </div>
@@ -129,64 +125,42 @@
 
       <!-- Columna derecha: Acciones y notas -->
       <div class="actions-column">
-        <!-- Acciones rápidas - FLUJO CORREGIDO SEGÚN BACKEND -->
+        <!-- Acciones rápidas -->
         <div class="actions-section">
           <h3>Gestión de Cita</h3>
           <div class="actions-grid">
-            
-            <!-- CONFIRMAR - Solo cuando está "scheduled" -->
-            <button class="btn-action confirm" 
-                    *ngIf="puedeConfirmar"
-                    (click)="cambiarEstado('confirmed')"
-                    [disabled]="guardando">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-              Confirmar Disponibilidad
-            </button>
-            
-            <!-- EN PROGRESO - Cuando está "confirmed" -->
+                  
+            <!-- INICIAR CONSULTA - Cuando está "confirmed" -->
             <button class="btn-action in-progress" 
                     *ngIf="puedeIniciarConsulta"
-                    (click)="cambiarEstado('in_progress')"
+                    (click)="iniciarConsulta()"
                     [disabled]="guardando">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
               </svg>
-              Iniciar Consulta
+              {{ guardando ? 'Iniciando...' : 'Iniciar Consulta' }}
             </button>
             
             <!-- COMPLETAR - Cuando está "confirmed" o "in_progress" -->
             <button class="btn-action complete" 
                     *ngIf="puedeCompletar"
-                    (click)="cambiarEstado('completed')"
+                    (click)="completarCita()"
                     [disabled]="guardando">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              Marcar como Completada
+              {{ guardando ? 'Completando...' : 'Marcar como Completada' }}
             </button>
             
             <!-- NO SE PRESENTÓ - Cuando está "confirmed" -->
             <button class="btn-action no-show" 
                     *ngIf="puedeMarcarNoShow"
-                    (click)="cambiarEstado('no_show')"
+                    (click)="marcarNoPresentado()"
                     [disabled]="guardando">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"/>
               </svg>
-              No Se Presentó
-            </button>
-            
-            <!-- CANCELAR - Disponible en varios estados -->
-            <button class="btn-action cancel" 
-                    *ngIf="puedeCancelar"
-                    (click)="cambiarEstado('cancelled')"
-                    [disabled]="guardando">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-              Cancelar Cita
+              {{ guardando ? 'Marcando...' : 'No Se Presentó' }}
             </button>
           </div>
         </div>
@@ -195,10 +169,6 @@
         <div class="status-section">
           <h3>Estado Actual</h3>
           <div class="current-status">
-            <p *ngIf="puedeConfirmar" class="status-scheduled">
-              ⏳ <strong>Esperando confirmación del profesional</strong><br>
-              Por favor confirma tu disponibilidad para atender esta cita.
-            </p>
             <p *ngIf="estaConfirmada" class="status-confirmed">
               ✅ <strong>Cita confirmada</strong><br>
               Lista para ser atendida el {{ formatDate(cita.date) }}
@@ -211,14 +181,8 @@
               ✅ <strong>Cita completada</strong><br>
               La consulta ha finalizado exitosamente.
             </p>
-            <p *ngIf="estaCancelada" class="status-cancelled">
-              ❌ <strong>Cita cancelada</strong>
-            </p>
             <p *ngIf="noSePresento" class="status-no-show">
               🚫 <strong>Paciente no se presentó</strong>
-            </p>
-            <p *ngIf="estaReprogramada" class="status-rescheduled">
-              📅 <strong>Cita reprogramada</strong>
             </p>
           </div>
         </div>
@@ -227,7 +191,7 @@
         <div class="notes-section">
           <div class="section-header">
             <h3>Notas y Observaciones</h3>
-            <button *ngIf="!isEditing && puedeEditarNotas" 
+            <button *ngIf="!isEditing" 
                     class="btn-edit" 
                     (click)="isEditing = true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -258,23 +222,9 @@
               <button class="btn-primary" 
                       (click)="guardarNotas()"
                       [disabled]="guardando">
-                <span *ngIf="!guardando">💾 Guardar</span>
-                <span *ngIf="guardando">Guardando...</span>
+                {{ guardando ? 'Guardando...' : 'Guardar' }}
               </button>
             </div>
-          </div>
-        </div>
-
-        <!-- Información adicional -->
-        <div class="info-section">
-          <h3>Información Adicional</h3>
-          <div class="additional-info">
-            <p><strong>ID de la cita:</strong> {{ cita._id }}</p>
-            <p><strong>Profesional:</strong> Tú</p>
-            <p><strong>Plataforma:</strong> {{ cita.meetingPlatform || 'Presencial' }}</p>
-            <p *ngIf="cita.reason"><strong>Motivo:</strong> {{ cita.reason }}</p>
-            <p *ngIf="cita.symptoms"><strong>Síntomas:</strong> {{ cita.symptoms }}</p>
-            <p><strong>Prioridad:</strong> {{ cita.priority }}</p>
           </div>
         </div>
       </div>

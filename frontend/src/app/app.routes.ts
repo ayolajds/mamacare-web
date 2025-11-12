@@ -27,38 +27,38 @@ export const routes: Routes = [
         m => m.QuienesSomos
       ),
   },
-{
-  path: 'kits',
-  title: 'Ma´Care | Kits',
-  loadComponent: () =>
-    import('./pages/kits/kits').then(m => m.Kits),
-},
-{
-  path: 'acompanamiento',
-  title: 'Ma´Care | Acompañamiento',
-  loadComponent: () =>
-    import('./pages/acompanamiento/acompanamiento').then(
-      m => m.Acompanamiento
-    ),
-},
-// ✅ RUTA DE PAGOS PARA KITS
-{
-  path: 'pagos/:kitId',
-  title: 'Ma´Care | Procesar Pago',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./pages/pagos/pagos').then(m => m.Pagos),
-},
-// ✅ NUEVA RUTA DE PAGOS PARA ACOMPAÑAMIENTO
-{
-  path: 'pago-acompanamiento/:id',
-  title: 'Ma´Care | Pago Acompañamiento',
-  canActivate: [authGuard],
-  loadComponent: () =>
-    import('./pages/pago-acompanamiento/pago-acompanamiento').then(
-      m => m.PagoAcompanamientoComponent
-    ),
-},
+  {
+    path: 'kits',
+    title: 'Ma´Care | Kits',
+    loadComponent: () =>
+      import('./pages/kits/kits').then(m => m.Kits),
+  },
+  {
+    path: 'acompanamiento',
+    title: 'Ma´Care | Acompañamiento',
+    loadComponent: () =>
+      import('./pages/acompanamiento/acompanamiento').then(
+        m => m.Acompanamiento
+      ),
+  },
+  // ✅ RUTA DE PAGOS PARA KITS
+  {
+    path: 'pagos/:kitId',
+    title: 'Ma´Care | Procesar Pago',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/pagos/pagos').then(m => m.Pagos),
+  },
+  // ✅ NUEVA RUTA DE PAGOS PARA ACOMPAÑAMIENTO
+  {
+    path: 'pago-acompanamiento/:id',
+    title: 'Ma´Care | Pago Acompañamiento',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./pages/pago-acompanamiento/pago-acompanamiento').then(
+        m => m.PagoAcompanamientoComponent
+      ),
+  },
   {
     path: 'recursos',
     title: 'Ma´Care | Recursos',
@@ -72,11 +72,11 @@ export const routes: Routes = [
       import('./pages/historias/historias').then(m => m.Historias),
   },
   {
-  path: 'mi-testimonio',
-  title: 'Ma´Care | Compartir Mi Historia',
-  loadComponent: () =>
-    import('./pages/mi-testimonio/mi-testimonio').then(m => m.MiTestimonio),
-},
+    path: 'mi-testimonio',
+    title: 'Ma´Care | Compartir Mi Historia',
+    loadComponent: () =>
+      import('./pages/mi-testimonio/mi-testimonio').then(m => m.MiTestimonio),
+  },
   {
     path: 'contacto',
     title: 'Ma´Care | Contacto',
@@ -161,6 +161,16 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./admin/appointments/appointments').then(m => m.Appointments),
   },
+  // ✅ NUEVA RUTA PARA SOLICITUDES PENDIENTES
+  {
+    path: 'admin/solicitudes-pendientes',
+    title: 'Ma´Care | Solicitudes Pendientes',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./admin/solicitudes-pendientes/solicitudes-pendientes').then(
+        m => m.SolicitudesPendientes
+      ),
+  },
 
   // 👨‍⚕️ PANEL PROFESIONAL - RUTAS AGREGADAS
   {
@@ -192,13 +202,13 @@ export const routes: Routes = [
       import('./professional/pacientes/pacientes').then(m => m.Pacientes),
   },
   // 🎗️ NUEVA RUTA PARA TRATAMIENTOS - AGREGAR ESTA
-{
-  path: 'profesional/pacientes/:patientId/tratamiento',
-  title: 'Ma´Care | Crear Tratamiento',
-  canActivate: [authGuard, profesionalGuard],
-  loadComponent: () =>
-    import('./professional/tratamiento/tratamiento').then(m => m.Tratamiento),
-},
+  {
+    path: 'profesional/pacientes/:patientId/tratamiento',
+    title: 'Ma´Care | Crear Tratamiento',
+    canActivate: [authGuard, profesionalGuard],
+    loadComponent: () =>
+      import('./professional/tratamiento/tratamiento').then(m => m.Tratamiento),
+  },
   {
     path: 'profesional/citas/:id',
     title: 'Ma´Care | Detalles de Cita',
@@ -215,6 +225,41 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./panels/paciente-panel/paciente-panel').then(m => m.PacientePanel),
   },
+  {
+    path: 'mis-paquetes',
+    title: 'Ma´Care | Mis Paquetes',
+    canActivate: [authGuard, pacienteGuard],
+    loadComponent: () =>
+      import('./panels/paciente-panel/mis-paquetes/mis-paquetes').then(m => m.MisPaquetes),
+  },
+  {
+    path: 'mis-kits',
+    title: 'Ma´Care | Mis Kits',
+    canActivate: [authGuard, pacienteGuard],
+    loadComponent: () =>
+      import('./panels/paciente-panel/mis-kits/mis-kits').then(m => m.MisKits),
+  },
+  {
+    path: 'solicitar-cita',
+    title: 'Ma´Care | Solicitar Cita',
+    canActivate: [authGuard, pacienteGuard],
+    loadComponent: () =>
+      import('./panels/paciente-panel/solicitar-cita/solicitar-cita').then(m => m.SolicitarCita),
+  },
+  {
+  path: 'mis-solicitudes',
+  title: 'Ma´Care | Mis Solicitudes',
+  canActivate: [authGuard, pacienteGuard],
+  loadComponent: () =>
+    import('./panels/paciente-panel/mis-solicitudes/mis-solicitudes').then(m => m.MisSolicitudes),
+},
+{
+  path: 'citas-hoy',
+  title: 'Ma´Care | Citas de Hoy',
+  canActivate: [authGuard, pacienteGuard],
+  loadComponent: () =>
+    import('./panels/paciente-panel/citas-hoy/citas-hoy').then(m => m.CitasHoyComponent),
+},
   {
     path: 'Panel-voluntario',
     title: 'Ma´Care | Panel Voluntario',

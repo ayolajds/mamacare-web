@@ -225,7 +225,7 @@ procesarPago(): void {
         await this.authService.actualizarKitsComprados(); // 👈 NUEVA LÍNEA
         
         alert(`¡${this.paquete.nombre} comprado exitosamente! 🎉\n\nSe te ha obsequiado el ${this.getKitNombre()} como parte de tu paquete.`);
-        this.router.navigate(['/acompanimiento']);
+        this.router.navigate(['/mis-paquetes']);
       } else {
         alert(response.message || 'Error al procesar el pago');
       }

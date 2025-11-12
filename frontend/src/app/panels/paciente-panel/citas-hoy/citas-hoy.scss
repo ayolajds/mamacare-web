@@ -1,0 +1,324 @@
+.citas-hoy-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+
+  .btn-back {
+    background: #f3f4f6;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    font-size: 14px;
+    
+    &:hover {
+      background: #e5e7eb;
+    }
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .header-content {
+    flex: 1;
+    
+    h1 {
+      margin: 0;
+      color: #1f2937;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    p {
+      margin: 4px 0 0 0;
+      color: #6b7280;
+      font-size: 16px;
+    }
+  }
+}
+
+/* Estados */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e5e7eb;
+    border-top: 4px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+}
+
+.error-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #dc2626;
+  
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  
+  h3 {
+    margin-bottom: 8px;
+  }
+  
+  .btn-retry {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 16px;
+    
+    &:hover {
+      background: #b91c1c;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+  
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+  
+  h3 {
+    margin-bottom: 8px;
+    color: #374151;
+  }
+  
+  .empty-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+}
+
+/* Lista de Citas */
+.citas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cita-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.cita-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  
+  .cita-tipo {
+    h3 {
+      margin: 0 0 8px 0;
+      color: #1f2937;
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .cita-hora {
+      color: #4f46e5;
+      font-weight: 600;
+      font-size: 16px;
+    }
+  }
+  
+  .estado-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    
+    &.hoy {
+      background: #dcfce7;
+      color: #166534;
+    }
+  }
+}
+
+.profesional-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  
+  .profesional-icon {
+    font-size: 24px;
+  }
+  
+  .profesional-details {
+    h4 {
+      margin: 0;
+      color: #1f2937;
+      font-size: 16px;
+    }
+    
+    .especialidad {
+      margin: 4px 0 0 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  }
+}
+
+.cita-detalles {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  
+  .detalle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    
+    .detalle-label {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .detalle-value {
+      color: #1f2937;
+      font-weight: 500;
+      
+      &.ubicacion {
+        max-width: 200px;
+        text-align: right;
+      }
+    }
+  }
+}
+
+.cita-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Botones */
+.btn-primary {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  
+  &:hover {
+    background: #4338ca;
+  }
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  
+  &:hover {
+    background: #e5e7eb;
+  }
+}
+
+.btn-outline {
+  background: transparent;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  
+  &:hover {
+    background: #fef2f2;
+  }
+}
+
+.citas-counter {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  
+  strong {
+    color: #1f2937;
+  }
+}
+
+/* Animación */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .citas-hoy-container {
+    padding: 16px;
+  }
+  
+  .header {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .cita-actions {
+    flex-direction: column;
+  }
+  
+  .detalle-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 4px;
+  }
+}
