@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { Location } from '@angular/common'; // ✅ AGREGADO
 import { Subscription } from 'rxjs';
 import { AdminService } from '../../../shared/services/admin';
 
@@ -57,10 +58,20 @@ export class UserList implements OnInit, OnDestroy {
   roles = ['paciente', 'profesional', 'voluntario'];
   itemsPerPage = 10;
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private location: Location // ✅ AGREGADO
+  ) {}
 
   ngOnInit() {
     this.loadUsers();
+  }
+
+  /**
+   * ✅ NUEVO MÉTODO: Volver a la página anterior
+   */
+  volverAtras(): void {
+    this.location.back();
   }
 
   loadUsers(page: number = 1) {
@@ -72,7 +83,7 @@ export class UserList implements OnInit, OnDestroy {
       this.itemsPerPage,
       this.searchTerm,
       this.roleFilter,
-      this.statusFilter // ✅ AGREGADO: Enviar statusFilter al backend
+      this.statusFilter
     ).subscribe({
       next: (response) => {
         if (response.success) {

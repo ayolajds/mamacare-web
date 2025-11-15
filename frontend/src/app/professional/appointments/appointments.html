@@ -17,12 +17,14 @@
     <div class="filters-grid">
       <div class="filter-group">
         <label>Estado</label>
-        <select [(ngModel)]="filtros.status" (change)="onFiltroChange()">
-          <option value="">Todos los estados</option>
-          <option value="confirmed">Confirmadas</option>
-          <option value="completed">Completadas</option>
-          <option value="cancelled">Canceladas</option>
-        </select>
+<select [(ngModel)]="filtros.status" (change)="onFiltroChange()">
+  <option value="">Todos los estados</option>
+  <option value="confirmed">Confirmadas</option>
+  <option value="in_progress">En Progreso</option>
+  <option value="completed">Completadas</option>
+  <option value="cancelled">Canceladas</option>
+  <option value="no_show">No Se Presentó</option>
+</select>
       </div>
 
       <div class="filter-group">

@@ -1,107 +1,347 @@
 <div class="mis-kits">
+  <!-- BOTÓN VOLVER -->
+  <div class="navigation-header">
+    <button class="btn-back" (click)="volverAlDashboard()">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      Volver al Atrás
+    </button>
+  </div>
+
+  <!-- HEADER -->
   <div class="page-header">
     <div class="header-content">
       <h1>Mis Kits de Cuidado</h1>
-      <p>Gestiona y realiza seguimiento a tus kits de cuidado</p>
+      <p>Gestiona la recogida de tus kits físicos</p>
     </div>
+    <button class="btn-refresh" (click)="refrescar()" [disabled]="isLoading">
+      <svg class="refresh-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M4 4V9H4.58152M19.9381 11C19.446 7.05369 16.0796 4 12 4C8.64262 4 5.76829 6.06817 4.58152 9M4.58152 9H9M20 20V15H19.4185M19.4185 15C18.2317 17.9318 15.3574 20 12 20C7.92038 20 4.55399 16.9463 4.06189 13M19.4185 15H15" 
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
   </div>
 
-  <!-- Loading State -->
+  <!-- LOADING -->
   <div *ngIf="isLoading" class="loading-state">
     <div class="loading-spinner"></div>
     <p>Cargando tus kits...</p>
   </div>
 
-  <!-- Content -->
-  <div *ngIf="!isLoading" class="kits-content">
-    <!-- Estadísticas rápidas -->
+  <!-- ERROR -->
+  <div *ngIf="error && !isLoading" class="error-state">
+    <div class="error-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+              stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h3>Error al cargar los kits</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="refrescar()">Reintentar</button>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div *ngIf="!isLoading && !error" class="kits-content">
+    
+    <!-- ESTADÍSTICAS -->
     <div class="stats-grid">
       <div class="stat-card">
+        <div class="stat-icon disponible">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ kitsDisponibles }}</span>
+          <span class="stat-label">Disponibles</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon agendado">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-number">{{ kitsAgendados }}</span>
+          <span class="stat-label">Agendados</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
         <div class="stat-icon entregado">
-          <svg><!-- Icono de check --></svg>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
         <div class="stat-info">
           <span class="stat-number">{{ kitsEntregados }}</span>
           <span class="stat-label">Entregados</span>
         </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-icon camino">
-          <svg><!-- Icono de camión --></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-number">{{ kitsEnCamino }}</span>
-          <span class="stat-label">En Camino</span>
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-icon pendiente">
-          <svg><!-- Icono de reloj --></svg>
-        </div>
-        <div class="stat-info">
-          <span class="stat-number">{{ kitsPendientes }}</span>
-          <span class="stat-label">Pendientes</span>
-        </div>
-      </div>
     </div>
 
-    <!-- Lista de kits -->
+    <!-- LISTA DE KITS -->
     <div class="kits-grid">
-      <div *ngFor="let kit of kits" class="kit-card" [class]="getEstadoClass(kit.estado)">
+      <div *ngFor="let kit of kits" class="kit-card">
+        
+        <!-- HEADER -->
         <div class="kit-header">
-          <div class="kit-tipo">
-            <span class="tipo-badge" [class]="getTipoClass(kit.tipo)">
-              {{ getTipoText(kit.tipo) }}
+          <div class="kit-info-main">
+            <h3>{{ getNombreKit(kit.kitId) }}</h3>
+            <span class="estado-badge" [class]="getEstadoClass(kit.estado)">
+              {{ getEstadoText(kit.estado) }}
             </span>
           </div>
-          <span class="estado-badge" [class]="getEstadoClass(kit.estado)">
-            {{ getEstadoText(kit.estado) }}
-          </span>
-        </div>
-        
-        <h3 class="kit-nombre">{{ kit.nombre }}</h3>
-        <p class="kit-descripcion">{{ kit.descripcion }}</p>
-        
-        <div class="kit-info">
-          <div class="info-item">
-            <span class="label">Fecha de entrega:</span>
-            <span class="value">{{ kit.fechaEntrega | date:'dd/MM/yyyy' }}</span>
-          </div>
-          <div *ngIf="kit.tracking" class="info-item">
-            <span class="label">N° de seguimiento:</span>
-            <span class="value tracking">{{ kit.tracking }}</span>
+          <div class="kit-precio">
+            ${{ getPrecioKit(kit.kitId) | number }}
           </div>
         </div>
 
+        <!-- DESCRIPCIÓN -->
+        <p class="kit-descripcion">{{ getDescripcionKit(kit.kitId) }}</p>
+
+        <!-- INFORMACIÓN BÁSICA -->
+        <div class="kit-meta-info">
+          <div class="info-item">
+            <span class="label">Comprado:</span>
+            <span class="value">{{ kit.fechaCompra | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+
+        <!-- CONTENIDO DEL KIT -->
         <div class="contenido-section">
-          <h4>Contenido del kit:</h4>
+          <h4>
+            <svg class="section-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" 
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" 
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Este kit incluye:
+          </h4>
           <ul class="contenido-list">
-            <li *ngFor="let item of kit.contenido">
-              <span class="check-icon">✓</span>
+            <li *ngFor="let item of getContenidoKit(kit.kitId)">
+              <svg class="check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               {{ item }}
             </li>
           </ul>
         </div>
 
-        <div class="kit-actions">
-          <button *ngIf="kit.estado === 'en_camino' && kit.tracking" 
-                  class="btn-primary" 
-                  (click)="verSeguimiento(kit.tracking!)">
-            Ver Seguimiento
-          </button>
-          <button class="btn-secondary">Ver Detalles</button>
+        <!-- SECCIÓN DE RECOGIDA -->
+        <div class="recogida-section">
+          
+          <!-- KIT DISPONIBLE -->
+          <div *ngIf="!kit.estadoEntrega || kit.estadoEntrega === 'disponible'" class="estado-recogida disponible">
+            <div class="estado-content">
+              <div class="estado-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="estado-text">
+                <strong>Listo para recoger</strong>
+                <small>Tu kit físico está disponible</small>
+              </div>
+            </div>
+            <button class="btn-primary" (click)="abrirModalRecogida(kit)">
+              <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Agendar Recogida
+            </button>
+          </div>
+
+          <!-- RECOGIDA AGENDADA -->
+          <div *ngIf="kit.estadoEntrega === 'agendado'" class="estado-recogida agendado">
+            <div class="estado-content">
+              <div class="estado-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="estado-text">
+                <strong>Recogida agendada</strong>
+                <small>Presenta tu código en el lugar</small>
+              </div>
+            </div>
+            <div class="recogida-info">
+              <p>
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <strong>Lugar:</strong> {{ kit.ubicacionRecogida }}
+              </p>
+              <p>
+                <svg class="info-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <strong>Código:</strong> {{ kit.codigoRecogida }}
+              </p>
+            </div>
+            <div class="recogida-actions">
+              <button class="btn-secondary" (click)="verCodigoRecogida(kit)">
+                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Ver Código
+              </button>
+              <button class="btn-outline" (click)="abrirModalRecogida(kit)">
+                Cambiar Ubicación
+              </button>
+            </div>
+          </div>
+
+          <!-- KIT ENTREGADO -->
+          <div *ngIf="kit.estadoEntrega === 'entregado'" class="estado-recogida entregado">
+            <div class="estado-content">
+              <div class="estado-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="estado-text">
+                <strong>Kit entregado</strong>
+                <small *ngIf="kit.fechaEntregaReal">El {{ kit.fechaEntregaReal | date:'dd/MM/yyyy' }}</small>
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
     </div>
 
-    <!-- Estado vacío -->
+    <!-- SIN KITS -->
     <div *ngIf="kits.length === 0" class="empty-state">
       <div class="empty-icon">
-        <svg><!-- Icono de caja --></svg>
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+          <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 21V5C16 4.46957 15.7893 3.96086 15.4142 3.58579C15.0391 3.21071 14.5304 3 14 3H10C9.46957 3 8.96086 3.21071 8.58579 3.58579C8.21071 3.96086 8 4.46957 8 5V21" 
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
       </div>
-      <h3>No tienes kits asignados</h3>
-      <p>Tu primer kit será asignado pronto según tu plan de tratamiento.</p>
-      <button class="btn-primary">Contactar Soporte</button>
+      <h3>No tienes kits comprados</h3>
+      <p>Cuando compres un kit, aparecerá aquí para que puedas agendar su recogida.</p>
+      <button class="btn-primary" routerLink="/kits">
+        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" 
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Explorar Kits
+      </button>
+    </div>
+
+  </div>
+
+  <!-- MODAL DE RECOGIDA -->
+  <div *ngIf="showModalRecogida" class="modal-overlay" (click)="cerrarModalRecogida()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <h3>Agendar Recogida de Kit</h3>
+        <button class="btn-close" (click)="cerrarModalRecogida()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="kit-info-modal">
+          <h4>{{ kitSeleccionado ? getNombreKit(kitSeleccionado.kitId) : '' }}</h4>
+          <p>Selecciona una ubicación para recoger tu kit físico</p>
+        </div>
+        
+        <!-- LOADING UBICACIONES -->
+        <div *ngIf="isLoadingUbicaciones" class="loading-state-modal">
+          <div class="loading-spinner-small"></div>
+          <p>Cargando ubicaciones...</p>
+        </div>
+
+        <!-- ERROR UBICACIONES -->
+        <div *ngIf="errorUbicaciones && !isLoadingUbicaciones" class="error-state-modal">
+          <p>{{ errorUbicaciones }}</p>
+          <button class="btn-retry" (click)="cargarUbicaciones()">Reintentar</button>
+        </div>
+
+        <!-- LISTA UBICACIONES -->
+        <div *ngIf="!isLoadingUbicaciones && !errorUbicaciones" class="ubicaciones-list">
+          <div *ngFor="let ubicacion of ubicaciones" class="ubicacion-option">
+            <div class="ubicacion-header">
+              <h4>{{ ubicacion.nombre }}</h4>
+              <div class="ubicacion-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div class="ubicacion-details">
+              <p class="direccion">
+                <svg class="detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ ubicacion.direccion }}
+              </p>
+              <p class="horario">
+                <svg class="detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ ubicacion.horario }}
+              </p>
+              <p class="telefono">
+                <svg class="detail-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" 
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ ubicacion.telefono }}
+              </p>
+            </div>
+            <button class="btn-primary" (click)="agendarRecogida(ubicacion)">
+              <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Elegir esta ubicación
+            </button>
+          </div>
+        </div>
+
+        <!-- SIN UBICACIONES -->
+        <div *ngIf="ubicaciones.length === 0 && !isLoadingUbicaciones && !errorUbicaciones" class="empty-ubicaciones">
+          <p>No hay ubicaciones disponibles en este momento</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="cerrarModalRecogida()">
+          Cancelar
+        </button>
+      </div>
+
     </div>
   </div>
+
 </div>

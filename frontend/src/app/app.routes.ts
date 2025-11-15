@@ -188,13 +188,6 @@ export const routes: Routes = [
       import('./professional/appointments/appointments').then(m => m.Appointments),
   },
   {
-    path: 'profesional/agenda',
-    title: 'Ma´Care | Mi Agenda',
-    canActivate: [authGuard, profesionalGuard],
-    loadComponent: () =>
-      import('./professional/agenda/agenda').then(m => m.Agenda),
-  },
-  {
     path: 'profesional/pacientes',
     title: 'Ma´Care | Mis Pacientes',
     canActivate: [authGuard, profesionalGuard],

@@ -191,7 +191,7 @@ export class CitasHoyComponent implements OnInit {
   }
 
   volverAlDashboard(): void {
-    this.router.navigate(['/paciente/dashboard']);
+    this.router.navigate(['/Panel-paciente']);
   }
 
   solicitarCita(): void {

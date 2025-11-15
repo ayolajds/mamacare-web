@@ -32,16 +32,15 @@ export class SolicitudesPendientes implements OnInit {
   cargandoSolicitudes: boolean = true;
   cargandoProfesionales: boolean = true;
 
-  // 🔥 CORREGIDO: Solo 50 y 60 minutos
-  duracionesSesion: number[] = [50, 60];
-
   constructor(private http: HttpClient, private fb: FormBuilder, private location: Location) {
     this.fechaMinima = new Date().toISOString().split('T')[0];
+    
+    // ✅ CORREGIDO: Eliminar duracion del formulario
     this.asignacionForm = this.fb.group({
       professionalId: ['', Validators.required],
       fecha: ['', Validators.required],
       hora: ['', Validators.required],
-      duracion: ['60', Validators.required],
+      // ❌ ELIMINADO: duracion del formulario
       notas: ['']
     });
   }
@@ -103,9 +102,9 @@ export class SolicitudesPendientes implements OnInit {
     this.solicitudSeleccionada = solicitud;
     this.showAprobarModal = true;
     
-    // Resetear y preparar el formulario
+    // ✅ CORREGIDO: Resetear sin duracion
     this.asignacionForm.reset({
-      duracion: '60',
+      // ❌ ELIMINADO: duracion
       notas: ''
     });
 
@@ -128,21 +127,82 @@ aprobarSolicitud() {
     return;
   }
 
+  // ✅ CORRECCIÓN COMPLETA: Manejo correcto de zona horaria
+  const { fecha, hora } = this.asignacionForm.value;
+  
+  // Crear fecha en hora local de Colombia (UTC-5)
+  const fechaLocal = new Date(`${fecha}T${hora}:00`);
+  
+  // ✅ DIAGNÓSTICO: Ver qué estamos creando
+  console.log('🔍 DIAGNÓSTICO DE FECHA:');
+  console.log('📅 Fecha seleccionada:', fecha);
+  console.log('🕐 Hora seleccionada:', hora);
+  console.log('📍 Fecha local creada:', fechaLocal.toString());
+  console.log('🕐 Fecha local ISO:', fechaLocal.toISOString());
+  console.log('⏰ Diferencia de zona:', fechaLocal.getTimezoneOffset() / 60, 'horas');
+
+  // ✅ INFORMACIÓN CRÍTICA DE LA SOLICITUD
+  const tipoCita = this.solicitudSeleccionada.solicitud?.tipoPreferido || 'presencial';
+  const paqueteId = this.solicitudSeleccionada.paqueteId;
+  const motivo = this.solicitudSeleccionada.solicitud?.motivo;
+  const sintomas = this.solicitudSeleccionada.solicitud?.sintomas;
+
+  // ✅ OBTENER DATOS DEL PACIENTE (CORRECCIÓN CRÍTICA)
+  const pacienteId = this.solicitudSeleccionada.patientId?._id || this.solicitudSeleccionada.patientId;
+  const pacienteName = this.solicitudSeleccionada.patientId?.name || 'Paciente';
+  const pacienteEmail = this.solicitudSeleccionada.patientId?.email || '';
+
+  console.log('📋 Información COMPLETA de la solicitud:', {
+    tipoCita,
+    paqueteId,
+    motivo,
+    sintomas,
+    pacienteId,
+    pacienteName,
+    pacienteEmail
+  });
+
+  // ✅ CORREGIDO: Incluir TODA la información necesaria
   const datos = {
     professionalId: this.asignacionForm.value.professionalId,
-    fechaConfirmada: `${this.asignacionForm.value.fecha}T${this.asignacionForm.value.hora}:00.000Z`,
-    duracion: parseInt(this.asignacionForm.value.duracion),
-    notas: this.asignacionForm.value.notas?.trim() || '',
-    // ✅ AGREGAR ESTADO CONFIRMADO
-    status: 'confirmed'
+    fechaConfirmada: fechaLocal.toISOString(), // ✅ ENVIAR COMO ISO
+    duracion: 60, // ✅ SIEMPRE 60 MINUTOS
+    ubicacion: this.getUbicacionPorModalidad(tipoCita), // ✅ UBICACIÓN SEGÚN MODALIDAD
+    notasAdmin: this.asignacionForm.value.notas?.trim() || '',
+    status: 'confirmed',
+    
+    // ✅ INFORMACIÓN CRÍTICA QUE FALTABA - PARA EL PROFESIONAL
+    tipoCita: tipoCita,
+    paqueteId: paqueteId,
+    motivo: motivo,
+    sintomas: sintomas,
+    
+    // ✅ DATOS DEL PACIENTE QUE FALTABAN (CRÍTICO)
+    pacienteId: pacienteId,
+    pacienteName: pacienteName,
+    pacienteEmail: pacienteEmail,
+    
+    // ✅ MANTENER REFERENCIA A LA SOLICITUD ORIGINAL
+    solicitudId: this.solicitudSeleccionada._id
   };
 
-  console.log('📤 Aprobando solicitud con datos:', datos);
+  console.log('📤 Aprobando solicitud con datos COMPLETOS:', datos);
 
   this.http.put(`${environment.apiUrl}/appointments/solicitudes/aprobar/${this.solicitudSeleccionada._id}`, datos)
     .subscribe({
       next: (response: any) => {
         console.log('✅ Solicitud aprobada:', response);
+        
+        // ✅ VERIFICAR LOS DATOS EN LA RESPUESTA
+        if (response.data) {
+          console.log('📊 DATOS GUARDADOS EN BD:', {
+            tipoCita: response.data.tipoCita,
+            paqueteId: response.data.paqueteId,
+            pacienteName: response.data.pacienteName,
+            motivo: response.data.motivo
+          });
+        }
+        
         this.cerrarModal();
         this.cargarSolicitudes();
         this.mostrarExito('Solicitud aprobada y cita asignada exitosamente');
@@ -152,6 +212,19 @@ aprobarSolicitud() {
         this.mostrarError('No se pudo aprobar la solicitud. Verifique los datos e intente nuevamente.');
       }
     });
+}
+
+// ✅ AGREGAR ESTE MÉTODO PARA DETERMINAR UBICACIÓN
+getUbicacionPorModalidad(tipoCita: string): string {
+  switch(tipoCita) {
+    case 'virtual':
+      return 'Plataforma Virtual';
+    case 'domicilio':
+      return 'Domicilio del Paciente';
+    case 'presencial':
+    default:
+      return 'Consultorio principal';
+  }
 }
 
   rechazarSolicitud() {
@@ -186,8 +259,10 @@ aprobarSolicitud() {
     this.showRechazarModal = false;
     this.solicitudSeleccionada = null;
     this.motivoRechazo = '';
+    
+    // ✅ CORREGIDO: Resetear sin duracion
     this.asignacionForm.reset({
-      duracion: '60',
+      // ❌ ELIMINADO: duracion
       notas: ''
     });
   }
@@ -230,6 +305,23 @@ aprobarSolicitud() {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
+      });
+    } catch (error) {
+      return 'Fecha inválida';
+    }
+  }
+
+  // ✅ NUEVO MÉTODO: Formatear fecha y hora para mostrar
+  formatFechaHora(fecha: string): string {
+    if (!fecha) return 'Fecha no disponible';
+    try {
+      return new Date(fecha).toLocaleString('es-CO', {
+        timeZone: 'America/Bogota',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch (error) {
       return 'Fecha inválida';
@@ -302,9 +394,31 @@ aprobarSolicitud() {
   }
 
   // Método para obtener especialidad del profesional
-  getEspecialidadProfesional(profesional: any): string {
-    return profesional.especialidad || profesional.specialty || 'Sin especialidad';
+// Este método está CORRECTO, debería funcionar una vez el backend envíe specialty
+getEspecialidadProfesional(profesional: any): string {
+  if (!profesional) return 'Sin especialidad';
+  
+  console.log('🔍 Buscando specialty en:', profesional.name, {
+    specialty: profesional.specialty,
+    tieneSpecialty: !!profesional.specialty
+  });
+  
+  if (profesional.specialty && profesional.specialty.trim() !== '') {
+    return profesional.specialty;
   }
+  
+  return 'Sin especialidad';
+}
+
+getSintomasDisplay(sintomas: any): string {
+  if (!sintomas) return 'No especificados';
+  
+  if (Array.isArray(sintomas)) {
+    return sintomas.length > 0 ? sintomas.join(', ') : 'No especificados';
+  }
+  
+  return sintomas || 'No especificados';
+}
 
   // SweetAlert helpers
   private mostrarExito(mensaje: string): void {

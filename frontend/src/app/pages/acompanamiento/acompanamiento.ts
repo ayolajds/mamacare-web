@@ -78,7 +78,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
         }
       ],
       sesionesIncluidas: 4,
-      duracionSesion: 50,
+      duracionSesion: 60,
       tipoSesiones: ["individual"]
     },
     {

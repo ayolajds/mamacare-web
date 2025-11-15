@@ -166,26 +166,33 @@
         </button>
       </div>
 
-      <div class="solicitud-preview">
+      <!-- ✅ NUEVA SECCIÓN: Información completa de la solicitud -->
+      <div class="solicitud-info" *ngIf="solicitudSeleccionada">
         <h4><i class="fas fa-info-circle"></i> Información de la Solicitud</h4>
-        <div class="preview-grid">
-          <div class="preview-item">
-            <i class="fas fa-user"></i>
-            <strong>Paciente:</strong> {{ getPacienteNombre(solicitudSeleccionada) }}
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <strong>Tipo solicitado:</strong>
+            <span [class]="(solicitudSeleccionada.solicitud?.tipoPreferido || 'presencial') === 'virtual' ? 'virtual-badge' : 'presencial-badge'">
+              {{ getModalidadDisplay(solicitudSeleccionada.solicitud?.tipoPreferido || 'presencial') }}
+            </span>
           </div>
-          <!-- 🔥 QUITADO: Tipo de cita del preview -->
-          <div class="preview-item">
-            <i class="fas fa-comment-medical"></i>
-            <strong>Motivo:</strong> {{ solicitudSeleccionada?.solicitud?.motivo }}
+          
+          <div class="info-item" *ngIf="solicitudSeleccionada.paqueteId">
+            <strong>Paquete:</strong>
+            <span>{{ getNombrePaquete(solicitudSeleccionada.paqueteId) }}</span>
           </div>
-          <div class="preview-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <strong>Modalidad Preferida:</strong> {{ getModalidadDisplay(solicitudSeleccionada?.solicitud?.tipoPreferido) }}
+          
+          <div class="info-item" *ngIf="solicitudSeleccionada.solicitud?.motivo">
+            <strong>Motivo:</strong>
+            <span>{{ solicitudSeleccionada.solicitud?.motivo }}</span>
           </div>
-          <!-- 🔥 AGREGADO: Información del paquete -->
-          <div class="preview-item" *ngIf="solicitudSeleccionada?.paqueteId">
-            <i class="fas fa-box"></i>
-            <strong>Paquete:</strong> {{ getNombrePaquete(solicitudSeleccionada?.paqueteId) }}
+          
+          <div class="info-item" *ngIf="solicitudSeleccionada.solicitud?.sintomas">
+            <strong>Síntomas:</strong>
+<span>
+  {{ getSintomasDisplay(solicitudSeleccionada.solicitud?.sintomas) }}
+</span>
           </div>
         </div>
       </div>
@@ -263,19 +270,20 @@
           </div>
         </div>
 
-        <!-- Duración -->
+        <!-- ✅ CORREGIDO: Duración fija de 60 minutos -->
         <div class="form-group">
           <label>
             <i class="fas fa-hourglass-half"></i>
-            Duración de la Sesión *
+            Duración de la Sesión
           </label>
-          <select formControlName="duracion" class="form-select">
-            <!-- 🔥 CORREGIDO: Solo 50 y 60 minutos -->
-            <option value="50">50 minutos</option>
-            <option value="60">60 minutos</option>
-          </select>
-          <div class="form-hint">
-            Duración estándar de la sesión terapéutica
+          <div class="duration-info">
+            <div class="duration-badge">
+              <i class="fas fa-clock"></i>
+              60 minutos
+            </div>
+            <div class="form-hint">
+              Duración estándar para todas las sesiones terapéuticas
+            </div>
           </div>
         </div>
 
@@ -283,16 +291,16 @@
         <div class="form-group">
           <label>
             <i class="fas fa-sticky-note"></i>
-            Notas adicionales (opcional)
+            Notas para el profesional (Opcional)
           </label>
           <textarea 
             formControlName="notas" 
-            placeholder="Agregue notas específicas para esta cita, instrucciones especiales, o consideraciones importantes..."
+            placeholder="Agregue notas específicas para el profesional sobre esta cita..."
             rows="3"
             class="form-textarea"
           ></textarea>
           <div class="form-hint">
-            Estas notas serán visibles para el profesional asignado
+            Esta información será visible solo para el profesional asignado
           </div>
         </div>
 

@@ -1,8 +1,54 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CitasService } from '../../../shared/services/cita';
+import { ProfessionalService } from '../../../shared/services/profesional'; 
 import { CommonModule } from '@angular/common';
+import { Location } from '@angular/common';
 import Swal from 'sweetalert2';
+
+// ✅ INTERFACE ACTUALIZADA CON CAMPOS NUEVOS
+interface CitaConDatosExtendidos {
+  _id: string;
+  title: string;
+  date?: string;
+  fecha?: string;
+  hora?: string;
+  duracion?: number;
+  status: string;
+  estado?: string;
+  tipo?: string;
+  notas?: string;
+  professionalId?: any;
+  medico?: any;
+  patientId?: any;
+  
+  // ✅ CAMPOS NUEVOS AGREGADOS
+  tipoCita?: string;
+  motivo?: string;
+  sintomas?: string[];
+  paqueteId?: number;
+  pacienteName?: string;
+  pacienteEmail?: string;
+  ubicacion?: string;
+  solicitud?: {
+    motivo?: string;
+    sintomas?: string[];
+    horarioPreferido?: string;
+    tipoPreferido?: string;
+  };
+  
+  // Campos de especialidad
+  specialty?: string;
+  especialidad?: string;
+  
+  // Campos de diagnóstico (para historial)
+  diagnostico?: string;
+  tratamiento?: string;
+  motivoCancelacion?: string;
+  
+  createdAt: string;
+  updatedAt: string;
+}
 
 @Component({
   selector: 'app-mis-solicitudes',
@@ -15,70 +61,67 @@ export class MisSolicitudes implements OnInit {
   isLoading: boolean = true;
   
   solicitudesPendientes: any[] = [];
-  citasConfirmadas: any[] = [];
-  citasHistorial: any[] = [];
-  citasRechazadas: any[] = [];
+  citasConfirmadas: CitaConDatosExtendidos[] = [];
+  citasHistorial: CitaConDatosExtendidos[] = [];
+  citasRechazadas: CitaConDatosExtendidos[] = [];
 
   solicitudSeleccionada: any = null;
-  citaSeleccionada: any = null; // 🔥 NUEVA VARIABLE PARA MODAL DE CITAS
+  citaSeleccionada: CitaConDatosExtendidos | null = null;
 
   constructor(
     private router: Router,
-    private citasService: CitasService
+    private citasService: CitasService,
+    private professionalService: ProfessionalService,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
     this.cargarSolicitudesYCitas();
   }
 
+  volverAtras(): void {
+    this.location.back();
+  }
+
   cargarSolicitudesYCitas(): void {
     this.isLoading = true;
 
-    console.log('Cargando solicitudes del paciente...');
-
     this.citasService.getMisSolicitudes().subscribe({
       next: (response: any) => {
-        console.log('Respuesta completa del backend - Solicitudes:', response);
-        
         const solicitudes = response?.data || [];
-        
-        console.log('Solicitudes extraídas:', solicitudes);
-        console.log('Cantidad de solicitudes:', solicitudes.length);
-        
-        if (solicitudes.length > 0) {
-          console.log('Primera solicitud:', solicitudes[0]);
-          console.log('Status primera solicitud:', solicitudes[0].status);
-        }
-        
         this.solicitudesPendientes = solicitudes;
-        console.log('Solicitudes asignadas al componente:', this.solicitudesPendientes.length);
-        
         this.cargarCitasConfirmadas();
       },
       error: (error: any) => {
         console.error('Error al cargar solicitudes:', error);
-        console.error('Detalles del error:', error.status, error.message);
         this.solicitudesPendientes = [];
-        
-        // Mostrar alerta de error
         this.mostrarError('No se pudieron cargar las solicitudes. Por favor, intente nuevamente.');
-        
         this.cargarCitasConfirmadas();
       }
     });
   }
 
   private cargarCitasConfirmadas(): void {
-    this.citasService.getMisCitas().subscribe({
+    this.citasService.getMisCitasConEspecialidades().subscribe({
       next: (response: any) => {
-        console.log('Respuesta completa del backend - mis-citas:', response);
+        // ✅ CORRECCIÓN: Cambiar de response?.data?.docs a response?.data?.appointments
+        const todasLasCitas = response?.data?.appointments || response?.data?.docs || [];
         
-        const todasLasCitas = response?.data?.docs || [];
+        console.log('📋 Citas cargadas:', todasLasCitas);
         
-        console.log('Citas extraídas:', todasLasCitas);
-        console.log('Cantidad de citas extraídas:', todasLasCitas.length);
+        // ✅ DEBUG: Mostrar datos críticos de cada cita
+        todasLasCitas.forEach((cita: CitaConDatosExtendidos, index: number) => {
+          console.log(`📋 Cita ${index + 1}:`, {
+            id: cita._id,
+            tipoCita: cita.tipoCita,
+            paqueteId: cita.paqueteId,
+            motivo: cita.motivo,
+            ubicacion: cita.ubicacion,
+            professionalId: cita.professionalId
+          });
+        });
         
-        this.citasConfirmadas = todasLasCitas.filter((cita: any) => 
+        this.citasConfirmadas = todasLasCitas.filter((cita: CitaConDatosExtendidos) => 
           cita.estado === 'confirmada' || 
           cita.estado === 'scheduled' || 
           cita.estado === 'programada' ||
@@ -86,7 +129,7 @@ export class MisSolicitudes implements OnInit {
           cita.status === 'scheduled'
         );
         
-        this.citasHistorial = todasLasCitas.filter((cita: any) => 
+        this.citasHistorial = todasLasCitas.filter((cita: CitaConDatosExtendidos) => 
           cita.estado === 'completada' || 
           cita.estado === 'completed' ||
           cita.estado === 'atendida' ||
@@ -94,17 +137,13 @@ export class MisSolicitudes implements OnInit {
           cita.status === 'attended'
         );
         
-        this.citasRechazadas = todasLasCitas.filter((cita: any) => 
+        this.citasRechazadas = todasLasCitas.filter((cita: CitaConDatosExtendidos) => 
           cita.estado === 'cancelada' || 
           cita.estado === 'cancelled' ||
           cita.estado === 'rechazada' ||
           cita.status === 'cancelled' ||
           cita.status === 'rejected'
         );
-        
-        console.log('Citas confirmadas:', this.citasConfirmadas.length);
-        console.log('Citas historial:', this.citasHistorial.length);
-        console.log('Citas rechazadas:', this.citasRechazadas.length);
         
         this.isLoading = false;
       },
@@ -114,7 +153,6 @@ export class MisSolicitudes implements OnInit {
         this.citasHistorial = [];
         this.citasRechazadas = [];
         this.isLoading = false;
-        
         this.mostrarError('No se pudieron cargar las citas confirmadas. Por favor, intente nuevamente.');
       }
     });
@@ -124,82 +162,20 @@ export class MisSolicitudes implements OnInit {
     this.tabActiva = tab;
   }
 
-  // 🔥 MÉTODO CORREGIDO PARA VER DETALLES DE CITA
-  verDetalles(cita: any): void {
-    console.log('Abriendo detalles de cita confirmada:', cita);
+  verDetalles(cita: CitaConDatosExtendidos): void {
     this.citaSeleccionada = cita;
   }
 
-  // 🔥 NUEVO MÉTODO PARA CERRAR MODAL DE CITA
   cerrarModalCita(): void {
     this.citaSeleccionada = null;
   }
 
   verDetallesSolicitud(solicitud: any): void {
-    console.log('Abriendo detalles de solicitud:', solicitud);
     this.solicitudSeleccionada = solicitud;
   }
 
   cerrarModalDetalles(): void {
     this.solicitudSeleccionada = null;
-  }
-
-  cancelarCita(cita: any): void {
-    const citaId = cita._id || cita.id;
-    
-    Swal.fire({
-      title: 'Cancelar Cita',
-      html: `
-        <div style="text-align: left; color: #374151; line-height: 1.6;">
-          <p>¿Está seguro de que desea cancelar esta cita?</p>
-          <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; margin-top: 12px;">
-            <p style="margin: 0; font-size: 14px; color: #dc2626;">
-              <strong>Nota:</strong> Esta acción no se puede deshacer. Si cancela con poca antelación, podría aplicar una política de cancelación.
-            </p>
-          </div>
-        </div>
-      `,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, Cancelar Cita',
-      cancelButtonText: 'Mantener Cita',
-      confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
-      customClass: {
-        popup: 'sweet-alert-custom',
-        confirmButton: 'sweet-confirm-button',
-        cancelButton: 'sweet-cancel-button'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.procesarCancelacionCita(citaId);
-      }
-    });
-  }
-
-  private procesarCancelacionCita(citaId: string): void {
-    this.citasService.cancelarCita(citaId).subscribe({
-      next: (response: any) => {
-        this.cargarSolicitudesYCitas();
-        
-        Swal.fire({
-          title: 'Cita Cancelada',
-          text: 'La cita ha sido cancelada exitosamente.',
-          icon: 'success',
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#4f46e5',
-          customClass: {
-            popup: 'sweet-alert-custom',
-            confirmButton: 'sweet-confirm-button'
-          }
-        });
-      },
-      error: (error: any) => {
-        console.error('Error al cancelar cita:', error);
-        
-        this.mostrarError('No se pudo cancelar la cita. Por favor, intente nuevamente o contacte al administrador.');
-      }
-    });
   }
 
   cancelarSolicitud(solicitud: any): void {
@@ -212,22 +188,17 @@ export class MisSolicitudes implements OnInit {
           <p>¿Está seguro de que desea cancelar esta solicitud de cita?</p>
           <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 12px; border-radius: 6px; margin-top: 12px;">
             <p style="margin: 0; font-size: 14px; color: #dc2626;">
-              <strong>Nota:</strong> Esta acción no se puede deshacer. La solicitud será eliminada del sistema.
+              <strong>Nota:</strong> Esta acción no se puede deshacer.
             </p>
           </div>
         </div>
       `,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, Cancelar Solicitud',
-      cancelButtonText: 'Mantener Solicitud',
+      confirmButtonText: 'Sí, Cancelar',
+      cancelButtonText: 'Mantener',
       confirmButtonColor: '#dc2626',
-      cancelButtonColor: '#6b7280',
-      customClass: {
-        popup: 'sweet-alert-custom',
-        confirmButton: 'sweet-confirm-button',
-        cancelButton: 'sweet-cancel-button'
-      }
+      cancelButtonColor: '#6b7280'
     }).then((result) => {
       if (result.isConfirmed) {
         this.procesarCancelacionSolicitud(solicitudId, solicitud);
@@ -246,17 +217,12 @@ export class MisSolicitudes implements OnInit {
           text: 'La solicitud de cita ha sido cancelada exitosamente.',
           icon: 'success',
           confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#4f46e5',
-          customClass: {
-            popup: 'sweet-alert-custom',
-            confirmButton: 'sweet-confirm-button'
-          }
+          confirmButtonColor: '#4f46e5'
         });
       },
       error: (error: any) => {
         console.error('Error al cancelar solicitud:', error);
-        
-        this.mostrarError('No se pudo cancelar la solicitud. Por favor, intente nuevamente o contacte al administrador.');
+        this.mostrarError('No se pudo cancelar la solicitud. Por favor, intente nuevamente.');
       }
     });
   }
@@ -265,22 +231,47 @@ export class MisSolicitudes implements OnInit {
     this.router.navigate(['/solicitar-cita']);
   }
 
+  // ✅ MÉTODO CORREGIDO: Manejo seguro de fechas
   formatearFecha(fechaString: string): string {
     try {
+      // ✅ Verificar si la fecha es válida
+      if (!fechaString || fechaString.trim() === '') {
+        return 'Fecha no disponible';
+      }
+      
       const fecha = new Date(fechaString);
+      
+      // ✅ Verificar si la fecha es válida
+      if (isNaN(fecha.getTime())) {
+        return 'Fecha inválida';
+      }
+      
       return fecha.toLocaleDateString('es-ES', {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
       });
     } catch (error) {
-      return fechaString;
+      console.error('Error formateando fecha:', error);
+      return 'Fecha inválida';
     }
   }
 
+  // ✅ MÉTODO CORREGIDO: Manejo seguro de fechas con hora
   formatearFechaHora(fechaString: string): string {
     try {
+      // ✅ Verificar si la fecha es válida
+      if (!fechaString || fechaString.trim() === '') {
+        return 'Fecha no disponible';
+      }
+      
       const fecha = new Date(fechaString);
+      
+      // ✅ Verificar si la fecha es válida
+      if (isNaN(fecha.getTime())) {
+        return 'Fecha inválida';
+      }
+      
       return fecha.toLocaleString('es-ES', {
         day: '2-digit',
         month: '2-digit',
@@ -289,46 +280,167 @@ export class MisSolicitudes implements OnInit {
         minute: '2-digit'
       });
     } catch (error) {
-      return fechaString;
+      console.error('Error formateando fecha/hora:', error);
+      return 'Fecha inválida';
     }
   }
 
-  getNombreMedico(cita: any): string {
-    if (cita.medico) {
-      if (typeof cita.medico === 'object') {
-        return cita.medico.nombre || cita.medico.nombreCompleto || 'Profesional no asignado';
+  // ✅ MÉTODO AUXILIAR SEGURO para obtener fecha de cita
+  getFechaCita(cita: CitaConDatosExtendidos): string {
+    return (cita.fecha || cita.date) || '';
+  }
+
+  // ✅ MÉTODO AUXILIAR SEGURO para obtener fecha de cita seleccionada
+  getFechaCitaSeleccionada(): string {
+    if (!this.citaSeleccionada) return '';
+    return (this.citaSeleccionada.fecha || this.citaSeleccionada.date) || '';
+  }
+
+  // ✅ MÉTODO MEJORADO para obtener nombre del profesional
+  getNombreMedico(cita: CitaConDatosExtendidos): string {
+    // Buscar en professionalId (objeto populado)
+    if (cita.professionalId && typeof cita.professionalId === 'object') {
+      const nombre = `${cita.professionalId.name || ''} ${cita.professionalId.lastName || ''}`.trim();
+      if (nombre) {
+        return nombre;
       }
+    }
+    
+    // Buscar en medico (objeto)
+    if (cita.medico && typeof cita.medico === 'object') {
+      const nombre = cita.medico.nombre || cita.medico.nombreCompleto || 
+                    `${cita.medico.name || ''} ${cita.medico.lastName || ''}`.trim();
+      if (nombre) {
+        return nombre;
+      }
+    }
+    
+    // Buscar campos directos
+    if (cita.medico && typeof cita.medico === 'string') {
       return cita.medico;
     }
     
-    if (cita.professionalId) {
-      if (typeof cita.professionalId === 'object') {
-        return cita.professionalId.name || cita.professionalId.nombre || 'Profesional no asignado';
-      }
+    if (cita.professionalId && typeof cita.professionalId === 'string') {
       return cita.professionalId;
     }
     
     return 'Profesional no asignado';
   }
 
-  getEspecialidad(cita: any): string {
-    // Solo mostrar especialidad para citas confirmadas, no para solicitudes
-    if (cita.especialidad) {
-      if (typeof cita.especialidad === 'object') {
-        return cita.especialidad.nombre || cita.especialidad.descripcion || 'Especialidad no especificada';
+  // ✅ MÉTODO DEFINITIVO para obtener especialidad 
+  getEspecialidad(cita: CitaConDatosExtendidos): string {
+    // 1. PRIMERO: Buscar en professionalId (del nuevo endpoint)
+    if (cita.professionalId && typeof cita.professionalId === 'object') {
+      // El endpoint /patient/appointments usa 'specialty' (no 'especialidad')
+      if (cita.professionalId.specialty && cita.professionalId.specialty.trim() !== '') {
+        return cita.professionalId.specialty;
       }
-      return cita.especialidad;
+      
+      // Por si acaso, buscar también en 'especialidad'
+      if (cita.professionalId.especialidad && cita.professionalId.especialidad.trim() !== '') {
+        return cita.professionalId.especialidad;
+      }
     }
     
-    if (cita.specialty) {
-      if (typeof cita.specialty === 'object') {
-        return cita.specialty.name || cita.specialty.nombre || 'Especialidad no especificada';
-      }
+    // 2. SEGUNDO: Buscar en campos directos
+    if (cita.specialty && cita.specialty.trim() !== '') {
       return cita.specialty;
+    }
+    
+    if (cita.especialidad && cita.especialidad.trim() !== '') {
+      return cita.especialidad;
     }
     
     return 'Especialidad no especificada';
   }
+
+  // ✅ NUEVOS MÉTODOS PARA MOSTRAR DATOS CRÍTICOS
+
+  /**
+   * Obtiene la modalidad de la cita (Virtual, Presencial, Domicilio)
+   */
+  getModalidadDisplay(cita: CitaConDatosExtendidos): string {
+    const tipo = cita.tipoCita || cita.solicitud?.tipoPreferido || 'presencial';
+    switch(tipo) {
+      case 'virtual': return 'Virtual';
+      case 'presencial': return 'Presencial';
+      case 'domicilio': return 'Domicilio';
+      default: return 'Presencial';
+    }
+  }
+
+  /**
+   * Obtiene la ubicación específica
+   */
+  getUbicacionDisplay(cita: CitaConDatosExtendidos): string {
+    const tipo = cita.tipoCita || 'presencial';
+    if (tipo === 'virtual') return 'Plataforma Virtual';
+    if (tipo === 'domicilio') return 'Domicilio del Paciente';
+    return cita.ubicacion || 'Consultorio Principal';
+  }
+
+  /**
+   * Obtiene el nombre del paquete
+   */
+  getNombrePaquete(cita: CitaConDatosExtendidos): string {
+    if (!cita.paqueteId) return 'No aplica';
+    
+    const paquetes: { [key: number]: string } = {
+      1: 'Básico (4 sesiones)',
+      2: 'Intermedio (8 sesiones)',
+      3: 'Integral (12 sesiones)'
+    };
+    return paquetes[cita.paqueteId] || `Paquete ${cita.paqueteId}`;
+  }
+
+  /**
+   * Obtiene los síntomas (prioridad a campos directos)
+   */
+  getSintomasDisplay(cita: CitaConDatosExtendidos): string {
+    const sintomas = cita.sintomas || cita.solicitud?.sintomas || [];
+    if (Array.isArray(sintomas)) {
+      return sintomas.length > 0 ? sintomas.join(', ') : 'No especificados';
+    }
+    return sintomas || 'No especificados';
+  }
+
+  /**
+   * Obtiene el motivo (prioridad a campos directos)
+   */
+  getMotivoDisplay(cita: CitaConDatosExtendidos): string {
+    return cita.motivo || cita.solicitud?.motivo || 'No especificado';
+  }
+
+  /**
+   * Verifica si la cita tiene modalidad virtual
+   */
+  esCitaVirtual(cita: CitaConDatosExtendidos): boolean {
+    const tipo = cita.tipoCita || cita.solicitud?.tipoPreferido || 'presencial';
+    return tipo === 'virtual';
+  }
+
+  /**
+   * Verifica si la cita es a domicilio
+   */
+  esCitaDomicilio(cita: CitaConDatosExtendidos): boolean {
+    const tipo = cita.tipoCita || cita.solicitud?.tipoPreferido || 'presencial';
+    return tipo === 'domicilio';
+  }
+
+  /**
+   * Obtiene clase CSS para badge de modalidad
+   */
+  getModalidadBadgeClass(cita: CitaConDatosExtendidos): string {
+    const modalidad = this.getModalidadDisplay(cita);
+    const badgeClasses: { [key: string]: string } = {
+      'Virtual': 'badge-virtual',
+      'Presencial': 'badge-presencial',
+      'Domicilio': 'badge-domicilio'
+    };
+    return badgeClasses[modalidad] || 'badge-presencial';
+  }
+
+  // ✅ MÉTODOS MEJORADOS PARA SOLICITUDES
 
   getEstadoSolicitud(solicitud: any): string {
     const estado = solicitud.estado || solicitud.status;
@@ -369,20 +481,13 @@ export class MisSolicitudes implements OnInit {
     return tipo || 'No especificado';
   }
 
-  // 🔥 NUEVO MÉTODO CORREGIDO - Mostrar sesiones disponibles
   getInfoPaquete(solicitud: any): string {
-    console.log('📦 Datos completos de la solicitud:', solicitud);
-    console.log('📊 Paquete info:', solicitud.paqueteInfo);
-    
     if (solicitud.paqueteId) {
-      // Usar los datos del paquete que vienen del backend
       if (solicitud.paqueteInfo) {
         const { paqueteNombre, sesionesDisponibles, sesionesTotales } = solicitud.paqueteInfo;
-        console.log(`🎯 Mostrando: ${paqueteNombre} (${sesionesDisponibles}/${sesionesTotales} sesiones disponibles)`);
         return `${paqueteNombre} (${sesionesDisponibles}/${sesionesTotales} sesiones disponibles)`;
       }
       
-      // Fallback por si no hay paqueteInfo
       const paquetes: { [key: string]: string } = {
         '1': 'Básico (4 sesiones)',
         '2': 'Intermedio (8 sesiones)', 
@@ -393,20 +498,87 @@ export class MisSolicitudes implements OnInit {
     return 'No aplica';
   }
 
-  // 🔥 NUEVO MÉTODO para mostrar solo el nombre del paquete (sin sesiones)
-  getNombrePaquete(solicitud: any): string {
-    if (solicitud.paqueteId) {
-      const paqueteId = solicitud.paqueteId.toString();
-      const paquetes: { [key: string]: string } = {
-        '1': 'Básico',
-        '2': 'Intermedio',
-        '3': 'Integral'
+  // ✅ MÉTODOS PARA MANEJAR LA UBICACIÓN (actualizados)
+  getDetallesUbicacion(cita: CitaConDatosExtendidos): { texto: string, esVirtual: boolean, tieneEnlace: boolean } {
+    const tipo = cita.tipoCita || this.detectarTipoPorUbicacion(cita.ubicacion || '');
+    const esVirtual = tipo === 'virtual';
+    const esDomicilio = tipo === 'domicilio';
+    
+    if (esVirtual) {
+      return {
+        texto: 'Videollamada - El profesional te contactará para coordinar la plataforma',
+        esVirtual: true,
+        tieneEnlace: false
       };
-      return paquetes[paqueteId] || `Paquete ${paqueteId}`;
+    } else if (esDomicilio) {
+      return {
+        texto: 'Domicilio - El profesional visitará tu ubicación',
+        esVirtual: false,
+        tieneEnlace: false
+      };
+    } else {
+      return {
+        texto: this.getUbicacionDisplay(cita),
+        esVirtual: false,
+        tieneEnlace: false
+      };
     }
-    return 'No aplica';
   }
 
+  // Método para detectar tipo basado en la ubicación (para citas existentes)
+  private detectarTipoPorUbicacion(ubicacion: string): string {
+    if (!ubicacion) return 'presencial';
+    
+    const virtualKeywords = ['videollamada', 'virtual', 'meet', 'zoom', 'teams', 'online'];
+    const domicilioKeywords = ['domicilio', 'casa', 'hogar', 'residencia'];
+    
+    const ubicacionLower = ubicacion.toLowerCase();
+    
+    if (virtualKeywords.some(keyword => ubicacionLower.includes(keyword))) {
+      return 'virtual';
+    }
+    
+    if (domicilioKeywords.some(keyword => ubicacionLower.includes(keyword))) {
+      return 'domicilio';
+    }
+    
+    return 'presencial';
+  }
+
+  abrirUbicacion(cita: CitaConDatosExtendidos): void {
+    const detalles = this.getDetallesUbicacion(cita);
+    
+    let icono = '📍';
+    let titulo = 'Coordinación de Cita';
+    
+    if (detalles.esVirtual) {
+      icono = '📹';
+      titulo = 'Cita Virtual';
+    } else if (this.esCitaDomicilio(cita)) {
+      icono = '🏠';
+      titulo = 'Cita a Domicilio';
+    }
+    
+    Swal.fire({
+      title: titulo,
+      html: `
+        <div style="text-align: left;">
+          <p><strong>${icono} ${titulo}</strong></p>
+          <p>${detalles.texto}</p>
+          <div style="background: #f0f9ff; padding: 12px; border-radius: 6px; margin-top: 12px;">
+            <p style="margin: 0; color: #0369a1;">
+              <strong>💡 Importante:</strong> El profesional se pondrá en contacto contigo 
+              para coordinar los detalles específicos.
+            </p>
+          </div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Entendido'
+    });
+  }
+
+  // Helper methods
   tieneSolicitudesPendientes(): boolean {
     return this.solicitudesPendientes.length > 0;
   }
@@ -423,49 +595,14 @@ export class MisSolicitudes implements OnInit {
     return this.citasRechazadas.length > 0;
   }
 
-  getTodasLasPropiedades(solicitud: any): string[] {
-    return Object.keys(solicitud);
-  }
-
-  tieneDatosSolicitud(solicitud: any): boolean {
-    return !!solicitud.solicitud || 
-           !!solicitud.motivo || 
-           !!solicitud.sintomas || 
-           !!solicitud.tipoPreferido;
-  }
-
-  // Método para mostrar errores con SweetAlert2
+  // Método para mostrar errores
   private mostrarError(mensaje: string): void {
     Swal.fire({
       title: 'Error',
       text: mensaje,
       icon: 'error',
       confirmButtonText: 'Aceptar',
-      confirmButtonColor: '#dc2626',
-      customClass: {
-        popup: 'sweet-alert-custom',
-        confirmButton: 'sweet-confirm-button'
-      }
+      confirmButtonColor: '#dc2626'
     });
-  }
-
-  // Método para mostrar información de carga
-  mostrarCarga(mensaje: string): void {
-    Swal.fire({
-      title: 'Procesando',
-      text: mensaje,
-      icon: 'info',
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      allowEscapeKey: false,
-      didOpen: () => {
-        Swal.showLoading();
-      }
-    });
-  }
-
-  // Método para cerrar alertas de carga
-  cerrarCarga(): void {
-    Swal.close();
   }
 }

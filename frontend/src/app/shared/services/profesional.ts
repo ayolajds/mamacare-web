@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface Professional {
@@ -30,7 +30,7 @@ export interface Appointment {
   title: string;
   date: string;
   duration: number;
-  status: 'scheduled' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'rescheduled' | 'no_show';
+  status: 'confirmed' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
   type: string;
   notes?: string;
   reason?: string;
@@ -121,12 +121,26 @@ export interface AvailableSlotsResponse {
   };
 }
 
+// ✅ NUEVA INTERFAZ PARA RESPUESTA DE COMPLETAR CITA
+export interface CompletarCitaResponse {
+  success: boolean;
+  message: string;
+  data: {
+    cita: Appointment;
+    sesionesUtilizadas: number;
+    sesionesTotales: number;
+    sesionesRestantes: number;
+    paqueteEstado: string;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProfessionalService {
   private http = inject(HttpClient);
   private baseUrl = `${environment.apiUrl}/professional`;
+  private appointmentsBaseUrl = `${environment.apiUrl}/appointments`;
 
   // 👤 Obtener perfil del profesional
   getProfessionalProfile(): Observable<ProfessionalResponse> {
@@ -161,7 +175,7 @@ export class ProfessionalService {
     );
   }
 
-  // 📅 Obtener citas del profesional (con filtros)
+  // 📅 Obtener citas del profesional (con filtros y ordenamiento)
   getAppointments(params: {
     page?: number;
     limit?: number;
@@ -182,7 +196,79 @@ export class ProfessionalService {
     
     return this.http.get<AppointmentsResponse>(`${this.baseUrl}/appointments`, { 
       params: httpParams 
-    });
+    }).pipe(
+      map(response => {
+        if (response.success && response.data?.docs) {
+          // Ordenar citas: Confirmadas primero, luego por fecha más próxima
+          response.data.docs.sort((a, b) => {
+            // Prioridad de estados
+            const priority = {
+              'confirmed': 1,    // Máxima prioridad
+              'in_progress': 2,  // Segunda prioridad  
+              'completed': 3,    // Tercera prioridad
+              'no_show': 4,      // Cuarta prioridad
+              'cancelled': 5     // Última prioridad
+            };
+
+            const priorityA = priority[a.status] || 6;
+            const priorityB = priority[b.status] || 6;
+
+            // Si tienen diferente prioridad, ordenar por prioridad
+            if (priorityA !== priorityB) {
+              return priorityA - priorityB;
+            }
+
+            // Si misma prioridad, ordenar por fecha más cercana primero
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+          });
+        }
+        return response;
+      })
+    );
+  }
+
+  // ✅ MÉTODO PARA OBTENER CITAS CON FILTROS LOCALES
+  getAppointmentsWithLocalFilters(filters: {
+    status?: string;
+    paciente?: string;
+    fecha?: string;
+  } = {}): Observable<AppointmentsResponse> {
+    return this.getAppointments().pipe(
+      map(response => {
+        if (response.success && response.data?.docs) {
+          let citasFiltradas = [...response.data.docs];
+          
+          // Filtro por estado
+          if (filters.status) {
+            citasFiltradas = citasFiltradas.filter(cita => 
+              cita.status === filters.status
+            );
+          }
+          
+          // Filtro por paciente
+          if (filters.paciente) {
+            const searchTerm = filters.paciente.toLowerCase();
+            citasFiltradas = citasFiltradas.filter(cita =>
+              cita.patientId.name.toLowerCase().includes(searchTerm) ||
+              cita.patientId.lastName.toLowerCase().includes(searchTerm)
+            );
+          }
+          
+          // Filtro por fecha
+          if (filters.fecha) {
+            citasFiltradas = citasFiltradas.filter(cita =>
+              cita.date.startsWith(filters.fecha!)
+            );
+          }
+          
+          // Actualizar la respuesta con las citas filtradas
+          response.data.docs = citasFiltradas;
+          response.data.totalDocs = citasFiltradas.length;
+          response.data.totalPages = Math.ceil(citasFiltradas.length / (response.data.limit || 10));
+        }
+        return response;
+      })
+    );
   }
 
   // ✅ MÉTODO HELPER PARA EXTRAER CITAS - ACTUALIZADO
@@ -244,7 +330,7 @@ export class ProfessionalService {
     );
   }
 
-  // 🔄 Actualizar estado de cita
+  // 🔄 Actualizar estado de cita (PARA ESTADOS QUE NO REQUIEREN DESCONTAR SESIONES)
   updateAppointmentStatus(appointmentId: string, status: string): Observable<{success: boolean; data: Appointment}> {
     console.log('🔄 Actualizando estado de cita:', { appointmentId, status });
     return this.http.patch<{success: boolean; data: Appointment}>(
@@ -252,6 +338,24 @@ export class ProfessionalService {
       { status }
     );
   }
+
+  // ✅ NUEVO MÉTODO: INICIAR CONSULTA (cambia a "in_progress")
+  iniciarConsulta(appointmentId: string): Observable<{success: boolean; data: Appointment}> {
+    console.log('🚀 Iniciando consulta para cita ID:', appointmentId);
+    return this.http.patch<{success: boolean; data: Appointment}>(
+      `${this.baseUrl}/appointments/${appointmentId}/status`,
+      { status: 'in_progress' }
+    );
+  }
+
+  // ✅ NUEVO MÉTODO: COMPLETAR CITA (DESCUENTA SESIÓN DEL PAQUETE)
+// ✅ CAMBIA A (PATCH)
+completarCita(appointmentId: string): Observable<CompletarCitaResponse> {
+  return this.http.patch<CompletarCitaResponse>(
+    `${this.appointmentsBaseUrl}/${appointmentId}/completar`,
+    {}
+  );
+}
 
   // 📝 Actualizar notas de cita
   updateAppointmentNotes(appointmentId: string, notes: string): Observable<{success: boolean; data: Appointment}> {

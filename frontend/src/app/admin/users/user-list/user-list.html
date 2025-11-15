@@ -2,6 +2,15 @@
   <!-- Header -->
   <div class="management-header">
     <div class="header-content">
+      <!-- ✅ BOTÓN VOLVER ATRÁS AGREGADO -->
+      <div class="header-top">
+        <button class="btn-volver" (click)="volverAtras()">
+          <svg class="volver-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Volver Atrás
+        </button>
+      </div>
       <h1 class="management-title">Gestión de Usuarios</h1>
       <p class="management-subtitle">Administra usuarios, roles y estados de cuenta</p>
     </div>
@@ -15,7 +24,7 @@
     </div>
   </div>
 
-  <!-- Filtros y Búsqueda - Mejor organizados -->
+  <!-- Filtros y Búsqueda -->
   <div class="filters-section">
     <div class="filters-main">
       <div class="search-box">
@@ -112,7 +121,7 @@
               </div>
             </td>
 
-            <!-- Rol con colores -->
+            <!-- Rol -->
             <td class="role-cell">
               <div class="role-display">
                 <span class="role-badge" [class]="getRoleBadgeClass(user.role)">
@@ -177,12 +186,10 @@
                   </span>
                 </button>
 
-                <a [routerLink]="['/admin/users/user-edit', user._id]" class="btn-edit">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                  Editar
-                </a>
+<a [routerLink]="['/admin/users/user-edit', user._id]" class="btn-edit">
+  <i class="fas fa-edit"></i>
+  Editar
+</a>
               </div>
             </td>
           </tr>

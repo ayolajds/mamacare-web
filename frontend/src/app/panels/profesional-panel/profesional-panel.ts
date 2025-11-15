@@ -259,11 +259,6 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
     this.router.navigate(['/profesional/citas']);
   }
 
-  goToAgenda(): void {
-    console.log('📍 Navegando a agenda...');
-    this.router.navigate(['/profesional/agenda']);
-  }
-
   goToPacientes(): void {
     console.log('📍 Navegando a pacientes...');
     this.router.navigate(['/profesional/pacientes']);

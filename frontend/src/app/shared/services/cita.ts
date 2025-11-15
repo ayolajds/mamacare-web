@@ -35,6 +35,11 @@ export class CitasService {
     return this.http.get<any>(`${environment.apiUrl}/appointments/mis-citas`);
   }
 
+  // ✅ NUEVO MÉTODO - Específico para obtener citas con especialidades
+getMisCitasConEspecialidades(): Observable<any> {
+  return this.http.get<any>(`${environment.apiUrl}/patient/appointments`);
+}
+
   // Obtener solicitudes pendientes del paciente - DEVUELVE LA RESPUESTA COMPLETA
   getMisSolicitudes(): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/appointments/mis-solicitudes`);

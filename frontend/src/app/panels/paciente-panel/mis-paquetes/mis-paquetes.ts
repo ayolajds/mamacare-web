@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { Location } from '@angular/common'; // 🔥 IMPORTAR LOCATION
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import Swal from 'sweetalert2';
@@ -20,6 +21,7 @@ export class MisPaquetes implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private paqueteService = inject(PaqueteService);
   private router = inject(Router);
+  private location = inject(Location); // 🔥 INYECTAR LOCATION
   
   paquetes: PaqueteComprado[] = [];
   isLoading: boolean = true;
@@ -27,6 +29,16 @@ export class MisPaquetes implements OnInit, OnDestroy {
   pacienteNombre: string = '';
 
   private destroy$ = new Subject<void>();
+
+  // 🔥 NUEVO MÉTODO PARA VOLVER ATRÁS
+  volverAlDashboard(): void {
+    this.router.navigate(['/Panel-paciente']);
+  }
+
+  // 🔥 ALTERNATIVA: MÉTODO PARA VOLVER AL HISTORIAL
+  volverAtras(): void {
+    this.location.back();
+  }
 
   // Propiedades computadas para las estadísticas
   get paquetesActivos(): number {

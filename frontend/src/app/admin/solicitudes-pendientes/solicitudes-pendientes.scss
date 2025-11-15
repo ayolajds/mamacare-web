@@ -848,3 +848,64 @@ $radius-2xl: 16px;
 .solicitud-card {
   animation: fadeIn 0.3s ease-out;
 }
+// Badges para tipos de cita
+.virtual-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.presencial-badge {
+  background: #f0fdf4;
+  color: #166534;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+// Estilos para la nueva sección de información
+.solicitud-info {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #3b82f6;
+}
+
+.solicitud-info h4 {
+  margin: 0 0 10px 0;
+  color: #1e293b;
+  font-size: 16px;
+}
+
+.info-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item strong {
+  color: #475569;
+  font-size: 14px;
+}
+
+.info-item span {
+  color: #1e293b;
+  font-size: 14px;
+  text-align: right;
+}

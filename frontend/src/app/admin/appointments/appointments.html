@@ -3,6 +3,14 @@
   <!-- Header -->
   <div class="management-header">
     <div class="header-content">
+      <div class="header-top">
+        <button class="btn-volver" (click)="volverAtras()">
+          <svg class="volver-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+          </svg>
+          Volver Atrás
+        </button>
+      </div>
       <h1 class="management-title">Gestión de Sesiones</h1>
       <p class="management-subtitle">Administra citas ya programadas y asignadas</p>
     </div>
@@ -37,7 +45,6 @@
       <div class="filter-row">
         <select [(ngModel)]="statusFilter" (change)="onFilterChange()" class="filter-select">
           <option value="">Todos los estados</option>
-          <option value="scheduled">Programada</option>
           <option value="confirmed">Confirmada</option>
           <option value="completed">Completada</option>
           <option value="cancelled">Cancelada</option>
@@ -101,6 +108,22 @@
 
         <div class="card-content">
           <div class="info-row">
+            <!-- ✅ NUEVO: Modalidad de la cita -->
+            <div class="info-item">
+              <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+              <div class="info-content">
+                <span class="info-label">Modalidad</span>
+                <span class="info-value">
+                  <span [class]="'modalidad-badge ' + getModalidadBadgeClass(getModalidadDisplay(appointment))">
+                    {{ getModalidadDisplay(appointment) }}
+                  </span>
+                </span>
+                <span class="info-duration">{{ getUbicacionDisplay(appointment) }}</span>
+              </div>
+            </div>
+
             <div class="info-item">
               <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -157,11 +180,13 @@
             </div>
           </div>
 
-          <div *ngIf="appointment.reason || appointment.solicitud?.motivo" class="reason-section">
+          <!-- ✅ ACTUALIZADO: Usar getMotivoDisplay -->
+          <div *ngIf="getMotivoDisplay(appointment) !== 'No especificado'" class="reason-section">
             <span class="reason-label">Motivo:</span>
-            <p class="reason-text">{{ appointment.reason || appointment.solicitud?.motivo }}</p>
+            <p class="reason-text">{{ getMotivoDisplay(appointment) }}</p>
           </div>
 
+          <!-- ✅ ACTUALIZADO: Usar getSymptoms -->
           <div *ngIf="hasSymptoms(appointment)" class="symptoms-section">
             <span class="symptoms-label">Síntomas reportados:</span>
             <div class="symptoms-tags">
@@ -173,7 +198,6 @@
         </div>
 
         <div class="card-actions">
-          <!-- ✅ BOTÓN EDITAR para todas las citas activas -->
           <button 
             *ngIf="appointment.status !== 'cancelled' && appointment.status !== 'completed'"
             (click)="editAppointment(appointment)"
@@ -185,7 +209,6 @@
             Editar
           </button>
 
-          <!-- ✅ BOTÓN CANCELAR para citas programadas/confirmadas -->
           <button 
             *ngIf="appointment.status === 'scheduled' || appointment.status === 'confirmed'"
             (click)="cancelAppointment(appointment)"
@@ -197,10 +220,6 @@
             </svg>
             {{ isUpdating[appointment._id] ? 'Cancelando...' : 'Cancelar' }}
           </button>
-
-          <!-- ❌ ELIMINADO: Botón CONFIRMAR (lo hace el paciente vía WP) -->
-          <!-- ❌ ELIMINADO: Botón COMPLETAR (lo hace el profesional) -->
-          <!-- ❌ ELIMINADO: Botón REAGENDAR (se usa EDITAR para reagendar) -->
         </div>
       </div>
 
@@ -297,6 +316,9 @@
           <div class="info-item" *ngIf="editingAppointment.paqueteId">
             <strong>Paquete:</strong> {{ getPackageName(editingAppointment.paqueteId) }}
           </div>
+          <div class="info-item">
+            <strong>Modalidad:</strong> {{ getModalidadDisplay(editingAppointment) }}
+          </div>
         </div>
 
         <!-- Profesional -->
@@ -313,18 +335,6 @@
               <span *ngIf="user.especialidad">- {{ user.especialidad }}</span>
             </option>
           </select>
-        </div>
-
-        <!-- Título -->
-        <div class="form-group">
-          <label class="form-label">Título *</label>
-          <input 
-            type="text" 
-            [(ngModel)]="editAppointmentData.title" 
-            name="editTitle"
-            class="form-input"
-            placeholder="Ej: Consulta de seguimiento, Sesión de terapia..."
-            required>
         </div>
 
         <!-- Fecha y Hora -->
@@ -350,28 +360,37 @@
           </div>
         </div>
 
-        <!-- Duración -->
+        <!-- CAMPOS NO EDITABLES -->
         <div class="form-group">
-          <label class="form-label">Duración (minutos) *</label>
-          <select 
-            [(ngModel)]="editAppointmentData.duration" 
-            name="editDuration"
-            class="form-select"
-            required>
-            <option value="50">50 minutos</option>
-            <option value="60">60 minutos</option>
-          </select>
+          <label class="form-label">Título</label>
+          <div class="readonly-field">
+            {{ editingAppointment?.title }}
+            <span class="readonly-badge">No editable</span>
+          </div>
         </div>
 
-        <!-- Motivo -->
+        <div class="form-group">
+          <label class="form-label">Duración</label>
+          <div class="readonly-field">
+            60 minutos
+            <span class="readonly-badge">Estándar</span>
+          </div>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Motivo</label>
-          <textarea 
-            [(ngModel)]="editAppointmentData.reason" 
-            name="editReason"
-            class="form-textarea"
-            placeholder="Descripción del motivo de la cita..."
-            rows="3"></textarea>
+          <div class="readonly-field">
+            {{ getMotivoDisplay(editingAppointment!) }}
+            <span class="readonly-badge">No editable</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Modalidad</label>
+          <div class="readonly-field">
+            {{ getModalidadDisplay(editingAppointment!) }}
+            <span class="readonly-badge">No editable</span>
+          </div>
         </div>
 
       </div>

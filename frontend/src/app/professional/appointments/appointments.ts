@@ -217,42 +217,36 @@ export class Appointments implements OnInit, OnDestroy {
     }
   }
 
-  getStatusDisplay(status: string): string {
-    const statusMap: { [key: string]: string } = {
-      'scheduled': 'Programada',
-      'confirmed': 'Confirmada',
-      'in_progress': 'En Progreso',
-      'completed': 'Completada',
-      'cancelled': 'Cancelada',
-      'rescheduled': 'Reprogramada',
-      'no_show': 'No Se Presentó'
-    };
-    return statusMap[status] || status;
-  }
+getStatusDisplay(status: string): string {
+  const statusMap: { [key: string]: string } = {
+    'confirmed': 'Confirmada',
+    'in_progress': 'En Progreso',
+    'completed': 'Completada', 
+    'cancelled': 'Cancelada',
+    'no_show': 'No Se Presentó'
+  };
+  return statusMap[status] || status;
+}
 
-  getStatusClass(status: string): string {
-    const classMap: { [key: string]: string } = {
-      'scheduled': 'status-scheduled',
-      'confirmed': 'status-confirmed',
-      'in_progress': 'status-in-progress',
-      'completed': 'status-completed',
-      'cancelled': 'status-cancelled',
-      'rescheduled': 'status-rescheduled',
-      'no_show': 'status-no-show'
-    };
-    return classMap[status] || '';
-  }
+getStatusClass(status: string): string {
+  const classMap: { [key: string]: string } = {
+    'confirmed': 'status-confirmed',
+    'in_progress': 'status-in-progress',
+    'completed': 'status-completed',
+    'cancelled': 'status-cancelled',
+    'no_show': 'status-no-show'
+  };
+  return classMap[status] || '';
+}
 
-  getStatusBadgeClass(status: string): string {
-    const classMap: { [key: string]: string } = {
-      'scheduled': 'badge-scheduled',
-      'confirmed': 'badge-confirmed',
-      'in_progress': 'badge-in-progress',
-      'completed': 'badge-completed',
-      'cancelled': 'badge-cancelled',
-      'rescheduled': 'badge-rescheduled',
-      'no_show': 'badge-no-show'
-    };
-    return classMap[status] || 'badge-default';
-  }
+getStatusBadgeClass(status: string): string {
+  const classMap: { [key: string]: string } = {
+    'confirmed': 'status-confirmed',
+    'in_progress': 'status-in-progress',
+    'completed': 'status-completed',
+    'cancelled': 'status-cancelled',
+    'no_show': 'status-no-show'
+  };
+  return classMap[status] || 'status-default';
+}
 }
