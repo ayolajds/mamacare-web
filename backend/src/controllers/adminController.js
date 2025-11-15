@@ -269,3 +269,75 @@ export const setRole = async (req, res) => {
     });
   }
 };
+
+export const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).select('-passwordHash');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+
+  } catch (error) {
+    Logger.error('Error obteniendo usuario', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener usuario'
+    });
+  }
+};
+
+export const updateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, lastName, email, role, specialty, isActive } = req.body; // ✅ specialty en inglés
+
+    const user = await User.findById(id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado'
+      });
+    }
+
+    // Actualizar campos
+    if (name) user.name = name;
+    if (lastName) user.lastName = lastName;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (specialty !== undefined) user.specialty = specialty; // ✅ EN INGLÉS
+    if (isActive !== undefined) user.isActive = isActive;
+
+    await user.save();
+
+    Logger.success('Usuario actualizado', {
+      admin: req.user.email,
+      targetUser: user.email,
+      updatedFields: Object.keys(req.body)
+    });
+
+    res.json({
+      success: true,
+      message: 'Usuario actualizado correctamente',
+      data: user
+    });
+
+  } catch (error) {
+    Logger.error('Error actualizando usuario', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al actualizar usuario'
+    });
+  }
+};

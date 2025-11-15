@@ -237,33 +237,26 @@ export async function getPatients(req, res) {
 }
 
 // Obtener solo profesionales
-export async function getProfessionals(req, res) {
+export const getProfessionals = async (req, res) => {
   try {
-    Logger.info('Obteniendo lista de profesionales');
-
-    const professionals = await User.find({ 
-      role: { $in: ['professional', 'profesional', 'doctor'] } 
-    }).select('name lastName email role phone isActive createdAt')
-      .sort({ name: 1 });
-
-    Logger.success('Profesionales obtenidos exitosamente', { 
-      count: professionals.length 
-    });
-
+    const professionals = await User.find({ role: 'profesional' })
+      .select('name lastName email specialty isActive'); // ✅ INCLUIR SPECIALTY
+    
+    console.log('👨‍⚕️ Profesionales encontrados:', professionals); // Para debug
+    
     res.json({
       success: true,
-      data: professionals,
+      data: professionals, // ✅ AHORA INCLUYE SPECIALTY
       count: professionals.length
     });
-
-  } catch (err) {
-    Logger.error('Error al obtener profesionales', err);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error al obtener profesionales' 
+  } catch (error) {
+    console.error('Error obteniendo profesionales:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener profesionales'
     });
   }
-}
+};
 
 // 🔐 Obtener información del usuario autenticado
 export async function getCurrentUser(req, res) {

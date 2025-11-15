@@ -153,14 +153,35 @@ export const getSolicitudesPendientes = async (req, res) => {
 export const aprobarSolicitud = async (req, res) => {
   try {
     const { id } = req.params;
+    
+    // ✅ RECIBIR TODOS LOS CAMPOS QUE ENVÍA EL FRONTEND
     const { 
       professionalId, 
       fechaConfirmada, 
       ubicacion,
-      notasAdmin 
+      notasAdmin,
+      // ✅ AGREGAR TODOS ESTOS CAMPOS CRÍTICOS
+      tipoCita,
+      paqueteId,
+      motivo,
+      sintomas,
+      solicitudId,
+      pacienteId,
+      pacienteName,
+      pacienteEmail,
+      duracion // ← también recibir duración si se envía
     } = req.body;
 
-    console.log('✅ Aprobando solicitud - Cita ID:', id, 'Profesional:', professionalId);
+    console.log('🔍 DIAGNÓSTICO BACKEND - DATOS RECIBIDOS:', {
+      professionalId,
+      fechaConfirmada,
+      ubicacion,
+      tipoCita,
+      paqueteId,
+      motivo,
+      pacienteName,
+      pacienteEmail
+    });
 
     const solicitud = await Appointment.findById(id);
     if (!solicitud) {
@@ -185,7 +206,10 @@ export const aprobarSolicitud = async (req, res) => {
       });
     }
 
+    // ✅ CORRECCIÓN: Convertir la fecha manteniendo la hora local
     const fechaConfirmadaObj = new Date(fechaConfirmada);
+    
+    // Verificar que sea fecha futura
     if (fechaConfirmadaObj <= new Date()) {
       return res.status(400).json({
         success: false,
@@ -193,24 +217,40 @@ export const aprobarSolicitud = async (req, res) => {
       });
     }
 
+    // ✅ PREPARAR TODOS LOS DATOS ADICIONALES
     const datosAdicionales = {
       aprobadoPor: req.user.id,
       ubicacion: ubicacion || 'Por definir',
-      notasAdmin
+      notasAdmin: notasAdmin || '',
+      status: 'confirmed',
+      
+      // ✅ INCLUIR TODOS LOS CAMPOS CRÍTICOS
+      tipoCita: tipoCita || solicitud.solicitud?.tipoPreferido,
+      paqueteId: paqueteId || solicitud.paqueteId,
+      motivo: motivo || solicitud.solicitud?.motivo,
+      sintomas: sintomas || solicitud.solicitud?.sintomas,
+      pacienteId: pacienteId || solicitud.patientId,
+      pacienteName: pacienteName || solicitud.patientId?.name,
+      pacienteEmail: pacienteEmail || solicitud.patientId?.email
     };
 
-    // ✅ FORZAR EL ESTADO COMO CONFIRMADO EN LOS DATOS ADICIONALES
-    datosAdicionales.status = 'confirmed';
+    console.log('📦 DATOS ADICIONALES PARA APROBACIÓN:', datosAdicionales);
 
+    // ✅ APROBAR CON TODOS LOS DATOS
     const citaAprobada = await solicitud.aprobarSolicitud(professionalId, fechaConfirmadaObj, datosAdicionales);
 
-    // ✅ VERIFICAR QUE SE CREÓ COMO CONFIRMADA
-    console.log('🎯 Cita aprobada con estado:', citaAprobada.status);
+    console.log('🎯 CITA APROBADA - DATOS GUARDADOS:', {
+      id: citaAprobada._id,
+      tipoCita: citaAprobada.tipoCita,
+      paqueteId: citaAprobada.paqueteId,
+      motivo: citaAprobada.motivo,
+      pacienteName: citaAprobada.pacienteName,
+      status: citaAprobada.status
+    });
 
+    // ✅ POPULAR PARA VERIFICACIÓN
     await citaAprobada.populate('professionalId', 'name lastName especialidad email phone');
     await citaAprobada.populate('patientId', 'name lastName email phone');
-
-    console.log('✅ Solicitud aprobada - ID:', citaAprobada._id, 'Estado:', citaAprobada.status);
 
     res.json({
       success: true,
@@ -222,7 +262,7 @@ export const aprobarSolicitud = async (req, res) => {
     console.error('💥 Error aprobando solicitud:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al aprobar la solicitud'
+      message: 'Error al aprobar la solicitud: ' + error.message
     });
   }
 };
@@ -268,6 +308,9 @@ export const completarCita = async (req, res) => {
   try {
     const { id } = req.params;
 
+    console.log('🎯 Completando cita ID:', id);
+
+    // ✅ 1. ENCONTRAR Y POPULAR LA CITA CON EL PACIENTE
     const cita = await Appointment.findById(id).populate('patientId');
     
     if (!cita) {
@@ -277,44 +320,82 @@ export const completarCita = async (req, res) => {
       });
     }
 
-    if (cita.status !== 'scheduled' && cita.status !== 'confirmed') {
+    // ✅ 2. VERIFICAR ESTADOS VÁLIDOS
+    if (cita.status !== 'confirmed' && cita.status !== 'in_progress') {
       return res.status(400).json({
         success: false,
-        message: 'Solo se pueden completar citas programadas o confirmadas'
+        message: 'Solo se pueden completar citas confirmadas o en progreso'
       });
     }
 
-    const citaCompletada = await cita.completarCita();
-
+    console.log('🔍 Buscando paquete activo para paciente...');
     const paciente = cita.patientId;
+    
+    // ✅ 3. BUSCAR PAQUETE ACTIVO (DEBUG DETALLADO)
+    console.log('🎯 Cita paqueteId:', cita.paqueteId);
+    console.log('👤 Paciente ID:', paciente._id);
+    console.log('📦 Paquetes del paciente:', paciente.paquetesAcompanamientoComprados);
+
     const paqueteIndex = paciente.paquetesAcompanamientoComprados?.findIndex(
       p => p.paqueteId === cita.paqueteId && p.estado === 'activo'
     );
 
+    console.log('📦 Paquete encontrado en índice:', paqueteIndex);
+
     if (paqueteIndex === -1) {
       return res.status(400).json({
         success: false,
-        message: 'No se encontró el paquete activo'
+        message: 'No se encontró un paquete activo para descontar la sesión'
       });
     }
 
-    paciente.paquetesAcompanamientoComprados[paqueteIndex].sesionesUsadas += 1;
-
+    // ✅ 4. DESCONTAR SESIÓN DEL PAQUETE
     const paquete = paciente.paquetesAcompanamientoComprados[paqueteIndex];
-    if (paquete.sesionesUsadas >= paquete.sesionesTotales) {
-      paciente.paquetesAcompanamientoComprados[paqueteIndex].estado = 'completado';
+    const sesionesAntes = paquete.sesionesUsadas;
+    
+    // INCREMENTAR SESIONES USADAS
+    paciente.paquetesAcompanamientoComprados[paqueteIndex].sesionesUsadas += 1;
+    
+    const sesionesDespues = paciente.paquetesAcompanamientoComprados[paqueteIndex].sesionesUsadas;
+    
+    console.log(`📊 Sesiones: ${sesionesAntes} → ${sesionesDespues}/${paquete.sesionesTotales}`);
+
+    // ✅ 5. ACTUALIZAR ESTADO SI SE AGOTARON LAS SESIONES
+    if (sesionesDespues >= paquete.sesionesTotales) {
+      paciente.paquetesAcompanamientoComprados[paqueteIndex].estado = 'usado';
+      console.log('🏁 Paquete marcado como USADO - Sesiones agotadas');
     }
 
+    // ✅ 6. GUARDAR CAMBIOS EN EL PACIENTE (IMPORTANTE!)
     await paciente.save();
+    console.log('💾 Cambios guardados en paciente - Sesión descontada');
 
-    console.log('✅ Cita completada - Sesión descontada');
+    // ✅ 7. ACTUALIZAR ESTADO DE LA CITA A "completed"
+    cita.status = 'completed';
+    cita.fechaCompletada = new Date();
+    await cita.save();
+    
+    console.log('✅ Cita marcada como completada');
+
+    // ✅ 8. CALCULAR SESIONES RESTANTES
+    const sesionesRestantes = paquete.sesionesTotales - sesionesDespues;
+
+    console.log('🎉 Cita completada exitosamente - Sesión descontada');
+    console.log('📊 Resumen final:');
+    console.log('  - Sesiones usadas:', sesionesDespues);
+    console.log('  - Sesiones totales:', paquete.sesionesTotales);
+    console.log('  - Sesiones restantes:', sesionesRestantes);
+    console.log('  - Estado paquete:', paciente.paquetesAcompanamientoComprados[paqueteIndex].estado);
 
     res.json({
       success: true,
       message: 'Cita completada y sesión descontada correctamente',
       data: {
-        cita: citaCompletada,
-        sesionesDisponibles: paquete.sesionesTotales - paquete.sesionesUsadas
+        cita: cita,
+        sesionesUtilizadas: sesionesDespues,
+        sesionesTotales: paquete.sesionesTotales,
+        sesionesRestantes: sesionesRestantes,
+        paqueteEstado: paciente.paquetesAcompanamientoComprados[paqueteIndex].estado
       }
     });
 
@@ -322,7 +403,7 @@ export const completarCita = async (req, res) => {
     console.error('💥 Error completando cita:', error);
     res.status(500).json({
       success: false,
-      message: 'Error al completar la cita'
+      message: 'Error al completar la cita: ' + error.message
     });
   }
 };
@@ -549,8 +630,15 @@ export const listAppointments = async (req, res) => {
       limit: parseInt(limit),
       sort: { date: 1 },
       populate: [
-        { path: 'professionalId', select: 'name lastName email phone especialidad' },
-        { path: 'patientId', select: 'name lastName email phone' }
+        { 
+          path: 'professionalId', 
+          select: 'name lastName email phone especialidad' 
+        },
+        { 
+          path: 'patientId', 
+          select: 'name lastName email phone' 
+        }
+        // ✅ NO necesitamos populate adicional porque los campos nuevos son directos
       ]
     };
 
@@ -565,12 +653,20 @@ export const listAppointments = async (req, res) => {
       docs: appointments.docs.length
     });
 
-    // ✅ DEBUG: Mostrar las citas encontradas
+    // ✅ DEBUG MEJORADO: Mostrar datos críticos de las citas
     if (appointments.docs.length > 0) {
-      console.log('📋 CITAS ENCONTRADAS:');
+      console.log('📋 CITAS ENCONTRADAS - DATOS CRÍTICOS:');
       appointments.docs.forEach(apt => {
-        console.log(`   - ${apt._id}: ${apt.title} (${apt.status})`);
+        console.log(`   - ${apt._id}: ${apt.title} (${apt.status})`, {
+          tipoCita: apt.tipoCita,
+          paqueteId: apt.paqueteId,
+          motivo: apt.motivo ? 'SÍ' : 'NO',
+          pacienteName: apt.pacienteName,
+          tieneSolicitud: !!apt.solicitud
+        });
       });
+    } else {
+      console.log('📭 No se encontraron citas con los filtros aplicados');
     }
 
     res.json({
@@ -635,97 +731,144 @@ export const updateAppointment = async (req, res) => {
     const { id } = req.params;
     const updateData = req.body;
 
-    const appointment = await Appointment.findById(id);
-    if (!appointment) {
+    console.log('📝 Actualizando cita ID:', id);
+    console.log('📦 Datos de actualización:', updateData);
+
+    // Buscar la cita existente
+    const existingAppointment = await Appointment.findById(id);
+    if (!existingAppointment) {
       return res.status(404).json({
         success: false,
         message: 'Cita no encontrada'
       });
     }
 
-    if (appointment.status === 'cancelled') {
-      return res.status(400).json({
-        success: false,
-        message: 'No se puede editar una cita cancelada'
-      });
-    }
-
-    const canUpdate = req.user.role === 'admin' || 
-                     appointment.professionalId?.toString() === req.user.id;
-
-    if (!canUpdate) {
-      return res.status(403).json({
-        success: false,
-        message: 'No tienes permisos para actualizar esta cita'
-      });
-    }
-
-    if (updateData.createdBy) {
-      delete updateData.createdBy;
-    }
-
-    if (updateData.professionalId) {
-      const newProfessional = await User.findById(updateData.professionalId);
-      if (!newProfessional || newProfessional.role !== 'profesional') {
-        return res.status(400).json({
-          success: false,
-          message: 'El nuevo profesional especificado no existe'
-        });
-      }
-    }
-
-    if (updateData.patientId) {
-      const newPatient = await User.findById(updateData.patientId);
-      if (!newPatient) {
-        return res.status(400).json({
-          success: false,
-          message: 'El nuevo paciente especificado no existe'
-        });
-      }
-    }
-
-    if (updateData.date || updateData.duration) {
-      const newDate = updateData.date ? new Date(updateData.date) : appointment.date;
-      const newDuration = updateData.duration || appointment.duration;
-      updateData.endDate = new Date(newDate.getTime() + newDuration * 60000);
-    }
-
-    if (updateData.date || updateData.duration || updateData.professionalId) {
-      const tempAppointment = new Appointment({
-        ...appointment.toObject(),
-        ...updateData,
-        _id: appointment._id
-      });
+    // ✅ CORRECCIÓN: Verificar conflictos de tiempo manualmente
+    if (updateData.date && updateData.professionalId) {
+      const professionalId = updateData.professionalId;
+      const newDate = new Date(updateData.date);
+      const duration = updateData.duration || existingAppointment.duration;
+      const endDate = new Date(newDate.getTime() + (duration * 60000));
       
-      const conflict = await tempAppointment.hasTimeConflict();
-      if (conflict) {
-        return res.status(409).json({
+      console.log('🔍 Verificando conflictos para profesional:', professionalId);
+      console.log('🕐 Nueva fecha:', newDate);
+      console.log('⏰ Duración:', duration, 'minutos');
+      console.log('📅 Fecha fin:', endDate);
+
+      // Buscar citas que se solapen con la nueva fecha
+      const conflictingAppointments = await Appointment.find({
+        _id: { $ne: id }, // Excluir la cita actual
+        professionalId: professionalId,
+        status: { $in: ['scheduled', 'confirmed', 'in_progress'] },
+        $or: [
+          {
+            // Caso 1: Nueva cita empieza durante una cita existente
+            date: { $lt: endDate, $gte: newDate }
+          },
+          {
+            // Caso 2: Cita existente empieza durante la nueva cita
+            date: { $lt: newDate },
+            endDate: { $gt: newDate }
+          },
+          {
+            // Caso 3: Citas que se solapan completamente
+            date: { $gte: newDate },
+            endDate: { $lte: endDate }
+          }
+        ]
+      });
+
+      console.log('🔍 Citas conflictivas encontradas:', conflictingAppointments.length);
+
+      if (conflictingAppointments.length > 0) {
+        return res.status(400).json({
           success: false,
-          message: 'Existe un conflicto de horario con otra cita',
-          conflictWith: conflict
+          message: 'El profesional ya tiene una cita programada en este horario'
         });
       }
     }
 
+    // ✅ CORRECCIÓN: Preparar datos para actualización correctamente
+    const updateFields = {};
+    
+    if (updateData.title !== undefined) updateFields.title = updateData.title;
+    if (updateData.date !== undefined) updateFields.date = new Date(updateData.date);
+    if (updateData.duration !== undefined) updateFields.duration = parseInt(updateData.duration);
+    if (updateData.professionalId !== undefined) updateFields.professionalId = updateData.professionalId;
+    if (updateData.reason !== undefined) updateFields.reason = updateData.reason;
+    if (updateData.status !== undefined) updateFields.status = updateData.status;
+
+    // ✅ CORRECCIÓN: Calcular endDate correctamente
+    if (updateData.date !== undefined || updateData.duration !== undefined) {
+      const finalDate = updateData.date ? new Date(updateData.date) : existingAppointment.date;
+      const finalDuration = updateData.duration ? parseInt(updateData.duration) : existingAppointment.duration;
+      updateFields.endDate = new Date(finalDate.getTime() + (finalDuration * 60000));
+      
+      console.log('📅 Fecha final calculada:', finalDate);
+      console.log('⏰ Duración final:', finalDuration);
+      console.log('🕐 EndDate calculado:', updateFields.endDate);
+    }
+
+    console.log('🔄 Campos a actualizar:', updateFields);
+
+    // ✅ CORRECCIÓN: Actualizar la cita con los campos preparados
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       id,
-      updateData,
-      { new: true, runValidators: true }
-    ).populate('professionalId', 'name lastName email phone')
+      { $set: updateFields },
+      { 
+        new: true,
+        runValidators: true
+      }
+    ).populate('professionalId', 'name lastName email phone especialidad')
      .populate('patientId', 'name lastName email phone');
+
+    if (!updatedAppointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cita no encontrada después de la actualización'
+      });
+    }
+
+    console.log('✅ Cita actualizada exitosamente:', updatedAppointment._id);
+    console.log('📊 Datos actualizados:', {
+      title: updatedAppointment.title,
+      date: updatedAppointment.date,
+      duration: updatedAppointment.duration,
+      professional: updatedAppointment.professionalId?.name,
+      status: updatedAppointment.status
+    });
 
     res.json({
       success: true,
-      message: 'Cita actualizada exitosamente',
+      message: 'Cita actualizada correctamente',
       data: updatedAppointment
     });
 
   } catch (error) {
-    console.error('❌ Error updating appointment:', error);
+    console.error('💥 Error actualizando cita:', error);
+    
+    // Manejar errores de validación de MongoDB
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validación',
+        errors: errors
+      });
+    }
+    
+    // Manejar errores de cast (IDs inválidos)
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'ID de cita inválido'
+      });
+    }
+
     res.status(500).json({
       success: false,
       message: 'Error al actualizar la cita',
-      error: error.message
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Error interno del servidor'
     });
   }
 };

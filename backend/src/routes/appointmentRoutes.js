@@ -48,7 +48,13 @@ router.put('/solicitudes/aprobar/:id', requireRoles('admin'), aprobarSolicitud);
 router.put('/solicitudes/rechazar/:id', requireRoles('admin'), rechazarSolicitud);
 
 // Admin/Profesional: Completar cita
-router.put('/completar/:id', requireRoles(['admin', 'profesional']), completarCita);
+router.patch(
+  '/:id/completar',
+  requireRoles('admin', 'profesional'), // 👈 aquí el cambio
+  completarCita
+);
+
+
 
 // Verificar sesiones disponibles
 router.get('/check-sesiones', checkSesionesDisponibles);

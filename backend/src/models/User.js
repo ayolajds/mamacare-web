@@ -1,4 +1,4 @@
-// En models/User.js - AGREGAR ESTE CAMPO al schema
+// En models/User.js - ACTUALIZAR el campo kitsComprados
 import mongoose from 'mongoose';
 import mongoosePaginate from 'mongoose-paginate-v2';
 
@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema(
     email:      { type: String, required: true, unique: true, lowercase: true, trim: true },
     passwordHash:{ type: String, required: true },
     role:       { type: String, enum: ROLES, default: 'paciente', index: true },
+    specialty: { type: String }, // ✅ EN INGLÉS para consistencia
     phone:      { type: String, required: true, trim: true },
     birthDate:  { type: Date, required: true },
     isActive:   { type: Boolean, default: true },
@@ -27,7 +28,7 @@ const userSchema = new mongoose.Schema(
       required: false
     },
 
-    // ✅ NUEVO: KITS COMPRADOS POR EL USUARIO
+    // ✅ ACTUALIZADO: KITS COMPRADOS POR EL USUARIO (CON ENTREGA FÍSICA)
     kitsComprados: [
       {
         kitId: { 
@@ -50,11 +51,30 @@ const userSchema = new mongoose.Schema(
           type: String, 
           enum: ['activo', 'usado', 'expirado'],
           default: 'activo' 
+        },
+        
+        // 🔥 NUEVO: CAMPOS PARA ENTREGA FÍSICA
+        estadoEntrega: { 
+          type: String, 
+          enum: ['disponible', 'agendado', 'entregado'],
+          default: 'disponible' 
+        },
+        ubicacionRecogida: { 
+          type: String, 
+          default: null 
+        },
+        codigoRecogida: { 
+          type: String, 
+          default: null 
+        },
+        fechaEntregaReal: { 
+          type: Date, 
+          default: null 
         }
       }
     ],
 
-    // ✅ NUEVO: PAQUETES DE ACOMPAÑAMIENTO COMPRADOS (AGREGAR ESTO)
+    // ✅ NUEVO: PAQUETES DE ACOMPAÑAMIENTO COMPRADOS
     paquetesAcompanamientoComprados: [
       {
         paqueteId: { 
