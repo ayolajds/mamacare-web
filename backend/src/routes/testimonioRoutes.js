@@ -1,21 +1,37 @@
 import express from 'express';
 import { auth } from '../middlewares/auth.js';
+import { adminAuth } from '../middlewares/adminAuth.js';
 import {
+  // Públicos
   obtenerTestimonios,
+  
+  // Usuarios autenticados
   crearTestimonio,
   verificarPermisos,
-  upload
+  upload,
+  
+  // Admin
+  obtenerTodosTestimonios,
+  obtenerTestimonio,
+  aprobarTestimonio,
+  rechazarTestimonio,
+  eliminarTestimonio
 } from '../controllers/testimonioController.js';
 
 const router = express.Router();
 
-// Obtener testimonios aprobados
-router.get('/', obtenerTestimonios);
+// ====== RUTAS PÚBLICAS ======
+router.get('/', obtenerTestimonios); // Solo testimonios aprobados
 
-// Crear testimonio (auth -> subir imagen -> controlador)
+// ====== RUTAS PARA USUARIOS AUTENTICADOS ======
 router.post('/', auth, upload.single('imagen'), crearTestimonio);
-
-// Verificar si el usuario puede dar testimonio
 router.get('/verificar-permisos', auth, verificarPermisos);
+
+// ====== RUTAS PARA ADMIN ======
+router.get('/admin/todos', auth, adminAuth, obtenerTodosTestimonios);
+router.get('/admin/:id', auth, adminAuth, obtenerTestimonio);
+router.patch('/admin/:id/aprobar', auth, adminAuth, aprobarTestimonio);
+router.patch('/admin/:id/rechazar', auth, adminAuth, rechazarTestimonio);
+router.delete('/admin/:id', auth, adminAuth, eliminarTestimonio);
 
 export default router;

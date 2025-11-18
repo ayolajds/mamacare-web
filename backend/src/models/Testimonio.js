@@ -6,12 +6,16 @@ const TestimonioSchema = new mongoose.Schema({
   impacto:           { type: String, default: '', trim: true },
   ciudad:            { type: String, default: '', trim: true },
   tags:              { type: [String], default: [] },
-  imagen:            { type: String },
   imagenPath:        { type: String },
   usuarioId:         { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   nombre:            { type: String, required: true },
   email:             { type: String, required: true },
-  estado:            { type: String, default: 'aprobado' }
+  estado:            { 
+    type: String, 
+    enum: ['pendiente', 'aprobado', 'rechazado'],
+    default: 'pendiente'
+  },
+  motivoRechazo:     { type: String, default: '' } // Para saber por qué se rechazó
 }, { timestamps: true });
 
 export default mongoose.model('Testimonio', TestimonioSchema);

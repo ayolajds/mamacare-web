@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 });
 
 // Estáticos
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rutas
 app.use(`/api/${API_VERSION}/auth`, authRoutes);
