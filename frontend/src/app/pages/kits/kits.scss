@@ -784,3 +784,120 @@ $border-color: #E2E8F0;
   background: color.adjust($primary-color, $lightness: -10%);
 
 }
+// Estilos para las imágenes de los kits
+.kit-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-radius: 12px 12px 0 0;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .kit-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover .kit-img {
+    transform: scale(1.05);
+  }
+
+  .kit-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(34, 197, 94, 0.95);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .badge-icon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+// Estilos para la imagen del modal
+.modal-image {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+
+  .modal-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// Estilos responsivos
+@media (max-width: 768px) {
+  .kit-image {
+    height: 160px;
+  }
+  
+  .modal-image {
+    height: 200px;
+  }
+}
+// Estilos personalizados para SweetAlert
+.swal-confirm-primary {
+  background: #4f46e5 !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background: #4338ca !important;
+  }
+}
+
+.swal-confirm-warning {
+  background: #f59e0b !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background: #d97706 !important;
+  }
+}
+
+.swal-cancel {
+  background: #6b7280 !important;
+  border: none !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  
+  &:hover {
+    background: #4b5563 !important;
+  }
+}
+
+// Spinner personalizado
+.swal2-spinner {
+  width: 32px !important;
+  height: 32px !important;
+  border-width: 3px !important;
+}
+
+// Container personalizado
+.swal2-container {
+  z-index: 10000 !important;
+}

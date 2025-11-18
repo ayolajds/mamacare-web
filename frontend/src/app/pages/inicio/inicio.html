@@ -152,18 +152,6 @@
             <h3 class="service-title">{{ s.title }}</h3>
             <p class="service-desc">{{ s.desc }}</p>
           </div>
-
-          <div class="card-actions">
-            <a [routerLink]="s.link" class="cta-button">
-              <span class="btn-text">Descubrir más</span>
-              <div class="btn-arrow">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div class="btn-shine"></div>
-            </a>
-          </div>
         </div>
 
         <div class="card-particles">
@@ -209,7 +197,7 @@
   <div class="wrap">
     <h2>¿Te acompañamos hoy?</h2>
     <div class="actions">
-      <a routerLink="/agenda" class="btn btn--primary">Agenda tu cita</a>
+      <a routerLink="/solicitar-cita" class="btn btn--primary">Agenda tu cita</a>
       <a routerLink="/recursos" class="btn btn--ghost">Explorar recursos</a>
       <a [href]="whatsappUrl" target="_blank" rel="noopener" class="btn btn--whatsapp">WhatsApp</a>
     </div>

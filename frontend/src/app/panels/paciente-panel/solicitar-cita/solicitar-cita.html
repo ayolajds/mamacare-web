@@ -36,16 +36,16 @@
   </div>
 
   <!-- Mensaje cuando no tiene paquetes -->
-  <div *ngIf="!cargandoPaquetes && paquetesUsuario.length === 0" class="info-message warning">
-    <div class="info-icon">⚠️</div>
-    <div class="info-content">
-      <h4>No tienes paquetes activos</h4>
-      <p>Para solicitar una cita, primero necesitas adquirir un paquete de acompañamiento.</p>
-      <button class="btn-primary" (click)="router.navigate(['/acompanamiento'])">
-        Ver Paquetes Disponibles
-      </button>
-    </div>
+<div *ngIf="!cargandoPaquetes && paquetesUsuario.length === 0" class="info-message warning">
+  <div class="info-icon">⚠️</div>
+  <div class="info-content">
+    <h4>No tienes paquetes activos</h4>
+    <p>Para solicitar una cita, primero necesitas adquirir un paquete de acompañamiento.</p>
+    <button class="btn-outline" (click)="router.navigate(['/acompanamiento'])">
+      Ver Opciones de Acompañamiento
+    </button>
   </div>
+</div>
 
   <!-- Mensaje informativo -->
   <div *ngIf="!cargandoPaquetes && paqueteSeleccionado" class="info-message">

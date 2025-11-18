@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -12,12 +12,14 @@ import { environment } from '../../environments/environment';
   styleUrls: ['./admin-panel.scss']
 })
 export class AdminPanel implements OnInit {
-  solicitudesCount: number = 0;
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) {}
+  solicitudesCount: number = 0;
+  testimoniosCount: number = 0;
 
   ngOnInit(): void {
     this.cargarSolicitudesPendientes();
+    this.cargarTestimoniosPendientes();
   }
 
   cargarSolicitudesPendientes(): void {
@@ -31,6 +33,22 @@ export class AdminPanel implements OnInit {
         error: (error) => {
           console.error('Error cargando solicitudes pendientes:', error);
           this.solicitudesCount = 0;
+        }
+      });
+  }
+
+  cargarTestimoniosPendientes(): void {
+    this.http.get(`${environment.apiUrl}/testimonios/admin/todos?estado=pendiente`)
+      .subscribe({
+        next: (response: any) => {
+          if (response.success && response.testimonios) {
+            this.testimoniosCount = response.testimonios.length;
+            console.log(`📝 Testimonios pendientes: ${this.testimoniosCount}`);
+          }
+        },
+        error: (error) => {
+          console.error('Error cargando testimonios pendientes:', error);
+          this.testimoniosCount = 0;
         }
       });
   }

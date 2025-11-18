@@ -782,3 +782,377 @@ $bg-soft: #fff6f9;
     height: 180px !important;
   }
 }
+// Estilos del Modal Minimalista
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  width: 100%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.2s ease;
+  position: relative;
+  border: 1px solid #e5e7eb;
+}
+
+.modal-header {
+  padding: 24px 24px 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f3f4f6;
+
+  h2 {
+    color: #1f2937;
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+}
+
+.modal-close {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+  }
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.modal-body {
+  padding: 0 24px 24px 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.modal-description {
+  color: #6b7280;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.links-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #374151;
+  text-decoration: none;
+  position: relative;
+
+  &:hover {
+    border-color: #667eea;
+    background: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.link-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    color: #667eea;
+  }
+}
+
+.link-card:hover .link-icon {
+  background: #667eea;
+  border-color: #667eea;
+  
+  svg {
+    color: white;
+  }
+}
+
+.link-info {
+  flex: 1;
+  
+  h4 {
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #1f2937;
+  }
+}
+
+.platform-badge {
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  display: inline-block;
+  letter-spacing: 0.025em;
+}
+
+.link-arrow {
+  color: #9ca3af;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.link-card:hover .link-arrow {
+  color: #667eea;
+  transform: translateX(2px);
+}
+
+// Animaciones minimalistas
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Scrollbar minimalista
+.modal-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 2px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 2px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+// Para Firefox
+.modal-body {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f8fafc;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modal-backdrop {
+    padding: 16px;
+  }
+
+  .modal-content {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 20px 20px 16px 20px;
+
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+
+  .modal-body {
+    padding: 0 20px 20px 20px;
+    max-height: 65vh;
+  }
+
+  .modal-description {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .link-card {
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .link-icon {
+    width: 36px;
+    height: 36px;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .link-info h4 {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .modal-header {
+    padding: 16px 16px 12px 16px;
+
+    h2 {
+      font-size: 1.2rem;
+    }
+  }
+
+  .modal-body {
+    padding: 0 16px 16px 16px;
+  }
+
+  .link-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .link-info h4 {
+    font-size: 0.85rem;
+  }
+
+  .modal-close {
+    width: 32px;
+    height: 32px;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+// Estados de focus para accesibilidad
+.modal-close:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.link-card:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+// Indicador de plataforma con colores sutiles
+.link-card[data-platform="Spotify"] .link-icon {
+  background: #f8fafc;
+  
+  svg {
+    color: #1DB954; // Verde de Spotify
+  }
+}
+
+.link-card[data-platform="YouTube"] .link-icon {
+  background: #f8fafc;
+  
+  svg {
+    color: #FF0000; // Rojo de YouTube
+  }
+}
+
+.link-card[data-platform="Spotify"]:hover .link-icon {
+  background: #1DB954;
+  
+  svg {
+    color: white;
+  }
+}
+
+.link-card[data-platform="YouTube"]:hover .link-icon {
+  background: #FF0000;
+  
+  svg {
+    color: white;
+  }
+}
+
+// Efecto de carga sutil
+.modal-content.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+// Separador visual sutil
+.links-grid::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: #f3f4f6;
+  margin: 8px 0;
+}

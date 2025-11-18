@@ -43,9 +43,14 @@
   <div class="kits-grid" *ngIf="!isLoading && filteredKits.length > 0">
     <div class="kit-card" *ngFor="let kit of filteredKits">
       
-      <!-- Imagen -->
+      <!-- ✅ CORREGIDO: Mostrar imagen real en lugar de icono -->
       <div class="kit-image">
-        <div class="kit-icon" [innerHTML]="getKitIcon(kit.categoria)"></div>
+        <img [src]="kit.imagen" [alt]="kit.nombre" class="kit-img">
+        <!-- Badge si ya tiene el kit -->
+        <div class="kit-badge" *ngIf="yaTieneKit(kit.id)">
+          <i data-lucide="check" class="badge-icon"></i>
+          En tu colección
+        </div>
       </div>
 
       <!-- Contenido -->
@@ -56,7 +61,10 @@
 
         <!-- Elementos incluidos -->
         <div class="kit-elements">
-          <h4>Contenido del kit:</h4>
+          <h4>
+            <i data-lucide="package" class="section-icon"></i>
+            Contenido del kit:
+          </h4>
           <ul class="kit-features">
             <li *ngFor="let element of kit.elementos">{{ element }}</li>
           </ul>
@@ -69,14 +77,12 @@
 
         <!-- Acciones -->
         <div class="kit-actions">
-<!-- En la lista de kits -->
-<button 
-  class="btn-primary"
-  (click)="solicitarKit(kit)">
-  
-  <span *ngIf="yaTieneKit(kit.id)">✅ En tu colección (comprar otro)</span>
-  <span *ngIf="!yaTieneKit(kit.id)">Comprar Kit</span>
-</button>
+          <button 
+            class="btn-primary"
+            (click)="solicitarKit(kit)">
+            <span *ngIf="yaTieneKit(kit.id)">✅ Comprar otro</span>
+            <span *ngIf="!yaTieneKit(kit.id)">Comprar Kit</span>
+          </button>
           
           <button class="btn-secondary" (click)="showKitDetails(kit)">
             Ver Detalles
@@ -106,8 +112,9 @@
       <h2>{{ selectedKit.nombre }}</h2>
       <p class="modal-category">{{ getCategoryName(selectedKit.categoria) }}</p>
       
+      <!-- ✅ CORREGIDO: Mostrar imagen real en modal -->
       <div class="modal-image">
-        <div class="modal-icon" [innerHTML]="getKitIcon(selectedKit.categoria)"></div>
+        <img [src]="selectedKit.imagen" [alt]="selectedKit.nombre" class="modal-img">
       </div>
 
       <p class="modal-description">{{ selectedKit.descripcion }}</p>
@@ -128,13 +135,12 @@
       </div>
 
       <!-- Botón del Modal -->
-<button 
-  class="btn-primary modal-add-btn"
-  (click)="solicitarKit(selectedKit)">
-  
-  <span *ngIf="yaTieneKit(selectedKit.id)">✅ En tu colección (comprar otro)</span>
-  <span *ngIf="!yaTieneKit(selectedKit.id)">Solicitar este Kit</span>
-</button>
+      <button 
+        class="btn-primary modal-add-btn"
+        (click)="solicitarKit(selectedKit)">
+        <span *ngIf="yaTieneKit(selectedKit.id)">✅ Comprar otro</span>
+        <span *ngIf="!yaTieneKit(selectedKit.id)">Solicitar este Kit</span>
+      </button>
     </div>
   </div>
 </div>

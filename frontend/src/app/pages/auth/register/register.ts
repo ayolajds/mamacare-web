@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, RegisterRequest } from '../../../shared/services/auth';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +16,7 @@ export class Register {
   private router = inject(Router);
   private auth = inject(AuthService);
 
-  // form model - TODO EN INGLÉS para consistencia
+  // form model
   name = '';
   lastName = '';
   email = '';
@@ -49,12 +50,98 @@ export class Register {
     this.birthDate = this.maxDate;
   }
 
+  // Prevenir que se escriban números en nombre y apellido
+  onNameKeyPress(event: KeyboardEvent) {
+    const charCode = event.keyCode || event.which;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir solo letras, espacios y caracteres con acento
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]$/.test(charStr)) {
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  // Prevenir que se escriban letras en teléfono
+  onPhoneKeyPress(event: KeyboardEvent) {
+    const charCode = event.keyCode || event.which;
+    const charStr = String.fromCharCode(charCode);
+    
+    // Permitir solo números y teclas de control
+    if (!/^\d$/.test(charStr) && 
+        charCode !== 8 &&  // backspace
+        charCode !== 9 &&  // tab
+        charCode !== 37 && // left arrow
+        charCode !== 39 && // right arrow
+        charCode !== 46) { // delete
+      event.preventDefault();
+      return false;
+    }
+    return true;
+  }
+
+  // Validar y limpiar nombre y apellido
+  onNameInput(event: any, field: 'name' | 'lastName') {
+    const value = event.target.value;
+    // Remover números y caracteres especiales (excepto espacios y acentos)
+    const cleaned = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    if (this[field] !== cleaned) {
+      this[field] = cleaned;
+    }
+  }
+
+  // Validar y limpiar teléfono
+  onPhoneInput(event: any) {
+    const value = event.target.value;
+    // Remover todo excepto números
+    const numbersOnly = value.replace(/\D/g, '');
+    // Limitar a 10 caracteres
+    const limited = numbersOnly.slice(0, 10);
+    if (this.phone !== limited) {
+      this.phone = limited;
+    }
+  }
+
+  // Validar que la contraseña tenga al menos 8 caracteres
+  isPasswordValid(): boolean {
+    return this.password.length >= 8;
+  }
+
   onSubmit(form: NgForm) {
-    if (form.invalid || this.loading) return;
+    if (form.invalid || this.loading) {
+      this.showErrorAlert('Formulario incompleto', 'Por favor completa todos los campos requeridos');
+      return;
+    }
+
+    // Validar nombre y apellido (solo letras)
+    const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,}$/;
+    if (!nameRegex.test(this.name.trim())) {
+      this.showErrorAlert('Nombre inválido', 'El nombre solo puede contener letras y debe tener al menos 2 caracteres');
+      return;
+    }
+
+    if (!nameRegex.test(this.lastName.trim())) {
+      this.showErrorAlert('Apellido inválido', 'El apellido solo puede contener letras y debe tener al menos 2 caracteres');
+      return;
+    }
+
+    // Validar teléfono (exactamente 10 números)
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(this.phone)) {
+      this.showErrorAlert('Teléfono inválido', 'El teléfono debe tener exactamente 10 números');
+      return;
+    }
+
+    // Validar contraseña
+    if (!this.isPasswordValid()) {
+      this.showErrorAlert('Contraseña muy corta', 'La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
 
     // contraseñas iguales
     if (this.password !== this.confirmPassword) {
-      this.errorMsg = 'Las contraseñas no coinciden.';
+      this.showErrorAlert('Contraseñas no coinciden', 'Las contraseñas deben ser iguales');
       return;
     }
 
@@ -65,7 +152,7 @@ export class Register {
     const month = today.getMonth() - birthDate.getMonth();
     if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age--;
     if (age < 18) {
-      this.errorMsg = 'Debes tener al menos 18 años para registrarte.';
+      this.showErrorAlert('Edad insuficiente', 'Debes tener al menos 18 años para registrarte');
       return;
     }
 
@@ -73,9 +160,9 @@ export class Register {
     const payload: RegisterRequest = {
       name: this.name.trim(),
       lastName: this.lastName.trim(),
-      email: this.email.trim(),
+      email: this.email.trim().toLowerCase(),
       password: this.password,
-      phone: this.phone.trim(),
+      phone: this.phone,
       birthDate: this.birthDate
     };
 
@@ -85,15 +172,36 @@ export class Register {
     this.auth.register(payload).subscribe({
       next: (user) => {
         this.loading = false;
-        // éxito: tu AuthService ya guardó token y user en localStorage
-        alert(`✅ Registro exitoso: ${user.name} ${user.lastName}`);
-        // redirige donde quieras:
+        this.showSuccessAlert('¡Registro exitoso!', `Bienvenido/a ${user.name} ${user.lastName}`);
         this.router.navigate(['/login']);
       },
       error: (err) => {
         this.loading = false;
-        this.errorMsg = err?.error?.message || 'Error al registrarse';
+        this.showErrorAlert('Error en registro', err?.error?.message || 'Error al registrarse. Por favor intenta nuevamente.');
       }
+    });
+  }
+
+  // Métodos para SweetAlert
+  private showSuccessAlert(title: string, message?: string) {
+    Swal.fire({
+      icon: 'success',
+      title: title,
+      text: message,
+      timer: 4000,
+      showConfirmButton: true,
+      confirmButtonText: 'Continuar',
+      confirmButtonColor: '#4CAF50'
+    });
+  }
+
+  private showErrorAlert(title: string, message: string) {
+    Swal.fire({
+      icon: 'error',
+      title: title,
+      text: message,
+      confirmButtonText: 'Entendido',
+      confirmButtonColor: '#d33'
     });
   }
 

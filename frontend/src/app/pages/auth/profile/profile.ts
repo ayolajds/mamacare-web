@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService, User, UpdateProfileRequest, ChangePasswordRequest } from '../../../shared/services/auth'; // 👈 Agregar imports
+import { AuthService, User, UpdateProfileRequest, ChangePasswordRequest } from '../../../shared/services/auth';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-profile',
@@ -18,7 +19,7 @@ export class Profile {
   user: User | null = null;
   loading = true;
   showPasswordForm = false;
-  updating = false; // 👈 Agregar estado de carga
+  updating = false;
 
   passwordData = {
     currentPassword: '',
@@ -43,7 +44,7 @@ export class Profile {
     // 1) rellena al instante con cache
     const cached = this.auth.currentUser();
     if (cached) {
-      this.user = cached;
+      this.user = cached as any;
       this.loadEditableData();
       this.loading = false;
     }
@@ -88,13 +89,23 @@ export class Profile {
 
     // Validar que las contraseñas coincidan
     if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-      alert('Las contraseñas no coinciden');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Las contraseñas no coinciden',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
     // Validar longitud mínima
     if (this.passwordData.newPassword.length < 6) {
-      alert('La nueva contraseña debe tener al menos 6 caracteres');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'La nueva contraseña debe tener al menos 6 caracteres',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
@@ -114,17 +125,33 @@ export class Profile {
         this.updating = false;
         
         if (response.success) {
-          alert('Contraseña actualizada correctamente');
+          Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: 'Contraseña actualizada correctamente',
+            confirmButtonText: 'Continuar',
+            timer: 3000
+          });
           this.showPasswordForm = false;
           this.resetPasswordForm();
         } else {
-          alert('Error: ' + response.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error: ' + response.message,
+            confirmButtonText: 'Entendido'
+          });
         }
       },
       error: (error) => {
         console.log('❌ Error del backend:', error);
         this.updating = false;
-        alert('Error al cambiar contraseña: ' + (error.error?.message || error.message));
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al cambiar contraseña: ' + (error.error?.message || error.message),
+          confirmButtonText: 'Entendido'
+        });
       }
     });
   }
@@ -149,18 +176,34 @@ export class Profile {
         this.updating = false;
         
         if (response.success && response.user) {
-          alert('Información actualizada correctamente');
+          Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: 'Información actualizada correctamente',
+            confirmButtonText: 'Continuar',
+            timer: 3000
+          });
           // Actualizar datos locales con la respuesta del backend
           this.user = response.user;
           this.loadEditableData(); // Recargar datos editables por si acaso
         } else {
-          alert('Error: ' + response.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Error: ' + response.message,
+            confirmButtonText: 'Entendido'
+          });
         }
       },
       error: (error) => {
         console.log('❌ Error del backend:', error);
         this.updating = false;
-        alert('Error al actualizar información: ' + (error.error?.message || error.message));
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al actualizar información: ' + (error.error?.message || error.message),
+          confirmButtonText: 'Entendido'
+        });
       }
     });
   }

@@ -48,7 +48,22 @@
       <div class="card-arrow">→</div>
     </a>
 
-    <!-- ✅ NUEVO: Solicitudes Pendientes -->
+    <!-- ✅ NUEVO: Testimonios Pendientes -->
+    <a routerLink="/admin/testimonios-pendientes" class="panel-card">
+      <div class="card-icon">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+        </svg>
+      </div>
+      <div class="card-content">
+        <h3 class="card-title">Testimonios Pendientes</h3>
+        <p class="card-description">Revisar y aprobar testimonios de usuarios</p>
+        <span class="badge-count" *ngIf="testimoniosCount > 0">{{ testimoniosCount }}</span>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <!-- Solicitudes Pendientes -->
     <a routerLink="/admin/solicitudes-pendientes" class="panel-card">
       <div class="card-icon">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">

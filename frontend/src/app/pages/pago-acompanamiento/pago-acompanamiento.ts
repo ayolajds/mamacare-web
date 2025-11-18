@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../shared/services/auth';
 import { AcompanamientoService } from '../../shared/services/acompanamiento';
+import Swal from 'sweetalert2';
 
 declare var lucide: any;
 
@@ -57,7 +58,7 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
   private paquetes = [
     {
       id: 1,
-      nombre: "Paquete Básico de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
+      nombre: "Paquete Básico de Acompañamiento",
       categoria: "basico",
       precio: 378180,
       imagen: "assets/images/paquete-basico.jpg",
@@ -86,11 +87,10 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       sesionesIncluidas: 4,
       duracionSesion: 50,
       tipoSesiones: ["individual"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     },
     {
       id: 2,
-      nombre: "Paquete Intermedio de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
+      nombre: "Paquete Intermedio de Acompañamiento",
       categoria: "intermedio",
       precio: 505120,
       imagen: "assets/images/paquete-intermedio.jpg",
@@ -124,14 +124,13 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       sesionesIncluidas: 8,
       duracionSesion: 60,
       tipoSesiones: ["individual", "grupal"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, badge, kit
     },
     {
       id: 3,
-      nombre: "Paquete Integral de Acompañamiento", // ✅ NOMBRE COMPLETO Y CONSISTENTE
+      nombre: "Paquete Integral de Acompañamiento",
       categoria: "integral",
       precio: 684420,
-      imagen: "assets/images/paquete-integral.jpg", // ✅ IMAGEN CORRECTA
+      imagen: "assets/images/paquete-integral.jpg",
       descripcion: "Máxima personalización, acompañamiento intensivo y recursos exclusivos.",
       elementos: [
         "12 sesiones (presenciales + virtuales + a domicilio)",
@@ -139,11 +138,11 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
         "Acompañamiento familiar completo",
         "Sesiones de emergencia incluidas",
         "Coaching emocional personalizado",
-        "Kit Integral incluido" // ✅ CAMBIADO: "Premium" por "Integral"
+        "Kit Integral incluido"
       ],
       beneficios: [
         {
-          titulo: "Atención integral", // ✅ CAMBIADO: "premium" por "integral"
+          titulo: "Atención integral",
           descripcion: "Acompañamiento completo e integral para transformación profunda"
         },
         {
@@ -166,7 +165,6 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       sesionesIncluidas: 12,
       duracionSesion: 60,
       tipoSesiones: ["individual", "grupal", "taller"]
-      // ❌ ELIMINADOS: stock, popular, nuevo, kit
     }
   ];
 
@@ -181,7 +179,6 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
       const usuario = this.authService.obtenerUsuarioActual();
       if (usuario) {
         this.email = usuario.email || '';
-        // ✅ SOLUCIÓN: Usar 'as any' para evitar errores TypeScript
         this.nombreTitular = (usuario as any).nombreCompleto || 
                             ((usuario as any).name && (usuario as any).lastName ? 
                               `${(usuario as any).name} ${(usuario as any).lastName}` : '') || 
@@ -209,85 +206,255 @@ export class PagoAcompanamientoComponent implements OnInit, AfterViewInit {
     this.isLoading = false;
   }
 
-procesarPago(): void {
-  if (!this.validarFormulario()) {
-    return;
+  async procesarPago(): Promise<void> {
+    if (!await this.validarFormulario()) {
+      return;
+    }
+
+    this.isProcessing = true;
+
+    try {
+      // Mostrar SweetAlert de confirmación
+      const result = await Swal.fire({
+        title: '¿Confirmar pago?',
+        html: `Estás a punto de realizar el pago por <strong>$${this.formatPrice(this.paquete.precio)}</strong> para el <strong>${this.paquete.nombre}</strong>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, proceder con el pago',
+        cancelButtonText: 'Cancelar',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return this.acompanamientoService.crearOrden(this.paqueteId, this.bancoSeleccionado).toPromise();
+        }
+      });
+
+      if (result.isConfirmed) {
+        if (result.value && result.value.success) {
+          // ✅ ACTUALIZAR AMBOS: paquetes Y kits
+          await this.authService.actualizarPaquetesAcompanamientoComprados();
+          await this.authService.actualizarKitsComprados();
+          
+          await Swal.fire({
+            title: '¡Pago Exitoso! 🎉',
+            html: `¡<strong>${this.paquete.nombre}</strong> comprado exitosamente!<br><br>Se te ha obsequiado el <strong>${this.getKitNombre()}</strong> como parte de tu paquete.`,
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Ir a Mis Paquetes'
+          });
+          
+          this.router.navigate(['/mis-paquetes']);
+        } else {
+          await Swal.fire({
+            title: 'Error en el pago',
+            text: result.value?.message || 'Error al procesar el pago',
+            icon: 'error',
+            confirmButtonColor: '#d33'
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error en el pago:', error);
+      await Swal.fire({
+        title: 'Error',
+        text: 'Error al procesar el pago. Por favor intenta nuevamente.',
+        icon: 'error',
+        confirmButtonColor: '#d33'
+      });
+    } finally {
+      this.isProcessing = false;
+    }
   }
 
-  this.isProcessing = true;
-
-  this.acompanamientoService.crearOrden(this.paqueteId, this.bancoSeleccionado).subscribe({
-    next: async (response: any) => {
-      this.isProcessing = false;
-      if (response.success) {
-        // ✅ ACTUALIZAR AMBOS: paquetes Y kits
-        await this.authService.actualizarPaquetesAcompanamientoComprados();
-        await this.authService.actualizarKitsComprados(); // 👈 NUEVA LÍNEA
-        
-        alert(`¡${this.paquete.nombre} comprado exitosamente! 🎉\n\nSe te ha obsequiado el ${this.getKitNombre()} como parte de tu paquete.`);
-        this.router.navigate(['/mis-paquetes']);
-      } else {
-        alert(response.message || 'Error al procesar el pago');
-      }
-    },
-    error: (error) => {
-      this.isProcessing = false;
-      console.error('Error en el pago:', error);
-      alert('Error al procesar el pago. Por favor intenta nuevamente.');
-    }
-  });
-}
-
-  private validarFormulario(): boolean {
+  private async validarFormulario(): Promise<boolean> {
+    // Validaciones básicas
     if (!this.bancoSeleccionado) {
-      alert('Por favor selecciona un banco');
+      await this.mostrarAlerta('Campo requerido', 'Por favor selecciona un banco');
       return false;
     }
 
     if (!this.tipoDocumento || !this.numeroDocumento) {
-      alert('Por favor completa tu información de documento');
+      await this.mostrarAlerta('Campo requerido', 'Por favor completa tu información de documento');
       return false;
     }
 
-    if (!this.nombreTitular) {
-      alert('Por favor ingresa el nombre del titular');
+    if (!this.nombreTitular.trim()) {
+      await this.mostrarAlerta('Campo requerido', 'Por favor ingresa el nombre del titular');
       return false;
     }
 
-    if (this.bancoSeleccionado !== 'pse' && (!this.numeroTarjeta || !this.fechaExpiracion || !this.cvv)) {
-      alert('Por favor completa la información de tu tarjeta');
+    // Validaciones específicas para campos numéricos
+    if (!this.validarNumeroDocumento()) {
+      await this.mostrarAlerta('Documento inválido', 'El número de documento debe contener solo números');
       return false;
     }
 
-    if (!this.email) {
-      alert('Por favor ingresa tu email');
+    if (!this.validarTelefono()) {
+      await this.mostrarAlerta('Teléfono inválido', 'El número de teléfono debe contener solo números y tener entre 7 y 15 dígitos');
       return false;
     }
 
-    if (!this.telefono) {
-      alert('Por favor ingresa tu número de teléfono');
+    if (this.bancoSeleccionado !== 'pse') {
+      if (!this.numeroTarjeta || !this.fechaExpiracion || !this.cvv) {
+        await this.mostrarAlerta('Campo requerido', 'Por favor completa la información de tu tarjeta');
+        return false;
+      }
+
+      if (!this.validarNumeroTarjeta()) {
+        await this.mostrarAlerta('Tarjeta inválida', 'El número de tarjeta debe contener 16 dígitos');
+        return false;
+      }
+
+      if (!this.validarFechaExpiracion()) {
+        await this.mostrarAlerta('Fecha inválida', 'La fecha de expiración debe tener el formato MM/YY y ser una fecha futura');
+        return false;
+      }
+
+      if (!this.validarCVV()) {
+        await this.mostrarAlerta('CVV inválido', 'El CVV debe contener 3 o 4 dígitos');
+        return false;
+      }
+    }
+
+    if (!this.validarEmail()) {
+      await this.mostrarAlerta('Email inválido', 'Por favor ingresa un email válido');
       return false;
     }
 
     if (!this.aceptaTerminos) {
-      alert('Debes aceptar los términos y condiciones');
+      await this.mostrarAlerta('Términos y condiciones', 'Debes aceptar los términos y condiciones');
       return false;
     }
 
     return true;
   }
 
-  formatPrice(price: number): string {
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  // 🔒 MÉTODOS DE VALIDACIÓN Y LIMITACIÓN
+
+  private validarNumeroDocumento(): boolean {
+    return /^\d+$/.test(this.numeroDocumento.replace(/\s/g, ''));
   }
 
-  volverAcompanamiento(): void {
-    this.router.navigate(['/acompanamiento']);
+  private validarTelefono(): boolean {
+    const telefonoLimpio = this.telefono.replace(/\s/g, '');
+    return /^\d{7,15}$/.test(telefonoLimpio);
   }
 
-  // Formatear número de tarjeta
+  private validarNumeroTarjeta(): boolean {
+    const tarjetaLimpia = this.numeroTarjeta.replace(/\s/g, '');
+    return /^\d{16}$/.test(tarjetaLimpia);
+  }
+
+  private validarFechaExpiracion(): boolean {
+    if (!/^\d{2}\/\d{2}$/.test(this.fechaExpiracion)) {
+      return false;
+    }
+
+    const [mes, año] = this.fechaExpiracion.split('/').map(Number);
+    const ahora = new Date();
+    const añoActual = ahora.getFullYear() % 100;
+    const mesActual = ahora.getMonth() + 1;
+
+    if (mes < 1 || mes > 12) return false;
+    if (año < añoActual) return false;
+    if (año === añoActual && mes < mesActual) return false;
+
+    return true;
+  }
+
+  private validarCVV(): boolean {
+    return /^\d{3,4}$/.test(this.cvv);
+  }
+
+  private validarEmail(): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(this.email);
+  }
+
+  // 🔒 MÉTODOS PARA LIMITAR INPUTS
+
+  soloNumeros(event: any): void {
+    const inputChar = String.fromCharCode(event.charCode);
+    if (!/^\d+$/.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+  soloNumerosYGuiones(event: any): void {
+    const inputChar = String.fromCharCode(event.charCode);
+    if (!/^[\d-]+$/.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+  soloLetrasYEspacios(event: any): void {
+    const inputChar = String.fromCharCode(event.charCode);
+    if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(inputChar)) {
+      event.preventDefault();
+    }
+  }
+
+  limitarLongitud(event: any, maxLength: number): void {
+    if (event.target.value.length >= maxLength && event.key !== 'Backspace' && event.key !== 'Delete') {
+      event.preventDefault();
+    }
+  }
+
+  // Para número de documento
+  onDocumentoInput(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    // Limitar longitud según tipo de documento
+    const maxLength = this.tipoDocumento === 'cedula' ? 10 : 
+                     this.tipoDocumento === 'cedula_extranjeria' ? 20 : 
+                     this.tipoDocumento === 'pasaporte' ? 20 : 15;
+    
+    if (value.length > maxLength) {
+      value = value.substring(0, maxLength);
+    }
+    
+    this.numeroDocumento = value;
+  }
+
+  // Para teléfono
+  onTelefonoInput(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 15) {
+      value = value.substring(0, 15);
+    }
+    this.telefono = value;
+  }
+
+  // Para CVV
+  onCVVInput(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length > 4) {
+      value = value.substring(0, 4);
+    }
+    this.cvv = value;
+  }
+
+  // Para nombre del titular (solo letras y espacios)
+  onNombreTitularInput(event: any): void {
+    let value = event.target.value;
+    // Permitir solo letras, espacios y caracteres especiales del español
+    value = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+    
+    if (value.length > 50) {
+      value = value.substring(0, 50);
+    }
+    
+    this.nombreTitular = value;
+  }
+
+  // Formatear número de tarjeta (solo números)
   formatearNumeroTarjeta(event: any): void {
-    let value = event.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    let value = event.target.value.replace(/\D/g, '');
+    
+    if (value.length > 16) {
+      value = value.substring(0, 16);
+    }
+    
     const matches = value.match(/\d{4,16}/g);
     const match = (matches && matches[0]) || '';
     const parts = [];
@@ -303,23 +470,46 @@ procesarPago(): void {
     }
   }
 
-  // Formatear fecha de expiración
+  // Formatear fecha de expiración (solo números)
   formatearFechaExpiracion(event: any): void {
     let value = event.target.value.replace(/\D/g, '');
+    
+    if (value.length > 4) {
+      value = value.substring(0, 4);
+    }
+    
     if (value.length >= 2) {
       value = value.substring(0, 2) + '/' + value.substring(2, 4);
     }
     this.fechaExpiracion = value;
   }
 
-  // ✅ MÉTODO PARA OBTENER NOMBRE DEL KIT (para usar en el HTML)
+  // Método auxiliar para mostrar alertas
+  private async mostrarAlerta(titulo: string, mensaje: string): Promise<void> {
+    await Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: 'warning',
+      confirmButtonColor: '#3085d6'
+    });
+  }
+
+  formatPrice(price: number): string {
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  volverAcompanamiento(): void {
+    this.router.navigate(['/acompanamiento']);
+  }
+
+  // ✅ MÉTODO PARA OBTENER NOMBRE DEL KIT
   getKitNombre(): string {
     if (!this.paquete) return '';
     
     switch(this.paquete.categoria) {
-      case 'basico': return 'Básico';
-      case 'intermedio': return 'Intermedio';
-      case 'integral': return 'Integral';
+      case 'basico': return 'Kit Básico';
+      case 'intermedio': return 'Kit Intermedio';
+      case 'integral': return 'Kit Integral';
       default: return '';
     }
   }

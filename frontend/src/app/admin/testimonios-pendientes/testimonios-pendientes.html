@@ -1,0 +1,137 @@
+<div class="testimonios-pendientes-container">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <button class="btn btn-back" (click)="volverAlPanel()">
+        <i class="icon-arrow-left"></i>
+        Volver al Panel
+      </button>
+      <div class="header-info">
+        <h1 class="page-title">Testimonios Pendientes</h1>
+        <p class="page-subtitle">Revisa y gestiona los testimonios enviados por los usuarios</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal -->
+  <main class="main-content">
+    <!-- Estado de Carga -->
+    <div *ngIf="cargando" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando testimonios pendientes...</p>
+    </div>
+
+    <!-- Sin Testimonios -->
+    <div *ngIf="!cargando && testimonios.length === 0" class="empty-state">
+      <div class="empty-icon">🎉</div>
+      <h3>No hay testimonios pendientes</h3>
+      <p>Todos los testimonios han sido revisados y procesados.</p>
+      <button class="btn btn-primary" (click)="volverAlPanel()">
+        Volver al Panel Principal
+      </button>
+    </div>
+
+    <!-- Lista de Testimonios -->
+    <div *ngIf="!cargando && testimonios.length > 0" class="testimonios-grid">
+      <div class="stats-bar">
+        <span class="stats-count">{{ testimonios.length }} testimonio(s) pendiente(s)</span>
+        <button class="btn btn-secondary" (click)="cargarTestimoniosPendientes()" [disabled]="procesando">
+          <i class="icon-refresh"></i>
+          Actualizar
+        </button>
+      </div>
+
+      <div class="testimonios-list">
+        <article *ngFor="let testimonio of testimonios" class="testimonio-card" [class.processing]="procesando">
+          <!-- Header del Testimonio -->
+          <div class="testimonio-header">
+            <div class="user-info">
+              <div class="user-avatar">
+                <img 
+                  [src]="getImagenUrl(testimonio.imagenPath)" 
+                  [alt]="'Foto de ' + testimonio.nombre"
+                  (error)="handleImageError($event, testimonio)"
+                  class="avatar-img">
+              </div>
+              <div class="user-details">
+                <h3 class="user-name">{{ testimonio.nombre }}</h3>
+                <p class="user-email">{{ testimonio.email }}</p>
+                <span class="fecha-envio">
+                  <i class="icon-calendar"></i>
+                  {{ formatearFecha(testimonio.createdAt) }}
+                </span>
+              </div>
+            </div>
+            <div class="testimonio-meta">
+              <span class="ciudad" *ngIf="testimonio.ciudad">
+                <i class="icon-map-pin"></i>
+                {{ testimonio.ciudad }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Contenido del Testimonio -->
+          <div class="testimonio-content">
+            <blockquote class="testimonio-texto">
+              "{{ testimonio.textoCorto }}"
+            </blockquote>
+
+            <!-- Historia Completa -->
+            <div *ngIf="testimonio.historiaCompleta" class="historia-completa">
+              <h4>Historia Completa:</h4>
+              <p>{{ testimonio.historiaCompleta }}</p>
+            </div>
+
+            <!-- Impacto -->
+            <div *ngIf="testimonio.impacto" class="impacto-section">
+              <h4>Impacto en su vida:</h4>
+              <p>{{ testimonio.impacto }}</p>
+            </div>
+
+            <!-- Tags -->
+            <div *ngIf="testimonio.tags && testimonio.tags.length > 0" class="tags-section">
+              <div class="tags-list">
+                <span class="tag" *ngFor="let tag of testimonio.tags">
+                  {{ tag }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="testimonio-actions">
+            <button 
+              class="btn btn-success" 
+              (click)="aprobarTestimonio(testimonio._id, testimonio.nombre)"
+              [disabled]="procesando">
+              <i class="icon-check"></i>
+              Aprobar
+            </button>
+            
+            <button 
+              class="btn btn-warning" 
+              (click)="rechazarTestimonio(testimonio._id, testimonio.nombre)"
+              [disabled]="procesando">
+              <i class="icon-x"></i>
+              Rechazar
+            </button>
+            
+            <button 
+              class="btn btn-danger" 
+              (click)="eliminarTestimonio(testimonio._id, testimonio.nombre)"
+              [disabled]="procesando">
+              <i class="icon-trash"></i>
+              Eliminar
+            </button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </main>
+
+  <!-- Overlay de Procesando -->
+  <div *ngIf="procesando" class="processing-overlay">
+    <div class="processing-spinner"></div>
+    <p>Procesando...</p>
+  </div>
+</div>

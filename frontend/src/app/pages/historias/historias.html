@@ -20,49 +20,60 @@
         <p class="section-subtitle">Conoce las experiencias de quienes han caminado este proceso con nosotras</p>
       </div>
 
-      <div class="testimonios-grid">
-        <article 
-          class="testimonio-card" 
-          *ngFor="let testimonio of testimonios; let i = index"
-          [style.background]="getCardColor(i)"
-          [class.featured]="i === 1"
-          (click)="abrirModal(testimonio)">
-          
-          <div class="testimonio-header">
-            <div class="avatar-container">
-              <img 
-                [src]="testimonio.foto" 
-                [alt]="'Foto de ' + testimonio.nombre"
-                class="testimonio-foto"
-                loading="lazy"
-                (error)="handleImageError($event, testimonio)"
-              />
-            </div>
-            <div class="testimonio-info">
-              <h3 class="testimonio-name">{{ testimonio.nombre }}</h3>
-              <p class="testimonio-meta">{{ testimonio.meta }}</p>
-            </div>
-          </div>
-
-          <blockquote class="testimonio-text">
-            "{{ testimonio.textoCorto }}"
-          </blockquote>
-
-          <div class="testimonio-actions">
-            <button class="btn-leer-mas" aria-label="Leer historia completa de {{ testimonio.nombre }}">
-              <i data-lucide="book-open" aria-hidden="true"></i>
-              Leer historia completa
-            </button>
-          </div>
-
-          <div class="testimonio-decoration">
-            <i data-lucide="quote" aria-hidden="true"></i>
-          </div>
-        </article>
+      <!-- Estado de carga -->
+      <div *ngIf="cargando" class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando historias inspiradoras...</p>
       </div>
 
-      <!-- ✅ CTA SECTION ACTUALIZADO -->
-      <div class="historias-cta">
+      <!-- Grid de testimonios -->
+      <div *ngIf="!cargando">
+        <!-- Mostrar grid solo si hay testimonios -->
+        <div class="testimonios-grid" *ngIf="testimonios.length > 0">
+          <article 
+            class="testimonio-card" 
+            *ngFor="let testimonio of testimonios; let i = index"
+            [style.background]="getCardColor(i)"
+            (click)="abrirModal(testimonio)">
+            
+            <div class="testimonio-header">
+              <div class="avatar-container">
+                <img 
+                  [src]="testimonio.foto" 
+                  [alt]="'Foto de ' + testimonio.nombre"
+                  class="testimonio-foto"
+                  loading="lazy"
+                  (error)="handleImageError($event, testimonio)"
+                />
+              </div>
+              <div class="testimonio-info">
+                <h3 class="testimonio-name">{{ testimonio.nombre }}</h3>
+                <p class="testimonio-meta">{{ testimonio.meta }}</p>
+              </div>
+            </div>
+
+            <blockquote class="testimonio-text">
+              "{{ testimonio.textoCorto }}"
+            </blockquote>
+
+            <div class="testimonio-actions">
+              <button class="btn-leer-mas" aria-label="Leer historia completa de {{ testimonio.nombre }}">
+                <i data-lucide="book-open" aria-hidden="true"></i>
+                Leer historia completa
+              </button>
+            </div>
+
+            <div class="testimonio-decoration">
+              <i data-lucide="quote" aria-hidden="true"></i>
+            </div>
+          </article>
+        </div>
+
+        <!-- No mostrar nada cuando está vacío - solo el CTA -->
+      </div>
+
+      <!-- ✅ CTA SECTION - SIEMPRE VISIBLE (excepto durante carga) -->
+      <div class="historias-cta" *ngIf="!cargando">
         <div class="cta-content">
           <h3>¿Tienes una historia que compartir?</h3>
           <p>Tu experiencia puede inspirar a otras mujeres en su camino</p>
@@ -71,7 +82,7 @@
               <i data-lucide="edit-3" aria-hidden="true"></i>
               Compartir mi historia
             </button>
-            <button class="btn btn-secondary" (click)="inspirarme()">
+            <button class="btn btn-secondary" (click)="inspirarme()" *ngIf="testimonios.length > 0">
               <i data-lucide="heart" aria-hidden="true"></i>
               Esta historia me inspira
             </button>

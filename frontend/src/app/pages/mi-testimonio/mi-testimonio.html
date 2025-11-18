@@ -28,12 +28,14 @@
       <div *ngIf="!verificandoPermisos && !puedeDarTestimonio" class="panel center">
         <div class="bubble"><i class="icon-crown"></i></div>
         <h2>Próximamente podrás compartir</h2>
-        <p>Esta función está disponible para quienes han adquirido paquetes de Ma’Care.</p>
+        <p>Esta función está disponible para quienes han adquirido paquetes de Ma'Care.</p>
         <div class="actions">
           <button class="btn ghost" (click)="volverAHistorias()">
             <i class="icon-book-open"></i> Ver historias
           </button>
-          <a routerLink="/paquetes" class="btn primary"><i class="icon-gift"></i> Ver paquetes</a>
+          <button class="btn primary" (click)="verPaquetes()">
+            <i class="icon-gift"></i> Ver paquetes
+          </button>
         </div>
       </div>
 
@@ -45,6 +47,7 @@
         </header>
 
         <form [formGroup]="testimonioForm" (ngSubmit)="enviarTestimonio()" novalidate>
+          
           <!-- CORTO -->
           <div class="group">
             <label class="label"
@@ -96,30 +99,40 @@
 
           <!-- CIUDAD -->
           <div class="group">
-            <label class="label"><span><i class="icon-map-pin"></i> Tu ciudad</span></label>
-            <input class="control" type="text" placeholder="¿Desde qué ciudad nos escribes?"
+            <label class="label">
+              <span><i class="icon-map-pin"></i> Tu ciudad</span>
+            </label>
+            <input class="control" 
+                   type="text" 
+                   placeholder="¿Desde qué ciudad nos escribes?"
                    formControlName="ciudad">
           </div>
 
           <!-- IMAGEN -->
           <div class="group">
-            <label class="label"><span><i class="icon-image"></i> Imagen (opcional)</span></label>
+            <label class="label">
+              <span><i class="icon-image"></i> Imagen (opcional)</span>
+            </label>
 
             <div class="uploader"
                  [class.dragging]="dragging"
                  (dragover)="onDragOver($event)"
                  (dragleave)="onDragLeave($event)"
                  (drop)="onDrop($event)">
-              <input type="file" accept="image/jpeg,image/png,image/webp"
-                     (change)="onFileChange($event)" hidden #fileInput>
+              
+              <input type="file" 
+                     accept="image/jpeg,image/png,image/webp"
+                     (change)="onFileChange($event)" 
+                     hidden #fileInput>
+              
               <button type="button" class="btn ghost" (click)="fileInput.click()">
                 <i class="icon-upload"></i> Seleccionar imagen
               </button>
+              
               <p class="hint">JPG/PNG/WEBP — máx. {{ MAX_FILE_MB }} MB</p>
 
-
               <div *ngIf="previewUrl" class="preview">
-                <img [src]="previewUrl" alt="Previsualización">
+                <img [src]="previewUrl" alt="Previsualización de imagen">
                 <button type="button" class="btn tiny danger" (click)="clearImage()">
                   <i class="icon-x"></i> Quitar
                 </button>
@@ -133,7 +146,9 @@
 
           <!-- TAGS -->
           <div class="group">
-            <label class="label"><span><i class="icon-tag"></i> ¿Qué aspectos destacarías?</span></label>
+            <label class="label">
+              <span><i class="icon-tag"></i> ¿Qué aspectos destacarías?</span>
+            </label>
             <div class="tags">
               <button type="button"
                       class="tag"
@@ -151,9 +166,15 @@
             <button type="button" class="btn ghost" (click)="volverAHistorias()">
               <i class="icon-x"></i> Cancelar
             </button>
-            <button type="submit" class="btn primary" [disabled]="enviando || testimonioForm.invalid">
-              <ng-container *ngIf="!enviando"><i class="icon-send"></i> Publicar mi historia</ng-container>
-              <ng-container *ngIf="enviando"><i class="icon-loader spin"></i> Publicando…</ng-container>
+            <button type="submit" 
+                    class="btn primary" 
+                    [disabled]="enviando || testimonioForm.invalid">
+              <ng-container *ngIf="!enviando">
+                <i class="icon-send"></i> Enviar mi historia
+              </ng-container>
+              <ng-container *ngIf="enviando">
+                <i class="icon-loader spin"></i> Enviando…
+              </ng-container>
             </button>
           </div>
         </form>

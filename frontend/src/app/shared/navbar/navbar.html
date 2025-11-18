@@ -3,8 +3,8 @@
 
     <!-- Marca -->
     <a routerLink="/" class="navbar__brand" aria-label="Ma´Care - Inicio">
-      <img src="/Logo.jpg" alt="Ma´Care" class="navbar__logo-img" />
-      <span class="navbar__brand-name">Ma´Care</span>
+      <img src="/logo.jpg" alt="Ma´Care" class="navbar__logo-img" />
+
     </a>
 
     <!-- Botón Hamburguesa (móvil) -->
@@ -88,39 +88,6 @@
           <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
         </ul>
       </div>
-
-      <!-- Selector de idioma (desktop) -->
-      <div class="lang" 
-           (mouseenter)="openLang()" 
-           (mouseleave)="closeLangWithDelay()">
-        <button class="lang__btn" 
-                (click)="toggleLang($event)" 
-                aria-haspopup="true" 
-                [attr.aria-expanded]="isLangOpen">
-          <span class="lang__icon" aria-hidden="true">🌐</span>
-          <span class="lang__code">{{ currentLang.toUpperCase() }}</span>
-          <span class="caret">▾</span>
-        </button>
-        <ul class="lang__menu" 
-            [class.is-open]="isLangOpen"
-            (mouseenter)="keepLangOpen()"
-            (mouseleave)="closeLangWithDelay()">
-          <li>
-            <a href="#" 
-               (click)="setLanguage($event, 'es')"
-               [class.is-active]="currentLang === 'es'">
-              Español
-            </a>
-          </li>
-          <li>
-            <a href="#" 
-               (click)="setLanguage($event, 'en')"
-               [class.is-active]="currentLang === 'en'">
-              English
-            </a>
-          </li>
-        </ul>
-      </div>
     </div>
 
   </div>
@@ -188,18 +155,6 @@
 
             <li><button type="button" class="as-link" (click)="onLogout()">Salir</button></li>
           </ul>
-        </div>
-      </li>
-
-      <!-- Idioma móvil -->
-      <li class="mobile__lang">
-        <div class="mobile__lang-row">
-          <span class="mobile__lang-label">🌐 Idioma</span>
-          <span class="mobile__lang-current">{{ currentLang.toUpperCase() }}</span>
-        </div>
-        <div class="mobile__lang-actions">
-          <button (click)="setLanguage($event, 'es')" [class.is-active]="currentLang==='es'">ES</button>
-          <button (click)="setLanguage($event, 'en')" [class.is-active]="currentLang==='en'">EN</button>
         </div>
       </li>
     </ul>

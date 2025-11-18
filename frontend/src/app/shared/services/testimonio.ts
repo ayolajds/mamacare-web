@@ -2,70 +2,128 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
-import { environment } from '../../environments/environment'; // ajusta la ruta si es necesario
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TestimonioService {
-  // Si environment.apiUrl = 'http://localhost:4000/api/v1'
-  // entonces aquí queda 'http://localhost:4000/api/v1/testimonios'
   private apiUrl = `${environment.apiUrl}/testimonios`;
-  private backendDisponible = false;
 
-  constructor(private http: HttpClient) {
-    this.verificarBackend();
-  }
+  constructor(private http: HttpClient) {}
 
-  private verificarBackend() {
-    const params = new HttpParams().set('t', Date.now().toString()); // cache-buster
-    this.http.get(this.apiUrl, { params })
-      .pipe(
-        tap(() => this.backendDisponible = true),
-        catchError(() => {
-          this.backendDisponible = false;
-          return of(null);
-        })
-      ).subscribe();
-  }
-
-  // 🔥 Devuelve SIEMPRE un array (aunque el backend responda {success, testimonios})
-  // y evita el cache con un cache-buster 't'
+  // Obtener solo testimonios APROBADOS (público)
   obtenerTestimonios(): Observable<any[]> {
-    if (!this.backendDisponible) return of([]);
-
-    const params = new HttpParams()
-      .set('estado', 'todos')              // ver todo (si el back lo soporta)
-      .set('t', Date.now().toString());    // evita 304
-
-    return this.http.get<any>(this.apiUrl, { params }).pipe(
-      map(r => Array.isArray(r) ? r : (r?.testimonios ?? [])),
-      tap(list => console.log('📥 testimonios recibidos:', list.length)),
+    return this.http.get<any>(this.apiUrl).pipe(
+      map(response => {
+        // Tu backend devuelve { success: true, testimonios: [...] }
+        if (response?.success && Array.isArray(response.testimonios)) {
+          return response.testimonios;
+        }
+        return [];
+      }),
+      tap(testimonios => console.log('📥 Testimonios aprobados:', testimonios.length)),
       catchError(err => {
-        console.warn('Backend no disponible o error al obtener testimonios:', err);
-        this.backendDisponible = false;
+        console.warn('Error obteniendo testimonios:', err);
+        return of([]); // Siempre devuelve array vacío en error
+      })
+    );
+  }
+
+  // Crear testimonio (va a estado "pendiente")
+  crearTestimonio(formData: FormData): Observable<any> {
+    return this.http.post<any>(this.apiUrl, formData).pipe(
+      tap(response => console.log('✅ Testimonio enviado:', response)),
+      catchError((error) => {
+        console.error('❌ Error enviando testimonio:', error);
+        // Tu backend devuelve { message: '...' } en errores
+        const errorMessage = error?.error?.message || error?.message || 'Error al enviar testimonio';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  // Verificar permisos del usuario
+  verificarPermisos(): Observable<{ puedeDarTestimonio: boolean }> {
+    return this.http.get<{ success: boolean; puedeDarTestimonio: boolean }>(
+      `${this.apiUrl}/verificar-permisos`
+    ).pipe(
+      map(response => ({
+        puedeDarTestimonio: response?.puedeDarTestimonio ?? false
+      })),
+      catchError((error) => {
+        console.warn('Error verificando permisos:', error);
+        return of({ puedeDarTestimonio: false });
+      })
+    );
+  }
+
+  // ====== MÉTODOS PARA ADMIN ======
+
+  // Obtener TODOS los testimonios (para admin)
+  obtenerTodosTestimonios(estado?: string): Observable<any[]> {
+    let params = new HttpParams();
+    if (estado) {
+      params = params.set('estado', estado);
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/admin/todos`, { params }).pipe(
+      map(response => {
+        if (response?.success && Array.isArray(response.testimonios)) {
+          return response.testimonios;
+        }
+        return [];
+      }),
+      tap(testimonios => console.log('👑 Testimonios admin:', testimonios.length)),
+      catchError(err => {
+        console.warn('Error obteniendo testimonios admin:', err);
         return of([]);
       })
     );
   }
 
-  // ✅ Recibe FormData; NO seteamos Content-Type (el navegador pone boundary)
-  crearTestimonio(formData: FormData): Observable<any> {
-    if (!this.backendDisponible) {
-      return throwError(() => new Error('Backend no disponible. Intenta más tarde.'));
-    }
-    return this.http.post<any>(this.apiUrl, formData).pipe(
-      catchError((error) => {
-        // Propaga el error real del servidor para debug útil
-        return throwError(() => (error?.error || error || new Error('Error al conectar con el servidor.')));
+  // Obtener un testimonio específico (admin)
+  obtenerTestimonio(id: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/admin/${id}`).pipe(
+      map(response => response?.testimonio || null),
+      catchError(err => {
+        console.warn('Error obteniendo testimonio:', err);
+        return of(null);
       })
     );
   }
 
-  verificarPermisos(): Observable<{ puedeDarTestimonio: boolean }> {
-    if (!this.backendDisponible) return of({ puedeDarTestimonio: false });
+  // Aprobar testimonio (admin)
+  aprobarTestimonio(id: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/admin/${id}/aprobar`, {}).pipe(
+      tap(response => console.log('✅ Testimonio aprobado:', response)),
+      catchError((error) => {
+        console.error('❌ Error aprobando testimonio:', error);
+        const errorMessage = error?.error?.message || 'Error al aprobar testimonio';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
 
-    const params = new HttpParams().set('t', Date.now().toString()); // cache-buster
-    return this.http.get<{ puedeDarTestimonio: boolean }>(`${this.apiUrl}/verificar-permisos`, { params }).pipe(
-      catchError(() => of({ puedeDarTestimonio: false }))
+  // Rechazar testimonio (admin)
+  rechazarTestimonio(id: string, motivo: string): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/admin/${id}/rechazar`, { motivo }).pipe(
+      tap(response => console.log('❌ Testimonio rechazado:', response)),
+      catchError((error) => {
+        console.error('❌ Error rechazando testimonio:', error);
+        const errorMessage = error?.error?.message || 'Error al rechazar testimonio';
+        return throwError(() => new Error(errorMessage));
+      })
+    );
+  }
+
+  // Eliminar testimonio (admin)
+  eliminarTestimonio(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/admin/${id}`).pipe(
+      tap(response => console.log('🗑️ Testimonio eliminado:', response)),
+      catchError((error) => {
+        console.error('❌ Error eliminando testimonio:', error);
+        const errorMessage = error?.error?.message || 'Error al eliminar testimonio';
+        return throwError(() => new Error(errorMessage));
+      })
     );
   }
 }

@@ -179,6 +179,6 @@ export class Inicio implements OnInit, OnDestroy {
   ];
 
   // CTA WhatsApp
-  whatsappPhone = '57XXXXXXXXXX';
+  whatsappPhone = '573243199016';
   get whatsappUrl(): string { return `https://wa.me/${this.whatsappPhone}`; }
 }

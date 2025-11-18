@@ -171,6 +171,15 @@ export const routes: Routes = [
         m => m.SolicitudesPendientes
       ),
   },
+{
+  path: 'admin/testimonios-pendientes',
+  title: 'Ma´Care | Testimonios Pendientes',
+  canActivate: [authGuard, adminGuard],
+  loadComponent: () =>
+    import('./admin/testimonios-pendientes/testimonios-pendientes').then(
+      m => m.TestimoniosPendientes
+    ),
+},
 
   // 👨‍⚕️ PANEL PROFESIONAL - RUTAS AGREGADAS
   {
@@ -193,14 +202,6 @@ export const routes: Routes = [
     canActivate: [authGuard, profesionalGuard],
     loadComponent: () =>
       import('./professional/pacientes/pacientes').then(m => m.Pacientes),
-  },
-  // 🎗️ NUEVA RUTA PARA TRATAMIENTOS - AGREGAR ESTA
-  {
-    path: 'profesional/pacientes/:patientId/tratamiento',
-    title: 'Ma´Care | Crear Tratamiento',
-    canActivate: [authGuard, profesionalGuard],
-    loadComponent: () =>
-      import('./professional/tratamiento/tratamiento').then(m => m.Tratamiento),
   },
   {
     path: 'profesional/citas/:id',

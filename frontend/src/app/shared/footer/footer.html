@@ -1,1 +1,23 @@
-<p>footer works!</p>
+<footer class="footer">
+  <div class="footer-content">
+    <!-- Logo e Inicio -->
+    <div class="footer-left">
+      <a routerLink="/home" class="home-link">
+        <i data-lucide="home" class="home-icon"></i>
+        <span>Volver al Inicio</span>
+      </a>
+    </div>
+
+    <!-- Derechos reservados -->
+    <div class="footer-center">
+      <p class="copyright">
+        &copy; {{ currentYear }} Ma´Care. Todos los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Año -->
+    <div class="footer-right">
+      <span class="year">2025</span>
+    </div>
+  </div>
+</footer>

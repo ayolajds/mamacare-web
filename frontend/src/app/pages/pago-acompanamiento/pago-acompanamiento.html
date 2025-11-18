@@ -39,7 +39,6 @@
               </div>
               <div class="detalle-item">
                 <i data-lucide="gift"></i>
-                <!-- ✅ CORREGIDO: Usar getKitNombre() en lugar de paquete.kit -->
                 <span>Incluye Kit {{ getKitNombre() }}</span>
               </div>
               <div class="detalle-item">
@@ -116,6 +115,8 @@
                     type="text" 
                     id="numeroDocumento"
                     [(ngModel)]="numeroDocumento"
+                    (input)="onDocumentoInput($event)"
+                    (keypress)="soloNumeros($event)"
                     placeholder="Ingresa tu número de documento"
                     [disabled]="isProcessing"
                     class="form-input">
@@ -131,6 +132,8 @@
                   type="text" 
                   id="nombreTitular"
                   [(ngModel)]="nombreTitular"
+                  (input)="onNombreTitularInput($event)"
+                  (keypress)="soloLetrasYEspacios($event)"
                   placeholder="Como aparece en la tarjeta"
                   [disabled]="isProcessing"
                   class="form-input">
@@ -160,6 +163,8 @@
                     type="tel" 
                     id="telefono"
                     [(ngModel)]="telefono"
+                    (input)="onTelefonoInput($event)"
+                    (keypress)="soloNumeros($event)"
                     placeholder="+57 300 123 4567"
                     [disabled]="isProcessing"
                     class="form-input">
@@ -181,6 +186,7 @@
                   id="numeroTarjeta"
                   [(ngModel)]="numeroTarjeta"
                   (input)="formatearNumeroTarjeta($event)"
+                  (keypress)="soloNumeros($event)"
                   placeholder="1234 5678 9012 3456"
                   maxlength="19"
                   [disabled]="isProcessing"
@@ -195,6 +201,7 @@
                     id="fechaExpiracion"
                     [(ngModel)]="fechaExpiracion"
                     (input)="formatearFechaExpiracion($event)"
+                    (keypress)="soloNumeros($event)"
                     placeholder="MM/AA"
                     maxlength="5"
                     [disabled]="isProcessing"
@@ -207,6 +214,8 @@
                     type="text" 
                     id="cvv"
                     [(ngModel)]="cvv"
+                    (input)="onCVVInput($event)"
+                    (keypress)="soloNumeros($event)"
                     placeholder="123"
                     maxlength="4"
                     [disabled]="isProcessing"

@@ -3,6 +3,7 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../shared/services/auth';
 import { AcompanamientoService } from '../../shared/services/acompanamiento';
+import Swal from 'sweetalert2';
 
 declare var lucide: any;
 
@@ -251,18 +252,34 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   }
 
   // ✅ MÉTODO PRINCIPAL: Solicitar paquete
-  solicitarPaquete(paquete: PaqueteAcompanamiento): void {
+  async solicitarPaquete(paquete: PaqueteAcompanamiento): Promise<void> {
     console.log('🔄 SOLICITANDO PAQUETE:', paquete.nombre, paquete.id);
 
     // ✅ VALIDAR SI YA TIENE EL PAQUETE CON SESIONES DISPONIBLES
     if (this.yaTienePaqueteConSesiones(paquete.id)) {
-      alert('✅ Ya tienes este paquete con sesiones disponibles. Puedes acceder a él desde tu panel de usuario.');
+      await Swal.fire({
+        title: '¡Ya tienes sesiones activas! ✅',
+        html: `Ya tienes el <strong>${paquete.nombre}</strong> con sesiones disponibles.<br><br>Puedes acceder a él desde tu panel de usuario.`,
+        icon: 'info',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
     if (!this.authService.estaLogueado()) {
-      const confirmar = confirm('Para solicitar un paquete necesitas estar logueado. ¿Deseas ir al login?');
-      if (confirmar) {
+      const result = await Swal.fire({
+        title: 'Iniciar sesión requerido',
+        text: 'Para solicitar un paquete necesitas estar logueado. ¿Deseas ir al login?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, ir al login',
+        cancelButtonText: 'Cancelar'
+      });
+
+      if (result.isConfirmed) {
         this.router.navigate(['/login'], { 
           queryParams: { returnUrl: `/pago-acompanamiento/${paquete.id}` } 
         });
@@ -270,8 +287,22 @@ export class Acompanamiento implements OnInit, AfterViewInit {
       return;
     }
 
-    // Navegar al componente de pagos
-    this.router.navigate(['/pago-acompanamiento', paquete.id]);
+    // Mostrar confirmación antes de proceder al pago
+    const confirmResult = await Swal.fire({
+      title: '¿Continuar con la compra?',
+      html: `Estás a punto de comprar el <strong>${paquete.nombre}</strong> por <strong>$${this.formatPrice(paquete.precio)}</strong>`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, continuar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (confirmResult.isConfirmed) {
+      // Navegar al componente de pagos
+      this.router.navigate(['/pago-acompanamiento', paquete.id]);
+    }
   }
 
   // ✅ Verificar si ya tiene un paquete CON SESIONES DISPONIBLES
@@ -339,16 +370,42 @@ export class Acompanamiento implements OnInit, AfterViewInit {
   }
 
   // Métodos de navegación
-  agendarCita(): void {
-    this.router.navigate(['/contacto']);
+  async agendarCita(): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Agendar cita',
+      text: 'Serás redirigido a nuestra página de contacto para agendar tu cita.',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      this.router.navigate(['/contacto']);
+    }
   }
 
   scrollToPaquetes(): void {
     document.getElementById('paquetes')?.scrollIntoView({ behavior: 'smooth' });
   }
 
-  contactar(): void {
-    this.router.navigate(['/contacto']);
+  async contactar(): Promise<void> {
+    const result = await Swal.fire({
+      title: 'Contactar',
+      text: 'Serás redirigido a nuestra página de contacto.',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Continuar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      this.router.navigate(['/contacto']);
+    }
   }
 
   iconFor(tipo: string): string {
@@ -380,5 +437,35 @@ export class Acompanamiento implements OnInit, AfterViewInit {
         lucide.createIcons();
       }
     }, 100);
+  }
+
+  // Método auxiliar para mostrar alertas informativas
+  private async mostrarAlertaInfo(titulo: string, mensaje: string): Promise<void> {
+    await Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: 'info',
+      confirmButtonColor: '#3085d6'
+    });
+  }
+
+  // Método para mostrar éxito
+  private async mostrarAlertaExito(titulo: string, mensaje: string): Promise<void> {
+    await Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: 'success',
+      confirmButtonColor: '#3085d6'
+    });
+  }
+
+  // Método para mostrar error
+  private async mostrarAlertaError(titulo: string, mensaje: string): Promise<void> {
+    await Swal.fire({
+      title: titulo,
+      text: mensaje,
+      icon: 'error',
+      confirmButtonColor: '#d33'
+    });
   }
 }

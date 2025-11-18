@@ -2,16 +2,16 @@ import { Component, OnInit, AfterViewInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TestimonioService } from '../../shared/services/testimonio';
+import { environment } from '../../environments/environment'; // Asegúrate de importar environment
 
 declare const lucide: any;
 
-// Interface para backend + locales
 interface Testimonio {
-  id: number;               // Para testimonios locales (UI)
-  _id?: string;             // Backend
-  usuarioId?: string;       // Backend
+  id: number;
+  _id?: string;
+  usuarioId?: string;
   nombre: string;
-  email?: string;           // Backend
+  email?: string;
   meta: string;
   textoCorto: string;
   historiaCompleta: string;
@@ -19,9 +19,9 @@ interface Testimonio {
   tags: string[];
   foto: string;
   colorCard?: string;
-  ciudad?: string;          // Backend
-  estado?: string;          // Backend
-  createdAt?: string;       // Backend
+  ciudad?: string;
+  estado?: string;
+  createdAt?: string;
 }
 
 @Component({
@@ -32,22 +32,23 @@ interface Testimonio {
   styleUrls: ['./historias.scss']
 })
 export class Historias implements OnInit, AfterViewInit {
-
   private router = inject(Router);
   private testimonioService = inject(TestimonioService);
 
   modalAbierto = false;
   testimonioSeleccionado: Testimonio | null = null;
+  cargando = true;
+  private apiUrl = environment.apiUrl; // Agregar esta línea
 
-  // Paleta de colores suaves para las cards
+  // Paleta de colores
   private cardColors = [
-    'linear-gradient(135deg, #FF6B9D, #FFB6C1)', // Rosa
-    'linear-gradient(135deg, #A78BFA, #C4B5FD)', // Lavanda
-    'linear-gradient(135deg, #34D399, #6EE7B7)', // Verde menta
-    'linear-gradient(135deg, #FCD34D, #FDE68A)', // Amarillo
+    'linear-gradient(135deg, #FF6B9D, #FFB6C1)',
+    'linear-gradient(135deg, #A78BFA, #C4B5FD)', 
+    'linear-gradient(135deg, #34D399, #6EE7B7)',
+    'linear-gradient(135deg, #FCD34D, #FDE68A)',
   ];
 
-  // Mapeo de tags a iconos Lucide
+  // Mapeo de tags a iconos
   private tagIcons: { [key: string]: string } = {
     'Ansiedad': 'brain',
     'Sueño': 'moon',
@@ -63,54 +64,11 @@ export class Historias implements OnInit, AfterViewInit {
     'Expresión emocional': 'message-circle'
   };
 
-  // Testimonios locales
-  testimoniosLocales: Testimonio[] = [
-    {
-      id: 1,
-      nombre: 'María González',
-      meta: '3 años en remisión',
-      textoCorto: 'Encontré un espacio seguro para hablar del miedo y volver a dormir tranquila.',
-      historiaCompleta: `
-        <p>Cuando me diagnosticaron cáncer de mama, el mundo se me vino encima...</p>
-      `,
-      impacto: 'He podido retomar mi trabajo como docente...',
-      tags: ['Ansiedad', 'Sueño', 'Aceptación'],
-      foto: 'inspiran/1.jpg',
-      colorCard: this.cardColors[0]
-    },
-    {
-      id: 2,
-      nombre: 'Carolina Rodríguez',
-      meta: 'En tratamiento activo',
-      textoCorto: 'Las herramientas me ayudaron a organizar mis días y encontrar calma en la incertidumbre.',
-      historiaCompleta: `
-        <p>El tratamiento de quimioterapia era abrumador...</p>
-      `,
-      impacto: 'Manejo mejor los efectos secundarios...',
-      tags: ['Organización', 'Grupo de apoyo', 'Mindfulness'],
-      foto: 'inspiran/2.jpg',
-      colorCard: this.cardColors[1]
-    },
-    {
-      id: 3,
-      nombre: 'Carmen Silva',
-      meta: '10 años en remisión',
-      textoCorto: 'Ser mentora me permite dar lo que recibí...',
-      historiaCompleta: `
-        <p>Hace una década, cuando me dijeron que tenía cáncer...</p>
-      `,
-      impacto: 'He acompañado a más de 20 mujeres...',
-      tags: ['Mentoría', 'Resiliencia', 'Propósito'],
-      foto: 'inspiran/3.jpg',
-      colorCard: this.cardColors[2]
-    }
-  ];
-
-  // Lista combinada
-  testimonios: Testimonio[] = [...this.testimoniosLocales];
+  // EMPEZAR VACÍO - sin datos locales
+  testimonios: Testimonio[] = [];
 
   ngOnInit(): void {
-    this.cargarTestimoniosBackend();
+    this.cargarTestimonios();
   }
 
   ngAfterViewInit(): void {
@@ -119,41 +77,105 @@ export class Historias implements OnInit, AfterViewInit {
     }
   }
 
-  // Cargar desde backend (el servicio YA devuelve array siempre)
-  cargarTestimoniosBackend(): void {
+  cargarTestimonios(): void {
+    this.cargando = true;
+    
     this.testimonioService.obtenerTestimonios().subscribe({
       next: (testimoniosBackend) => {
-        const base = this.testimoniosLocales.length;
+        console.log('📥 Testimonios cargados:', testimoniosBackend);
+        
+        // Transformar los datos del backend al formato que necesita la UI
+        this.testimonios = (testimoniosBackend || []).map((t: any, idx: number) => {
+          // Tu backend ya devuelve tags como array
+          const tagsArray = Array.isArray(t.tags) ? t.tags : [];
 
-        const testimoniosTransformados: Testimonio[] = (testimoniosBackend || []).map((t: any, idx: number) => ({
-          id: base + idx + 1,
-          _id: t._id,
-          usuarioId: t.usuarioId,
-          nombre: t.nombre || 'Anónimo',
-          email: t.email,
-          meta: t.meta || 'En proceso de sanación',
-          textoCorto: t.textoCorto || '',
-          historiaCompleta: t.historiaCompleta || t.textoCorto || '',
-          impacto: t.impacto || '',
-          tags: Array.isArray(t.tags) ? t.tags : [],
-          foto: t.foto || t.imagenPath || 'inspiran/default.jpg',
-          colorCard: this.cardColors[(base + idx) % this.cardColors.length],
-          ciudad: t.ciudad,
-          estado: t.estado,
-          createdAt: t.createdAt
-        }));
+          return {
+            id: idx + 1,
+            _id: t._id,
+            usuarioId: t.usuarioId,
+            nombre: t.nombre || 'Anónimo',
+            email: t.email,
+            meta: t.meta || 'En proceso de sanación',
+            textoCorto: t.textoCorto || '',
+            historiaCompleta: t.historiaCompleta || t.textoCorto || '',
+            impacto: t.impacto || '',
+            tags: tagsArray,
+            // 🔧 CORREGIDO: Usar el método getImagenUrl para construir la URL correcta
+            foto: this.getImagenUrl(t.imagenPath) || 'assets/images/default-avatar.jpg',
+            colorCard: this.cardColors[idx % this.cardColors.length],
+            ciudad: t.ciudad,
+            estado: t.estado,
+            createdAt: t.createdAt
+          };
+        });
 
-        this.testimonios = [...this.testimoniosLocales, ...testimoniosTransformados];
-
-        // Re-render de iconos (por si el DOM se actualizó)
-        setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 0);
+        this.cargando = false;
+        
+        // Re-render de iconos después de que se actualice el DOM
+        setTimeout(() => { 
+          if (typeof lucide !== 'undefined') lucide.createIcons(); 
+        }, 0);
       },
       error: (error) => {
-        console.error('Error cargando testimonios del backend:', error);
-        // Mantén solo locales si falla
-        this.testimonios = [...this.testimoniosLocales];
+        console.error('Error cargando testimonios:', error);
+        this.testimonios = [];
+        this.cargando = false;
+        
+        // Asegurar iconos incluso en error
+        setTimeout(() => { 
+          if (typeof lucide !== 'undefined') lucide.createIcons(); 
+        }, 0);
       }
     });
+  }
+
+  // 🔧 AGREGAR ESTE MÉTODO PARA CONSTRUIR URLs DE IMAGEN
+  getImagenUrl(imagenPath: string): string {
+    if (!imagenPath) {
+      return this.getDefaultAvatar('U');
+    }
+
+    console.log('🖼️ Historias - imagenPath recibida:', imagenPath);
+
+    // Base URL sin /api/v1
+    const baseUrl = this.apiUrl.replace('/api/v1', '');
+    
+    // Si ya es una URL completa, devolverla tal cual
+    if (imagenPath.startsWith('http')) {
+      return imagenPath;
+    }
+    
+    // Si la ruta YA INCLUYE /uploads/
+    if (imagenPath.startsWith('/uploads/')) {
+      const urlFinal = `${baseUrl}${imagenPath}`;
+      console.log('✅ Historias - URL construida (ruta con /uploads/):', urlFinal);
+      return urlFinal;
+    }
+    
+    // Si es solo el nombre del archivo
+    if (!imagenPath.includes('/')) {
+      const urlFinal = `${baseUrl}/uploads/${imagenPath}`;
+      console.log('📁 Historias - URL construida (solo nombre archivo):', urlFinal);
+      return urlFinal;
+    }
+    
+    // Para cualquier otro caso
+    const urlFinal = `${baseUrl}${imagenPath}`;
+    console.log('🔗 Historias - URL construida (caso general):', urlFinal);
+    return urlFinal;
+  }
+
+  // Avatar por defecto con inicial
+  getDefaultAvatar(inicial: string): string {
+    const colors = ['#4A90E2', '#50E3C2', '#9013FE', '#F5A623', '#D0021B'];
+    const color = colors[inicial.charCodeAt(0) % colors.length];
+    
+    return `data:image/svg+xml;base64,${btoa(`
+      <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="45" fill="${color}"/>
+        <text x="50" y="60" text-anchor="middle" fill="white" font-size="40" font-family="Arial, sans-serif">${inicial}</text>
+      </svg>
+    `)}`;
   }
 
   getCardColor(index: number): string {
@@ -164,28 +186,34 @@ export class Historias implements OnInit, AfterViewInit {
     return this.tagIcons[tag] || 'help-circle';
   }
 
+  // 🔧 CORREGIR EL MANEJO DE ERRORES DE IMAGEN
   handleImageError(event: Event, testimonio: Testimonio): void {
     const img = event.target as HTMLImageElement;
-    const placeholder = document.createElement('div');
-    placeholder.className = 'avatar-placeholder';
-    placeholder.style.background = this.getCardColor(this.testimonios.indexOf(testimonio));
-    placeholder.textContent = testimonio.nombre.charAt(0);
-    img.parentNode?.replaceChild(placeholder, img);
+    console.warn('❌ Error cargando imagen en historias:', testimonio.foto);
+    
+    // Usar avatar con inicial
+    const inicial = testimonio.nombre.charAt(0).toUpperCase();
+    img.src = this.getDefaultAvatar(inicial);
+    
+    // Prevenir futuros intentos
+    testimonio.foto = this.getDefaultAvatar(inicial);
   }
 
   handleModalImageError(event: Event): void {
     const img = event.target as HTMLImageElement;
-    const placeholder = document.createElement('div');
-    placeholder.className = 'modal-avatar-placeholder';
-    placeholder.textContent = this.testimonioSeleccionado?.nombre.charAt(0) || '?';
-    img.parentNode?.replaceChild(placeholder, img);
+    const inicial = this.testimonioSeleccionado?.nombre.charAt(0).toUpperCase() || '?';
+    img.src = this.getDefaultAvatar(inicial);
   }
 
   abrirModal(testimonio: Testimonio): void {
     this.testimonioSeleccionado = testimonio;
     this.modalAbierto = true;
     document.body.style.overflow = 'hidden';
-    setTimeout(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); }, 100);
+    
+    // Asegurar que los iconos del modal se rendericen
+    setTimeout(() => { 
+      if (typeof lucide !== 'undefined') lucide.createIcons(); 
+    }, 100);
   }
 
   cerrarModal(): void {
@@ -202,9 +230,21 @@ export class Historias implements OnInit, AfterViewInit {
     if (this.testimonioSeleccionado) {
       const texto = `"${this.testimonioSeleccionado.textoCorto}" - ${this.testimonioSeleccionado.nombre}`;
       if (navigator.share) {
-        navigator.share({ title: 'Historia Inspiradora - Ma´Care', text: texto, url: window.location.href });
+        navigator.share({ 
+          title: 'Historia Inspiradora - Ma´Care', 
+          text: texto, 
+          url: window.location.href 
+        });
       } else {
-        alert(`Comparte esta historia: ${texto}`);
+        // Fallback para navegadores que no soportan Web Share API
+        const shareText = `${texto}\n\nLee más historias inspiradoras en: ${window.location.href}`;
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(shareText).then(() => {
+            alert('Historia copiada al portapapeles. ¡Compártela donde quieras!');
+          });
+        } else {
+          alert(`Comparte esta historia:\n\n${shareText}`);
+        }
       }
     }
   }

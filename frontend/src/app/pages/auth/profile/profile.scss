@@ -10,11 +10,52 @@ $texto: #2a2a2a;
 $texto-light: #666;
 $borde: #e1e1e1;
 
+/* Animaciones para transiciones suaves */
+.page-transition {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.route-transition {
+  animation: slideFade 0.3s ease-out;
+}
+
+@keyframes slideFade {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .profile-wrapper {
   min-height: 100vh;
   background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
   padding: 20px;
   font-family: 'Sour Gummy', system-ui, -apple-system, sans-serif;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .profile-container {
@@ -30,6 +71,7 @@ $borde: #e1e1e1;
   margin-bottom: 20px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid $borde;
+  animation: slideFade 0.4s ease-out 0.1s both;
 }
 
 .avatar-section {
@@ -46,6 +88,7 @@ $borde: #e1e1e1;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: fadeIn 0.6s ease-out 0.2s both;
   
   .avatar-icon {
     width: 32px;
@@ -56,6 +99,7 @@ $borde: #e1e1e1;
 
 .user-info {
   flex: 1;
+  animation: fadeIn 0.6s ease-out 0.3s both;
 }
 
 .user-name {
@@ -79,6 +123,7 @@ $borde: #e1e1e1;
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  animation: fadeIn 0.6s ease-out 0.4s both;
   
   &.admin {
     background: $rosa-strong;
@@ -103,6 +148,7 @@ $borde: #e1e1e1;
   padding: 30px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid $borde;
+  animation: slideFade 0.4s ease-out 0.2s both;
 }
 
 /* Tarjeta de cambiar contraseña */
@@ -113,6 +159,7 @@ $borde: #e1e1e1;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid $borde;
   margin-bottom: 20px;
+  animation: slideFade 0.4s ease-out 0.3s both;
   
   .card-header {
     display: flex;
@@ -169,6 +216,11 @@ $borde: #e1e1e1;
 
 .form-group {
   margin-bottom: 24px;
+  animation: fadeIn 0.5s ease-out;
+  
+  &:nth-child(1) { animation-delay: 0.1s; }
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.3s; }
   
   label {
     display: block;
@@ -221,6 +273,7 @@ $borde: #e1e1e1;
       outline: none;
       border-color: $rosa-strong;
       box-shadow: 0 0 0 3px rgba($rosa-strong, 0.1);
+      transform: translateY(-1px);
     }
     
     &::placeholder {
@@ -248,6 +301,7 @@ $borde: #e1e1e1;
     
     &:hover {
       background: rgba($rosa, 0.1);
+      transform: scale(1.1);
       
       svg {
         color: $rosa-strong;
@@ -268,6 +322,7 @@ $borde: #e1e1e1;
   margin-top: 32px;
   padding-top: 24px;
   border-top: 1px solid $borde;
+  animation: fadeIn 0.5s ease-out 0.4s both;
   
   .btn {
     padding: 12px 24px;
@@ -363,6 +418,14 @@ $borde: #e1e1e1;
   border-radius: 12px;
   border: 1px solid $borde;
   transition: all 0.2s ease;
+  animation: fadeIn 0.5s ease-out;
+  
+  // Animaciones escalonadas para los items
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.1}s;
+    }
+  }
   
   &.editable {
     background: rgba($rosa, 0.05);
@@ -371,6 +434,7 @@ $borde: #e1e1e1;
     &:hover {
       border-color: $rosa-strong;
       background: rgba($rosa, 0.1);
+      transform: translateY(-2px);
     }
   }
 }
@@ -441,11 +505,13 @@ $borde: #e1e1e1;
     font-size: 1rem;
     font-weight: 600;
     color: $texto;
-    transition: border-color 0.2s ease;
+    transition: all 0.3s ease;
     
     &:focus {
       outline: none;
       border-color: $rosa-strong;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(225, 88, 134, 0.1);
     }
     
     &:disabled {
@@ -471,6 +537,7 @@ $borde: #e1e1e1;
     &:hover {
       background: $rosa-strong;
       border-color: $rosa-strong;
+      transform: scale(1.1);
       
       svg {
         color: white;
@@ -484,6 +551,7 @@ $borde: #e1e1e1;
   margin-top: 30px;
   padding-top: 24px;
   border-top: 1px solid $borde;
+  animation: fadeIn 0.5s ease-out 0.5s both;
 }
 
 .actions-grid {
@@ -509,18 +577,24 @@ $borde: #e1e1e1;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-decoration: none;
   font-family: inherit;
   flex: 1;
+  animation: fadeIn 0.6s ease-out;
   
   .btn-icon {
     width: 18px;
     height: 18px;
+    transition: transform 0.2s ease;
   }
   
   &:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    
+    .btn-icon {
+      transform: scale(1.1);
+    }
   }
 }
 
@@ -552,6 +626,7 @@ $borde: #e1e1e1;
   justify-content: center;
   min-height: 60vh;
   text-align: center;
+  animation: fadeIn 0.5s ease-out;
 }
 
 .loading-spinner {
@@ -612,5 +687,12 @@ $borde: #e1e1e1;
   
   .password-input-group .form-control {
     padding: 12px 45px 12px 14px;
+  }
+}
+
+/* Efectos de hover mejorados para todos los elementos interactivos */
+button, .action-btn, .edit-btn, .toggle-password {
+  &:active {
+    transform: translateY(0) scale(0.98);
   }
 }

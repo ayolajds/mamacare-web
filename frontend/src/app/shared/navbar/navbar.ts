@@ -37,7 +37,7 @@ export class Navbar {
     if (!u) return 'Mi cuenta';
     const name = (u.name || '').trim();
     const last = (u.lastName || '').trim();
-    return [name, last].filter(Boolean).join(' ') || u.email;
+    return [name].filter(Boolean).join(' ') || u.email;
   }
 
   // ✅ NUEVOS: Helpers para roles
