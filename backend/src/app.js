@@ -46,7 +46,7 @@ app.use((req, res, next) => {
   return express.json({ limit: '1mb' })(req, res, next);
 });
 
-// Estáticos
+// Estáticos - CORREGIDO: usa process.cwd() para raíz del proyecto
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rutas
@@ -83,21 +83,24 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ success: false, message: 'Error interno del servidor' });
 });
 
-// Bootstrap
+// Bootstrap - CORREGIDO
 (async () => {
   try {
     await connectDB();
     console.log('✅ MongoDB conectado');
 
     const fs = await import('fs');
-    const uploadsDir = path.join(__dirname, 'uploads');
+    // CORRECCIÓN: Usar process.cwd() para crear uploads en la raíz del proyecto
+    const uploadsDir = path.join(process.cwd(), 'uploads');
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
-      console.log('✅ Carpeta uploads creada');
+      console.log('✅ Carpeta uploads creada en:', uploadsDir);
+    } else {
+      console.log('✅ Carpeta uploads ya existe en:', uploadsDir);
     }
 
     app.listen(PORT, () => {
-            console.log(`🚀 API http://localhost:${PORT}/api/${API_VERSION}`);
+      console.log(`🚀 API http://localhost:${PORT}/api/${API_VERSION}`);
       console.log('📋 Endpoints disponibles:');
       console.log(`   🔐 Auth: http://localhost:${PORT}/api/${API_VERSION}/auth`);
       console.log(`   👤 Users: http://localhost:${PORT}/api/${API_VERSION}/users`);
