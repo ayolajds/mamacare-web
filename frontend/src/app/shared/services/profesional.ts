@@ -144,25 +144,21 @@ export class ProfessionalService {
 
   // 👤 Obtener perfil del profesional
   getProfessionalProfile(): Observable<ProfessionalResponse> {
-    console.log('👤 Obteniendo perfil del profesional...');
     return this.http.get<ProfessionalResponse>(`${this.baseUrl}/profile`);
   }
 
   // 📊 Obtener estadísticas del dashboard profesional
   getStats(): Observable<StatsResponse> {
-    console.log('📊 Obteniendo estadísticas del profesional...');
     return this.http.get<StatsResponse>(`${this.baseUrl}/stats`);
   }
 
   // ✅ NUEVO MÉTODO: Obtener lista de profesionales disponibles
   getProfessionalsList(): Observable<ProfessionalsListResponse> {
-    console.log('👥 Obteniendo lista de profesionales...');
     return this.http.get<ProfessionalsListResponse>(`${this.baseUrl}/list`);
   }
 
   // ✅ NUEVO MÉTODO: Obtener horarios disponibles de un profesional
   getAvailableSlots(professionalId: string, fecha?: string): Observable<AvailableSlotsResponse> {
-    console.log('📅 Obteniendo horarios disponibles para profesional:', professionalId);
     
     let params = new HttpParams();
     if (fecha) {
@@ -192,7 +188,6 @@ export class ProfessionalService {
     if (params.dateFrom) httpParams = httpParams.set('dateFrom', params.dateFrom);
     if (params.dateTo) httpParams = httpParams.set('dateTo', params.dateTo);
 
-    console.log('📅 Obteniendo citas del profesional:', params);
     
     return this.http.get<AppointmentsResponse>(`${this.baseUrl}/appointments`, { 
       params: httpParams 
@@ -282,7 +277,6 @@ export class ProfessionalService {
 
   // ➕ Crear nueva cita
   createAppointment(appointmentData: any): Observable<{success: boolean; data: Appointment}> {
-    console.log('➕ Creando nueva cita:', appointmentData);
     return this.http.post<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments`,
       appointmentData
@@ -291,7 +285,6 @@ export class ProfessionalService {
 
   // ✏️ Actualizar cita
   updateAppointment(appointmentId: string, updateData: any): Observable<{success: boolean; data: Appointment}> {
-    console.log('✏️ Actualizando cita:', { appointmentId, updateData });
     return this.http.put<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments/${appointmentId}`,
       updateData
@@ -300,7 +293,6 @@ export class ProfessionalService {
 
   // 🗑️ Cancelar cita
   cancelAppointment(appointmentId: string): Observable<{success: boolean; message: string}> {
-    console.log('🗑️ Cancelando cita:', appointmentId);
     return this.http.patch<{success: boolean; message: string}>(
       `${this.baseUrl}/appointments/${appointmentId}/cancel`,
       {}
@@ -322,7 +314,6 @@ export class ProfessionalService {
 
     httpParams = httpParams.set('_t', Date.now().toString());
 
-    console.log('👥 Obteniendo pacientes del profesional:', params);
     
     return this.http.get<PatientsResponse>(
       `${this.baseUrl}/patients`,
@@ -332,7 +323,6 @@ export class ProfessionalService {
 
   // 🔄 Actualizar estado de cita (PARA ESTADOS QUE NO REQUIEREN DESCONTAR SESIONES)
   updateAppointmentStatus(appointmentId: string, status: string): Observable<{success: boolean; data: Appointment}> {
-    console.log('🔄 Actualizando estado de cita:', { appointmentId, status });
     return this.http.patch<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments/${appointmentId}/status`,
       { status }
@@ -341,7 +331,6 @@ export class ProfessionalService {
 
   // ✅ NUEVO MÉTODO: INICIAR CONSULTA (cambia a "in_progress")
   iniciarConsulta(appointmentId: string): Observable<{success: boolean; data: Appointment}> {
-    console.log('🚀 Iniciando consulta para cita ID:', appointmentId);
     return this.http.patch<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments/${appointmentId}/status`,
       { status: 'in_progress' }
@@ -359,27 +348,9 @@ completarCita(appointmentId: string): Observable<CompletarCitaResponse> {
 
   // 📝 Actualizar notas de cita
   updateAppointmentNotes(appointmentId: string, notes: string): Observable<{success: boolean; data: Appointment}> {
-    console.log('📝 Actualizando notas de cita:', { appointmentId, notes });
     return this.http.patch<{success: boolean; data: Appointment}>(
       `${this.baseUrl}/appointments/${appointmentId}/notes`,
       { notes }
-    );
-  }
-
-  // 🎗️ CREAR TRATAMIENTO PARA PACIENTE - NUEVO MÉTODO
-  createPatientTreatment(patientId: string, treatmentData: TreatmentData): Observable<TreatmentResponse> {
-    console.log('🎗️ Creando tratamiento para paciente:', { patientId, treatmentData });
-    return this.http.post<TreatmentResponse>(
-      `${this.baseUrl}/patients/${patientId}/treatment`,
-      treatmentData
-    );
-  }
-
-  // 🎗️ OBTENER TRATAMIENTO DE PACIENTE - NUEVO MÉTODO
-  getPatientTreatment(patientId: string): Observable<TreatmentResponse> {
-    console.log('🎗️ Obteniendo tratamiento del paciente:', patientId);
-    return this.http.get<TreatmentResponse>(
-      `${this.baseUrl}/patients/${patientId}/treatment`
     );
   }
 }

@@ -138,7 +138,7 @@ export class Pacientes implements OnInit, OnDestroy {
 
   // 🎗️ Navegar a crear tratamiento
   goToCreateTreatment(patientId: string): void {
-    console.log('🎗️ Navegando a crear tratamiento para paciente:', patientId);
+
     this.router.navigate(['/profesional/pacientes', patientId, 'tratamiento']);
   }
 

@@ -52,7 +52,7 @@ export class AdminService {
 
   // 📊 Obtener estadísticas del dashboard
   getDashboardStats(): Observable<{ success: boolean; data: DashboardStats }> {
-    console.log('📊 Obteniendo estadísticas del dashboard...');
+
     return this.http.get<{ success: boolean; data: DashboardStats }>(
       `${this.baseUrl}/dashboard/stats`
     );
@@ -68,14 +68,13 @@ export class AdminService {
     if (role) params = params.set('role', role);
     if (status) params = params.set('status', status); // ✅ AGREGADO: Parámetro status
 
-    console.log('👥 Obteniendo lista de usuarios:', { page, limit, search, role, status });
+
     
     return this.http.get<UserListResponse>(`${this.baseUrl}/users`, { params });
   }
 
   // 🔄 Activar/desactivar usuario
   toggleUserStatus(userId: string): Observable<UserUpdateResponse> {
-    console.log('🔄 Cambiando estado del usuario:', userId);
     return this.http.patch<UserUpdateResponse>(
       `${this.baseUrl}/users/${userId}/toggle`,
       {}
@@ -84,7 +83,7 @@ export class AdminService {
 
   // 🎭 Cambiar rol de usuario
   updateUserRole(userId: string, newRole: string): Observable<UserUpdateResponse> {
-    console.log('🎭 Cambiando rol del usuario:', { userId, newRole });
+
     return this.http.patch<UserUpdateResponse>(
       `${this.baseUrl}/users/${userId}/role`,
       { role: newRole }

@@ -82,8 +82,7 @@ export class Historias implements OnInit, AfterViewInit {
     
     this.testimonioService.obtenerTestimonios().subscribe({
       next: (testimoniosBackend) => {
-        console.log('📥 Testimonios cargados:', testimoniosBackend);
-        
+
         // Transformar los datos del backend al formato que necesita la UI
         this.testimonios = (testimoniosBackend || []).map((t: any, idx: number) => {
           // Tu backend ya devuelve tags como array
@@ -135,7 +134,7 @@ export class Historias implements OnInit, AfterViewInit {
       return this.getDefaultAvatar('U');
     }
 
-    console.log('🖼️ Historias - imagenPath recibida:', imagenPath);
+
 
     // Base URL sin /api/v1
     const baseUrl = this.apiUrl.replace('/api/v1', '');
@@ -148,20 +147,20 @@ export class Historias implements OnInit, AfterViewInit {
     // Si la ruta YA INCLUYE /uploads/
     if (imagenPath.startsWith('/uploads/')) {
       const urlFinal = `${baseUrl}${imagenPath}`;
-      console.log('✅ Historias - URL construida (ruta con /uploads/):', urlFinal);
+
       return urlFinal;
     }
     
     // Si es solo el nombre del archivo
     if (!imagenPath.includes('/')) {
       const urlFinal = `${baseUrl}/uploads/${imagenPath}`;
-      console.log('📁 Historias - URL construida (solo nombre archivo):', urlFinal);
+
       return urlFinal;
     }
     
     // Para cualquier otro caso
     const urlFinal = `${baseUrl}${imagenPath}`;
-    console.log('🔗 Historias - URL construida (caso general):', urlFinal);
+
     return urlFinal;
   }
 

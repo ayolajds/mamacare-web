@@ -97,7 +97,6 @@ export class Dashboard implements OnInit {
   }
 
   processUserStats(backendData: any) {
-    console.log('Datos de usuarios recibidos:', backendData);
     
     // Mapear los datos del backend a nuestra interfaz
     this.stats = {
@@ -128,7 +127,7 @@ export class Dashboard implements OnInit {
   }
 
   processAppointmentStats(statsData: any) {
-    console.log('Datos de citas recibidos:', statsData);
+
     
     // Citas totales
     this.appointmentStats.totalAppointments = statsData.totalAppointments || 0;

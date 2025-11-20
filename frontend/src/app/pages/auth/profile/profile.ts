@@ -117,11 +117,11 @@ export class Profile {
       confirmPassword: this.passwordData.confirmPassword
     };
 
-    console.log('🔄 Enviando cambio de contraseña al backend...');
+
 
     this.auth.changePassword(passwordRequest).subscribe({
       next: (response) => {
-        console.log('✅ Respuesta del backend:', response);
+
         this.updating = false;
         
         if (response.success) {
@@ -144,7 +144,7 @@ export class Profile {
         }
       },
       error: (error) => {
-        console.log('❌ Error del backend:', error);
+
         this.updating = false;
         Swal.fire({
           icon: 'error',
@@ -168,11 +168,11 @@ export class Profile {
       phone: this.editableUserData.phone
     };
 
-    console.log('🔄 Enviando actualización de perfil al backend...', profileRequest);
+
 
     this.auth.updateProfile(profileRequest).subscribe({
       next: (response) => {
-        console.log('✅ Respuesta del backend:', response);
+
         this.updating = false;
         
         if (response.success && response.user) {
@@ -196,7 +196,7 @@ export class Profile {
         }
       },
       error: (error) => {
-        console.log('❌ Error del backend:', error);
+
         this.updating = false;
         Swal.fire({
           icon: 'error',

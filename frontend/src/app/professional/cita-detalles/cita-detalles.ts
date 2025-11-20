@@ -101,13 +101,7 @@ export class CitaDetalles implements OnInit, OnDestroy {
                 this.notas.notasPaciente = this.cita.notes;
               }
               
-              console.log('✅ Cita cargada con datos extendidos:', {
-                tipoCita: this.cita.tipoCita,
-                paqueteId: this.cita.paqueteId,
-                motivo: this.cita.motivo,
-                sintomas: this.cita.sintomas,
-                ubicacion: this.cita.ubicacion
-              });
+
             } else {
               this.error = 'Cita no encontrada';
               this.mostrarError('Cita no encontrada', 'No se pudo encontrar la cita solicitada.');
@@ -354,7 +348,7 @@ export class CitaDetalles implements OnInit, OnDestroy {
            Sesiones restantes: ${response.data.sesionesRestantes}`
         );
         
-        console.log('✅ Cita completada y sesión descontada:', response);
+
       } else {
         this.error = 'Error al completar la cita';
         this.mostrarError('Error', 'No se pudo completar la cita. Por favor, intenta nuevamente.');

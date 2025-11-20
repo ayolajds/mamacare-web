@@ -94,7 +94,6 @@ export class MisPaquetes implements OnInit, OnDestroy {
           if (response.success) {
             // Procesar los paquetes para actualizar estados
             this.paquetes = this.procesarEstadosPaquetes(response.data);
-            console.log('✅ Paquetes del usuario:', this.paquetes);
           } else {
             this.error = 'No se pudieron cargar los paquetes';
             this.mostrarError('No se pudieron cargar tus paquetes. Por favor, intenta nuevamente.');

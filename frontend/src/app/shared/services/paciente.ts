@@ -151,7 +151,6 @@ export class PatientService {
 
   // 📊 Obtener datos del dashboard del paciente
   getDashboard(): Observable<{ success: boolean; data: DashboardData }> {
-    console.log('📊 Obteniendo dashboard del paciente...');
     return this.http.get<{ success: boolean; data: DashboardData }>(
       `${this.baseUrl}/dashboard`,
       { headers: this.getAuthHeaders() }
@@ -160,7 +159,7 @@ export class PatientService {
 
   // 🏥 Obtener información del tratamiento
   getTreatment(): Observable<{ success: boolean; data: PatientTreatment }> {
-    console.log('🏥 Obteniendo información de tratamiento...');
+
     return this.http.get<{ success: boolean; data: PatientTreatment }>(
       `${this.baseUrl}/treatment`,
       { headers: this.getAuthHeaders() }
@@ -169,7 +168,7 @@ export class PatientService {
 
   // 📋 Obtener historial médico
   getMedicalHistory(): Observable<{ success: boolean; data: MedicalHistory }> {
-    console.log('📋 Obteniendo historial médico...');
+
     return this.http.get<{ success: boolean; data: MedicalHistory }>(
       `${this.baseUrl}/medical-history`,
       { headers: this.getAuthHeaders() }
@@ -189,7 +188,7 @@ export class PatientService {
     if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
     if (params.status) httpParams = httpParams.set('status', params.status);
 
-    console.log('📅 Obteniendo citas del paciente:', params);
+
     
     return this.http.get<PatientAppointmentsResponse>(
       `${this.baseUrl}/appointments`, 
@@ -206,7 +205,6 @@ export class PatientService {
     intensity: number;
     notes?: string;
   }): Observable<SymptomResponse> {
-    console.log('❤️ Registrando síntoma:', symptomData);
     
     return this.http.post<SymptomResponse>(
       `${this.baseUrl}/symptoms`,
@@ -217,7 +215,6 @@ export class PatientService {
 
   // 📝 Solicitar nueva cita
   requestAppointment(appointmentData: AppointmentRequest): Observable<AppointmentRequestResponse> {
-    console.log('📝 Solicitando nueva cita:', appointmentData);
     return this.http.post<AppointmentRequestResponse>(
       `${environment.apiUrl}/appointments/request`,
       appointmentData,
@@ -227,7 +224,6 @@ export class PatientService {
 
   // 🗑️ Cancelar cita
   cancelAppointment(appointmentId: string): Observable<{ success: boolean; message: string }> {
-    console.log('🗑️ Cancelando cita:', appointmentId);
     return this.http.patch<{ success: boolean; message: string }>(
       `${environment.apiUrl}/appointments/${appointmentId}/cancel`,
       {},
@@ -237,7 +233,6 @@ export class PatientService {
 
   // 🔄 Reagendar cita
   rescheduleAppointment(appointmentId: string, newDate: string): Observable<{ success: boolean; data: any }> {
-    console.log('🔄 Reagendando cita:', { appointmentId, newDate });
     return this.http.patch<{ success: boolean; data: any }>(
       `${environment.apiUrl}/appointments/${appointmentId}/reschedule`,
       { date: newDate },
@@ -247,7 +242,7 @@ export class PatientService {
 
   // 👤 Obtener perfil del paciente
   getPatientProfile(): Observable<{ success: boolean; data: any }> {
-    console.log('👤 Obteniendo perfil del paciente...');
+
     return this.http.get<{ success: boolean; data: any }>(
       `${environment.apiUrl}/users/profile`,
       { headers: this.getAuthHeaders() }
@@ -256,7 +251,6 @@ export class PatientService {
 
   // ✏️ Actualizar perfil del paciente
   updateProfile(profileData: UpdateProfileRequest): Observable<UpdateProfileResponse> {
-    console.log('✏️ Actualizando perfil del paciente:', profileData);
     return this.http.put<UpdateProfileResponse>(
       `${environment.apiUrl}/users/profile`,
       profileData,
@@ -269,7 +263,6 @@ export class PatientService {
     currentPassword: string;
     newPassword: string;
   }): Observable<{ success: boolean; message: string }> {
-    console.log('🔐 Cambiando contraseña...');
     return this.http.put<{ success: boolean; message: string }>(
       `${environment.apiUrl}/users/change-password`,
       passwordData,
@@ -279,7 +272,6 @@ export class PatientService {
 
   // 📊 Obtener estadísticas del paciente (si el backend las tiene)
   getPatientStats(): Observable<{ success: boolean; data: any }> {
-    console.log('📊 Obteniendo estadísticas del paciente...');
     return this.http.get<{ success: boolean; data: any }>(
       `${this.baseUrl}/stats`,
       { headers: this.getAuthHeaders() }
@@ -288,7 +280,6 @@ export class PatientService {
 
   // 🗂️ Obtener documentos del paciente (si el backend los tiene)
   getPatientDocuments(): Observable<{ success: boolean; data: any[] }> {
-    console.log('🗂️ Obteniendo documentos del paciente...');
     return this.http.get<{ success: boolean; data: any[] }>(
       `${this.baseUrl}/documents`,
       { headers: this.getAuthHeaders() }

@@ -48,7 +48,7 @@ export class Login {
           const user = this.auth.currentUser(); // O usar res.user si está disponible
           const role = user?.role?.toLowerCase() || '';
           
-          console.log('🔍 Rol detectado para redirección:', role);
+
           
           // Mapeo de redirecciones
           const roleRedirects: { [key: string]: string } = {
@@ -63,7 +63,7 @@ export class Login {
           };
           
           const redirectTo = roleRedirects[role] || '/profile';
-          console.log('🎯 Redirigiendo a:', redirectTo);
+
           
           this.router.navigate([redirectTo]);
         });

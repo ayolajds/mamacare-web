@@ -50,7 +50,7 @@ export class ResetPassword implements OnInit {
         next: (response) => {
           this.tokenValid = true;
           this.tokenChecked = true;
-          console.log('✅ Token válido:', response);
+
         },
         error: (error) => {
           this.tokenValid = false;
@@ -119,7 +119,7 @@ get confirmPasswordErrors() {
       .subscribe({
         next: (response) => {
           this.showSuccess = true;
-          console.log('✅ Password reset success:', response);
+
         },
         error: (error) => {
           this.errorMessage = error.message || 'Error al restablecer la contraseña. Intenta nuevamente.';

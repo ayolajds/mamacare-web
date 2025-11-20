@@ -60,7 +60,6 @@ export class SolicitudesPendientes implements OnInit {
     this.http.get(`${environment.apiUrl}/appointments/solicitudes/pendientes`)
       .subscribe({
         next: (response: any) => {
-          console.log('📋 Solicitudes cargadas:', response);
           this.solicitudes = response.data || [];
           this.solicitudesFiltradas = this.solicitudes;
           this.cargandoSolicitudes = false;
@@ -78,7 +77,7 @@ export class SolicitudesPendientes implements OnInit {
     this.http.get(`${environment.apiUrl}/users/professionals`)
       .subscribe({
         next: (response: any) => {
-          console.log('👨‍⚕️ Profesionales cargados:', response);
+
           // Verificar la estructura de la respuesta
           if (Array.isArray(response)) {
             this.profesionales = response;
@@ -132,14 +131,7 @@ aprobarSolicitud() {
   
   // Crear fecha en hora local de Colombia (UTC-5)
   const fechaLocal = new Date(`${fecha}T${hora}:00`);
-  
-  // ✅ DIAGNÓSTICO: Ver qué estamos creando
-  console.log('🔍 DIAGNÓSTICO DE FECHA:');
-  console.log('📅 Fecha seleccionada:', fecha);
-  console.log('🕐 Hora seleccionada:', hora);
-  console.log('📍 Fecha local creada:', fechaLocal.toString());
-  console.log('🕐 Fecha local ISO:', fechaLocal.toISOString());
-  console.log('⏰ Diferencia de zona:', fechaLocal.getTimezoneOffset() / 60, 'horas');
+ 
 
   // ✅ INFORMACIÓN CRÍTICA DE LA SOLICITUD
   const tipoCita = this.solicitudSeleccionada.solicitud?.tipoPreferido || 'presencial';
@@ -152,15 +144,6 @@ aprobarSolicitud() {
   const pacienteName = this.solicitudSeleccionada.patientId?.name || 'Paciente';
   const pacienteEmail = this.solicitudSeleccionada.patientId?.email || '';
 
-  console.log('📋 Información COMPLETA de la solicitud:', {
-    tipoCita,
-    paqueteId,
-    motivo,
-    sintomas,
-    pacienteId,
-    pacienteName,
-    pacienteEmail
-  });
 
   // ✅ CORREGIDO: Incluir TODA la información necesaria
   const datos = {
@@ -186,22 +169,9 @@ aprobarSolicitud() {
     solicitudId: this.solicitudSeleccionada._id
   };
 
-  console.log('📤 Aprobando solicitud con datos COMPLETOS:', datos);
-
   this.http.put(`${environment.apiUrl}/appointments/solicitudes/aprobar/${this.solicitudSeleccionada._id}`, datos)
     .subscribe({
       next: (response: any) => {
-        console.log('✅ Solicitud aprobada:', response);
-        
-        // ✅ VERIFICAR LOS DATOS EN LA RESPUESTA
-        if (response.data) {
-          console.log('📊 DATOS GUARDADOS EN BD:', {
-            tipoCita: response.data.tipoCita,
-            paqueteId: response.data.paqueteId,
-            pacienteName: response.data.pacienteName,
-            motivo: response.data.motivo
-          });
-        }
         
         this.cerrarModal();
         this.cargarSolicitudes();
@@ -241,12 +211,6 @@ getUbicacionPorModalidad(tipoCita: string): string {
     this.http.put(`${environment.apiUrl}/appointments/solicitudes/rechazar/${this.solicitudSeleccionada._id}`, {
       motivoRechazo: this.motivoRechazo.trim()
     }).subscribe({
-      next: (response: any) => {
-        console.log('✅ Solicitud rechazada:', response);
-        this.cerrarModal();
-        this.cargarSolicitudes();
-        this.mostrarExito('Solicitud rechazada exitosamente');
-      },
       error: (error) => {
         console.error('❌ Error rechazando solicitud:', error);
         this.mostrarError('No se pudo rechazar la solicitud. Intente nuevamente.');
@@ -398,10 +362,6 @@ getUbicacionPorModalidad(tipoCita: string): string {
 getEspecialidadProfesional(profesional: any): string {
   if (!profesional) return 'Sin especialidad';
   
-  console.log('🔍 Buscando specialty en:', profesional.name, {
-    specialty: profesional.specialty,
-    tieneSpecialty: !!profesional.specialty
-  });
   
   if (profesional.specialty && profesional.specialty.trim() !== '') {
     return profesional.specialty;

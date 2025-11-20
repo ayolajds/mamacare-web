@@ -30,15 +30,11 @@ export class TestimoniosPendientes implements OnInit {
     this.testimonioService.obtenerTodosTestimonios('pendiente').subscribe({
       next: (testimonios) => {
         this.testimonios = testimonios;
-        this.cargando = false;
-        console.log(`📝 Cargados ${testimonios.length} testimonios pendientes`);
-        console.log('📸 Testimonios con imágenes:', testimonios.filter(t => t.imagenPath));
+        this.cargando = false;;
         
         // DEBUG: Mostrar URLs de imágenes para diagnóstico
         testimonios.forEach((testimonio, index) => {
-          if (testimonio.imagenPath) {
-            console.log(`🖼️ Testimonio ${index} - imagenPath original:`, testimonio.imagenPath);
-            console.log(`🔗 Testimonio ${index} - URL construida:`, this.getImagenUrl(testimonio.imagenPath));
+          if (testimonio.imagenPath) {;
           }
         });
       },
@@ -52,10 +48,9 @@ export class TestimoniosPendientes implements OnInit {
 
   // Método CORREGIDO para construir la URL completa de la imagen
   getImagenUrl(imagenPath: string): string {
-    console.log('🖼️ DEBUG imagenPath recibida:', imagenPath);
     
     if (!imagenPath) {
-      console.log('⚠️ No hay imagenPath, usando avatar por defecto');
+
       return this.getDefaultAvatar('U');
     }
     
@@ -65,22 +60,18 @@ export class TestimoniosPendientes implements OnInit {
     // Si tiene /api/v1/uploads/, quítalo (esto es el problema)
     if (imagenPath.includes('/api/v1/uploads/')) {
       rutaLimpia = imagenPath.replace('/api/v1/uploads/', '/uploads/');
-      console.log('🔄 Ruta corregida (quitado /api/v1):', rutaLimpia);
     }
     // Si ya tiene /uploads/, déjalo así
     else if (imagenPath.startsWith('/uploads/')) {
       rutaLimpia = imagenPath;
-      console.log('✅ Ruta ya tiene formato correcto');
     }
     // Si es solo el nombre del archivo, agrega /uploads/
     else if (!imagenPath.includes('/') && imagenPath.trim() !== '') {
       rutaLimpia = `/uploads/${imagenPath}`;
-      console.log('📁 Solo nombre archivo, agregando /uploads/:', rutaLimpia);
     }
     
     // Construir URL completa SIN /api/v1
     const urlFinal = `${this.apiUrl.replace('/api/v1', '')}${rutaLimpia}`;
-    console.log('🔗 URL final construida:', urlFinal);
     
     return urlFinal;
   }
@@ -194,7 +185,6 @@ export class TestimoniosPendientes implements OnInit {
 
     this.testimonioService.aprobarTestimonio(id).subscribe({
       next: (response) => {
-        console.log('✅ Testimonio aprobado:', response);
         this.procesando = false;
         Swal.close();
         this.mostrarExito('Testimonio aprobado', 'El testimonio ha sido aprobado exitosamente.')
@@ -223,7 +213,6 @@ export class TestimoniosPendientes implements OnInit {
 
     this.testimonioService.rechazarTestimonio(id, motivo).subscribe({
       next: (response) => {
-        console.log('❌ Testimonio rechazado:', response);
         this.procesando = false;
         Swal.close();
         this.mostrarExito('Testimonio rechazado', 'El testimonio ha sido rechazado exitosamente.')
@@ -254,7 +243,6 @@ export class TestimoniosPendientes implements OnInit {
 
     this.testimonioService.eliminarTestimonio(id).subscribe({
       next: (response) => {
-        console.log('🗑️ Testimonio eliminado:', response);
         this.procesando = false;
         Swal.close();
         this.mostrarExito('Testimonio eliminado', 'El testimonio ha sido eliminado permanentemente.')
@@ -305,8 +293,7 @@ export class TestimoniosPendientes implements OnInit {
     if (!imagenPath) return;
     
     const urlDirecta = this.getImagenUrl(imagenPath);
-    console.log('🔗 Abriendo URL en nueva pestaña:', urlDirecta);
-    
+
     Swal.fire({
       title: 'Abrir imagen',
       text: '¿Quieres abrir la imagen en una nueva pestaña?',

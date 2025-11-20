@@ -61,7 +61,7 @@ export class ForgotPassword {
         next: (response) => {
           this.showSuccess = true;
           this.forgotPasswordForm.reset();
-          console.log('✅ Forgot password success:', response);
+
         },
         error: (error) => {
           this.errorMessage = error.message || 'Error al enviar el correo. Intenta nuevamente.';

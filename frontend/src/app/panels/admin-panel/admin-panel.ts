@@ -43,7 +43,7 @@ export class AdminPanel implements OnInit {
         next: (response: any) => {
           if (response.success && response.testimonios) {
             this.testimoniosCount = response.testimonios.length;
-            console.log(`📝 Testimonios pendientes: ${this.testimoniosCount}`);
+
           }
         },
         error: (error) => {

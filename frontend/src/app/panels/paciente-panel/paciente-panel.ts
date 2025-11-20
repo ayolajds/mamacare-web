@@ -99,9 +99,9 @@ export class PacientePanel implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response: any) => {
-            console.log('📋 Respuesta de mis solicitudes:', response);
+
             const solicitudes = response?.data || response || [];
-            console.log('🔢 Solicitudes encontradas:', solicitudes.length);
+
             
             // Contar solo las solicitudes pendientes
             this.citasPendientesCount = solicitudes.filter((solicitud: any) => 
@@ -110,7 +110,7 @@ export class PacientePanel implements OnInit, OnDestroy {
               solicitud.status === 'pendiente'
             ).length;
             
-            console.log('✅ Citas pendientes count:', this.citasPendientesCount);
+
             resolve();
           },
           error: (error) => {
@@ -128,12 +128,11 @@ export class PacientePanel implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response: any) => {
-            console.log('📦 Respuesta de mis paquetes:', response);
+
             const paquetes = response?.data || response || [];
-            console.log('🔢 Paquetes encontrados:', paquetes.length);
-            
+
             this.paquetesCount = paquetes.length;
-            console.log('✅ Paquetes count:', this.paquetesCount);
+
             resolve();
           },
           error: (error) => {
@@ -150,7 +149,7 @@ export class PacientePanel implements OnInit, OnDestroy {
     const user = this.authService.currentUser();
     if (user && user.paquetesAcompanamientoComprados) {
       this.paquetesCount = user.paquetesAcompanamientoComprados.length;
-      console.log('✅ Paquetes count from user:', this.paquetesCount);
+
     } else {
       this.paquetesCount = 0;
     }
@@ -161,7 +160,7 @@ export class PacientePanel implements OnInit, OnDestroy {
       const user = this.authService.currentUser();
       if (user && user.kitsComprados) {
         this.kitsCount = user.kitsComprados.length;
-        console.log('✅ Kits count from user:', this.kitsCount);
+
       } else {
         this.kitsCount = 0;
       }
@@ -207,7 +206,7 @@ export class PacientePanel implements OnInit, OnDestroy {
   }
 
   refrescarDatos(): void {
-    console.log('🔄 Refrescando todos los datos...');
+
     this.loadAllData();
   }
 }

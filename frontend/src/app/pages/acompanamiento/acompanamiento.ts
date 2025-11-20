@@ -245,7 +245,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
             )
             .map((paquete: PaqueteComprado) => paquete.paqueteId);
           
-          console.log('💝 Paquetes con sesiones disponibles:', this.paquetesConSesiones);
+
         }
       });
     }
@@ -253,7 +253,7 @@ export class Acompanamiento implements OnInit, AfterViewInit {
 
   // ✅ MÉTODO PRINCIPAL: Solicitar paquete
   async solicitarPaquete(paquete: PaqueteAcompanamiento): Promise<void> {
-    console.log('🔄 SOLICITANDO PAQUETE:', paquete.nombre, paquete.id);
+
 
     // ✅ VALIDAR SI YA TIENE EL PAQUETE CON SESIONES DISPONIBLES
     if (this.yaTienePaqueteConSesiones(paquete.id)) {

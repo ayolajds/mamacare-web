@@ -110,7 +110,7 @@ export class Contacto {
       'N1xUBXVmG_z6s1AhA'
     )
     .then((response) => {
-      console.log('Mensaje enviado con éxito', response);
+
       this.isSubmitting = false;
       this.submitted = true;
       

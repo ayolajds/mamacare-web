@@ -67,7 +67,7 @@ export class MiTestimonio implements OnInit {
       next: (response) => { 
         this.puedeDarTestimonio = response?.puedeDarTestimonio ?? false; 
         this.verificandoPermisos = false; 
-        console.log('🔐 Permisos verificados:', this.puedeDarTestimonio);
+
       },
       error: (error) => { 
         console.error('Error verificando permisos:', error);
@@ -188,7 +188,7 @@ export class MiTestimonio implements OnInit {
   }
 
   mostrarExito(response: any) {
-    console.log('✅ Testimonio creado exitosamente:', response);
+
     
     const mensaje = response?.message || '¡Gracias por compartir tu historia! Tu testimonio fue enviado para publicación.';
     
@@ -256,7 +256,7 @@ export class MiTestimonio implements OnInit {
       formData.append('imagen', this.file, this.file.name);
     }
 
-    console.log('📤 Enviando testimonio...');
+
 
     this.testimonioService.crearTestimonio(formData).subscribe({
       next: (response) => {

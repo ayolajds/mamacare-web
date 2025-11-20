@@ -151,8 +151,6 @@ export class Appointments implements OnInit, OnDestroy {
       _t: Date.now()
     };
 
-    console.log('🔍 Cargando citas con parámetros:', params);
-
     this.http.get<any>(`${environment.apiUrl}/appointments/admin`, { 
       params,
       headers: {
@@ -162,7 +160,6 @@ export class Appointments implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('✅ RESPUESTA DEL BACKEND:', response);
           
           let rawAppointments: Appointment[] = [];
           
@@ -180,19 +177,9 @@ export class Appointments implements OnInit, OnDestroy {
             rawAppointments = [response.data];
           }
           
-          console.log('📊 Citas cargadas:', rawAppointments.length);
           
           // ✅ DEBUG: Mostrar datos críticos de cada cita
-          rawAppointments.forEach((apt, index) => {
-            console.log(`📋 Cita ${index + 1}:`, {
-              id: apt._id,
-              tipoCita: apt.tipoCita,
-              paqueteId: apt.paqueteId,
-              motivo: apt.motivo,
-              pacienteName: apt.pacienteName,
-              ubicacion: apt.ubicacion
-            });
-          });
+
           
           this.appointments = rawAppointments.filter((apt: Appointment) => {
             return apt.status !== 'pendiente';
@@ -224,7 +211,6 @@ export class Appointments implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.professionals = response.data || response;
-          console.log('Profesionales cargados:', this.professionals.length);
         },
         error: (error) => {
           console.error('Error cargando profesionales:', error);
@@ -348,7 +334,6 @@ export class Appointments implements OnInit, OnDestroy {
       solicitud: this.editingAppointment.solicitud
     };
 
-    console.log('📤 Enviando datos de actualización:', appointmentData);
 
     this.http.put<Appointment>(
       `${environment.apiUrl}/appointments/${this.editingAppointment._id}`, 
@@ -356,7 +341,6 @@ export class Appointments implements OnInit, OnDestroy {
     ).pipe(takeUntil(this.destroy$))
      .subscribe({
         next: (updatedAppointment) => {
-          console.log('✅ Cita actualizada:', updatedAppointment);
           this.loadAppointments();
           this.closeEditModal();
           this.isEditing = false;
@@ -412,7 +396,6 @@ export class Appointments implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Cita cancelada:', response);
           this.loadAppointments();
           this.isUpdating[appointment._id] = false;
           this.mostrarExito('Cita Cancelada', 'La cita se ha cancelado correctamente');
@@ -438,7 +421,6 @@ export class Appointments implements OnInit, OnDestroy {
     }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Cita confirmada:', response);
           this.loadAppointments();
           this.isUpdating[appointment._id] = false;
           this.mostrarExito('Cita Confirmada', 'La cita se ha confirmado correctamente');
@@ -463,7 +445,7 @@ export class Appointments implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          console.log('Cita completada:', response);
+
           this.loadAppointments();
           this.isUpdating[appointment._id] = false;
           this.mostrarExito('Cita Completada', 'La cita se ha marcado como completada');

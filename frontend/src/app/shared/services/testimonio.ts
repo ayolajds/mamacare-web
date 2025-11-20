@@ -20,7 +20,6 @@ export class TestimonioService {
         }
         return [];
       }),
-      tap(testimonios => console.log('📥 Testimonios aprobados:', testimonios.length)),
       catchError(err => {
         console.warn('Error obteniendo testimonios:', err);
         return of([]); // Siempre devuelve array vacío en error
@@ -31,7 +30,6 @@ export class TestimonioService {
   // Crear testimonio (va a estado "pendiente")
   crearTestimonio(formData: FormData): Observable<any> {
     return this.http.post<any>(this.apiUrl, formData).pipe(
-      tap(response => console.log('✅ Testimonio enviado:', response)),
       catchError((error) => {
         console.error('❌ Error enviando testimonio:', error);
         // Tu backend devuelve { message: '...' } en errores
@@ -72,7 +70,6 @@ export class TestimonioService {
         }
         return [];
       }),
-      tap(testimonios => console.log('👑 Testimonios admin:', testimonios.length)),
       catchError(err => {
         console.warn('Error obteniendo testimonios admin:', err);
         return of([]);
@@ -94,7 +91,6 @@ export class TestimonioService {
   // Aprobar testimonio (admin)
   aprobarTestimonio(id: string): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/admin/${id}/aprobar`, {}).pipe(
-      tap(response => console.log('✅ Testimonio aprobado:', response)),
       catchError((error) => {
         console.error('❌ Error aprobando testimonio:', error);
         const errorMessage = error?.error?.message || 'Error al aprobar testimonio';
@@ -106,7 +102,6 @@ export class TestimonioService {
   // Rechazar testimonio (admin)
   rechazarTestimonio(id: string, motivo: string): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/admin/${id}/rechazar`, { motivo }).pipe(
-      tap(response => console.log('❌ Testimonio rechazado:', response)),
       catchError((error) => {
         console.error('❌ Error rechazando testimonio:', error);
         const errorMessage = error?.error?.message || 'Error al rechazar testimonio';
@@ -118,7 +113,6 @@ export class TestimonioService {
   // Eliminar testimonio (admin)
   eliminarTestimonio(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/admin/${id}`).pipe(
-      tap(response => console.log('🗑️ Testimonio eliminado:', response)),
       catchError((error) => {
         console.error('❌ Error eliminando testimonio:', error);
         const errorMessage = error?.error?.message || 'Error al eliminar testimonio';

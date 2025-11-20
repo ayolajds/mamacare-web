@@ -42,14 +42,14 @@ export class QuienesSomos implements OnInit, AfterViewInit {
   }
 
   solicitarAyuda() {
-    console.log('Solicitar ayuda clicked');
+
   }
 
   serVoluntario() {
-    console.log('Ser voluntario clicked');
+
   }
 
   donar() {
-    console.log('Donar clicked');
+
   }
 }

@@ -114,26 +114,26 @@ export class Kits implements OnInit, AfterViewInit {
   private cargarKitsComprados(): void {
     if (this.authService.estaLogueado()) {
       const usuario = this.authService.obtenerUsuarioActual();
-      console.log('👤 Usuario actual:', usuario);
+
       
       if (usuario && usuario.kitsComprados) {
         this.kitsComprados = usuario.kitsComprados
           .filter((kit: KitComprado) => kit.estado === 'activo')
           .map((kit: KitComprado) => kit.kitId);
-        console.log('📦 Kits comprados cargados:', this.kitsComprados);
+
       } else {
-        console.log('ℹ️ Usuario no tiene kits comprados');
+
         this.kitsComprados = [];
       }
     } else {
-      console.log('🔒 Usuario no logueado');
+
       this.kitsComprados = [];
     }
   }
 
   yaTieneKit(kitId: number): boolean {
     const tiene = this.kitsComprados.includes(kitId);
-    console.log(`🔍 Verificando kit ${kitId}: ${tiene ? 'YA COMPRADO' : 'DISPONIBLE'}`);
+
     return tiene;
   }
 
@@ -161,7 +161,7 @@ export class Kits implements OnInit, AfterViewInit {
   }
 
   async solicitarKit(kit: Kit): Promise<void> {
-    console.log('🔄 SOLICITANDO KIT:', kit.id);
+
 
     // ✅ CONFIRMACIÓN PARA KITS MÚLTIPLES
     if (this.yaTieneKit(kit.id)) {

@@ -218,7 +218,6 @@ export class AuthService {
     return this.http.get<{ user: User }>(`${this.BASE}/me`, { headers }).pipe(
       map(r => r.user),
       tap(u => {
-        console.log('✅ Usuario actualizado desde backend:', u);
         localStorage.setItem(this.USER_KEY, JSON.stringify(u));
       }),
       catchError((error) => {
@@ -327,14 +326,12 @@ export class AuthService {
   actualizarUsuario(usuarioActualizado: User): void {
     if (this.estaLogueado()) {
       localStorage.setItem(this.USER_KEY, JSON.stringify(usuarioActualizado));
-      console.log('✅ Usuario actualizado localmente:', usuarioActualizado);
     }
   }
 
   // ✅ MÉTODO NUEVO: Actualizar kits comprados desde el backend
   async actualizarKitsComprados(): Promise<void> {
     if (!this.estaLogueado()) {
-      console.log('🔒 Usuario no logueado, no se pueden actualizar kits');
       return;
     }
 
@@ -350,7 +347,7 @@ export class AuthService {
         if (usuario) {
           usuario.kitsComprados = response.data || [];
           this.actualizarUsuario(usuario);
-          console.log('📦 Kits comprados actualizados:', usuario.kitsComprados);
+
         }
       }
     } catch (error) {
@@ -381,7 +378,6 @@ export class AuthService {
   // ✅ MÉTODOS NUEVOS PARA PAQUETES DE ACOMPAÑAMIENTO
   async actualizarPaquetesAcompanamientoComprados(): Promise<void> {
     if (!this.estaLogueado()) {
-      console.log('🔒 Usuario no logueado, no se pueden actualizar paquetes de acompañamiento');
       return;
     }
 
@@ -397,7 +393,6 @@ export class AuthService {
         if (usuario) {
           usuario.paquetesAcompanamientoComprados = response.data || [];
           this.actualizarUsuario(usuario);
-          console.log('💝 Paquetes de acompañamiento actualizados:', usuario.paquetesAcompanamientoComprados);
         }
       } else {
         console.error('❌ Error en respuesta de mis-paquetes:', response);

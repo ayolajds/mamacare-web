@@ -32,7 +32,7 @@ export class CitasHoyComponent implements OnInit {
 
     this.citasService.getMisCitas().subscribe({
       next: (response: any) => {
-        console.log('📅 Respuesta de citas:', response);
+
         
         const todasLasCitas = response?.data?.docs || response?.data || response || [];
         const hoy = new Date().toDateString();
@@ -47,7 +47,6 @@ export class CitasHoyComponent implements OnInit {
           return esHoy && esActiva;
         });
 
-        console.log('✅ Citas de hoy encontradas:', this.citasHoy);
         this.isLoading = false;
       },
       error: (error) => {

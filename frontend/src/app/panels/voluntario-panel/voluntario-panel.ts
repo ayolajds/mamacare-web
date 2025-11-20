@@ -164,7 +164,7 @@ export class VoluntarioPanel implements OnInit {
       next: (response: any) => {
         if (response.success && response.data) {
           this.historialEntregas = response.data;
-          console.log('📋 Historial cargado:', this.historialEntregas);
+
         } else {
           console.error('Error cargando historial:', response.message);
           this.historialEntregas = [];

@@ -88,7 +88,7 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            console.log('👤 Perfil profesional cargado:', response);
+
             if (response.success && response.data) {
               this.profesional = response.data;
               resolve();
@@ -126,7 +126,7 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response) => {
-            console.log('📊 Estadísticas cargadas:', response);
+
             if (response.success && response.data) {
               this.stats = response.data;
             } else {
@@ -154,7 +154,7 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (response: AppointmentsResponse) => {
-            console.log('📅 Próximas citas cargadas:', response);
+
             this.proximasCitas = this.professionalService.extractAppointments(response);
             resolve();
           },
@@ -255,28 +255,24 @@ export class ProfesionalPanel implements OnInit, OnDestroy {
 
   // Navegación
   goToCitas(): void {
-    console.log('📍 Navegando a citas...');
+
     this.router.navigate(['/profesional/citas']);
   }
 
   goToPacientes(): void {
-    console.log('📍 Navegando a pacientes...');
+
     this.router.navigate(['/profesional/pacientes']);
   }
 
-  // 🎗️ NUEVO: Navegar a crear tratamiento para paciente
-  goToCreateTreatment(patientId: string): void {
-    console.log('🎗️ Navegando a crear tratamiento para paciente:', patientId);
-    this.router.navigate(['/profesional/pacientes', patientId, 'tratamiento']);
-  }
+
 
   viewCitaDetails(cita: Appointment): void {
-    console.log('📍 Ver detalles de cita:', cita._id);
+
     this.router.navigate(['/profesional/citas', cita._id]);
   }
 
   refreshData(): void {
-    console.log('📍 Refrescando datos...');
+
     this.loadProfessionalData();
   }
 }

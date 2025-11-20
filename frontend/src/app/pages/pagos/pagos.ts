@@ -248,7 +248,7 @@ export class Pagos implements OnInit, AfterViewInit {
     this.kitsService.crearOrden(this.kitId, this.bancoSeleccionado).subscribe({
       next: async (response: any) => {
         this.isProcessing = false;
-        console.log('✅ Respuesta del servicio:', response);
+
         
         if (response.success) {
           // ✅ ACTUALIZAR KITS COMPRADOS DESPUÉS DE COMPRA EXITOSA
@@ -600,7 +600,7 @@ export class Pagos implements OnInit, AfterViewInit {
   // ✅ NUEVO MÉTODO: Actualizar kits comprados después de la compra
   private async actualizarKitsComprados(): Promise<void> {
     try {
-      console.log('🔄 Actualizando kits comprados después de compra...');
+
       
       // Actualizar desde el backend
       await this.authService.actualizarKitsComprados();
@@ -608,10 +608,7 @@ export class Pagos implements OnInit, AfterViewInit {
       // Verificar que se actualizó correctamente
       const usuarioActualizado = this.authService.obtenerUsuarioActual();
       const kitsComprados = usuarioActualizado?.kitsComprados || [];
-      
-      console.log('📦 Kits comprados después de actualización:', kitsComprados);
-      console.log('✅ Kit comprado actualmente:', this.kitId, '¿Está en la lista?', 
-                  kitsComprados.some((kit: any) => kit.kitId === this.kitId));
+    
       
     } catch (error) {
       console.error('❌ Error actualizando kits comprados:', error);

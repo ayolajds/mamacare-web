@@ -145,7 +145,7 @@ export class Recursos implements OnInit {
   }
 
   explorarHerramientas() {
-    console.log('Explorar herramientas clicked');
+
     this.showHerramientasModal = true;
   }
 
@@ -161,12 +161,12 @@ export class Recursos implements OnInit {
   }
 
   verVideos() {
-    console.log('Ver videos clicked');
+
     window.open('https://drive.google.com/drive/folders/1t_dRZnsK35DLOrHe2QsxCfO7vfqAmCfx?usp=sharing', '_blank');
   }
 
   agendarSesion() {
-    console.log('Agendar sesión clicked');
+
     
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/solicitar-cita']);
@@ -184,7 +184,7 @@ export class Recursos implements OnInit {
   }
 
   unirseGrupo() {
-    console.log('Unirse a grupo clicked');
+
     window.open('https://t.me/cancerdemamahormonalmetastasico', '_blank');
   }
 }

@@ -77,16 +77,16 @@ export class SolicitarCita implements OnInit, OnDestroy {
 
 cargarPaquetesDelUsuario(): void {
   this.cargandoPaquetes = true;
-  console.log('🔄 Cargando paquetes del usuario...');
+
   
   this.http.get<{success: boolean; user: User}>(`${environment.apiUrl}/users/me`)
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response) => {
-        console.log('✅ Usuario cargado:', response);
+
         
         const todosPaquetes = response.user?.paquetesAcompanamientoComprados || [];
-        console.log('📦 TODOS los paquetes:', todosPaquetes);
+
         
         // Filtro con conversión a número por seguridad
         this.paquetesUsuario = todosPaquetes.filter(p => {
@@ -95,7 +95,7 @@ cargarPaquetesDelUsuario(): void {
           return p.estado === 'activo' && sesionesUsadas < sesionesTotales;
         });
         
-        console.log('📦 Paquetes activos después del filtro:', this.paquetesUsuario);
+
         
         if (this.paquetesUsuario.length > 0) {
           this.seleccionarPaquete(this.paquetesUsuario[0].paqueteId);
@@ -114,8 +114,7 @@ cargarPaquetesDelUsuario(): void {
 }
 
   seleccionarPaquete(paqueteId: number): void {
-    console.log('🎯 Seleccionando paquete:', paqueteId);
-    
+
     const paqueteUsuario = this.paquetesUsuario.find(p => p.paqueteId === paqueteId);
     
     if (paqueteUsuario) {
@@ -137,40 +136,40 @@ cargarPaquetesDelUsuario(): void {
   }
 
   actualizarModalidadesPorPaqueteId(paqueteId: number): void {
-    console.log('🔍 Determinando modalidades para paquete:', paqueteId);
+
     
     if (paqueteId === 1) {
       this.modalidadesDisponibles = [
         { value: 'presencial', label: 'Presencial' }
       ];
       this.citaForm.patchValue({ tipoPreferido: 'presencial' });
-      console.log('✅ Modalidades: Solo Presencial');
+
     } else if (paqueteId === 2) {
       this.modalidadesDisponibles = [
         { value: 'virtual', label: 'Virtual' },
         { value: 'presencial', label: 'Presencial' }
       ];
-      console.log('✅ Modalidades: Virtual o Presencial');
+
     } else if (paqueteId === 3) {
       this.modalidadesDisponibles = [
         { value: 'virtual', label: 'Virtual' },
         { value: 'presencial', label: 'Presencial' },
         { value: 'domicilio', label: 'A Domicilio' }
       ];
-      console.log('✅ Modalidades: Virtual, Presencial o Domicilio');
+
     } else {
       this.modalidadesDisponibles = [
         { value: 'presencial', label: 'Presencial' }
       ];
       this.citaForm.patchValue({ tipoPreferido: 'presencial' });
-      console.log('⚠️ Modalidades: Por defecto (Presencial)');
+
     }
     
-    console.log('📋 Modalidades disponibles:', this.modalidadesDisponibles);
+
   }
 
   mostrarFormularioSinPaquetes(): void {
-    console.log('📝 Mostrando formulario sin paquetes - Cita normal');
+
     this.modalidadesDisponibles = [
       { value: 'presencial', label: 'Presencial' }
     ];
@@ -229,14 +228,12 @@ cargarPaquetesDelUsuario(): void {
       citaData.tipoPreferido = 'presencial';
     }
 
-    console.log('📤 Enviando solicitud de cita:', citaData);
-
     this.http.post(`${environment.apiUrl}/appointments/solicitar`, citaData)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: any) => {
           this.isLoading = false;
-          console.log('✅ Solicitud enviada exitosamente:', response);
+
           
           Swal.fire({
             title: 'Solicitud Enviada Exitosamente',

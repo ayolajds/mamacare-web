@@ -107,18 +107,10 @@ export class MisSolicitudes implements OnInit {
         // ✅ CORRECCIÓN: Cambiar de response?.data?.docs a response?.data?.appointments
         const todasLasCitas = response?.data?.appointments || response?.data?.docs || [];
         
-        console.log('📋 Citas cargadas:', todasLasCitas);
+
         
         // ✅ DEBUG: Mostrar datos críticos de cada cita
         todasLasCitas.forEach((cita: CitaConDatosExtendidos, index: number) => {
-          console.log(`📋 Cita ${index + 1}:`, {
-            id: cita._id,
-            tipoCita: cita.tipoCita,
-            paqueteId: cita.paqueteId,
-            motivo: cita.motivo,
-            ubicacion: cita.ubicacion,
-            professionalId: cita.professionalId
-          });
         });
         
         this.citasConfirmadas = todasLasCitas.filter((cita: CitaConDatosExtendidos) => 
